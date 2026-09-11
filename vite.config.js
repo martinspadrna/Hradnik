@@ -1,8 +1,31 @@
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const OLD_SUPABASE_URL = 'https://cgshssdjgzzuprlwnabl.supabase.co'
+const OLD_SUPABASE_KEY = 'sb_publishable_v7jeuZC-MNUEO5nfE5xcUQ_Pu9pT-X_'
+const NEW_SUPABASE_URL = 'https://abqiprdggptuxebhpfyi.supabase.co'
+const NEW_SUPABASE_KEY = 'sb_publishable_ICNaKdexQDRj3ga7j8wQrQ_EQi349pw'
+
+function hradnikSupabaseCutoverBuild() {
+  return {
+    name: 'hradnik-supabase-cutover-build',
+    enforce: 'pre',
+    transform(code, id) {
+      if (!/\.[cm]?[jt]s(?:\?.*)?$/.test(id)) return null
+      if (!code.includes(OLD_SUPABASE_URL) && !code.includes(OLD_SUPABASE_KEY)) return null
+      return {
+        code: code
+          .replaceAll(OLD_SUPABASE_URL, NEW_SUPABASE_URL)
+          .replaceAll(OLD_SUPABASE_KEY, NEW_SUPABASE_KEY),
+        map: null,
+      }
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
+    hradnikSupabaseCutoverBuild(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: false,
