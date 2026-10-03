@@ -55,8 +55,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 **ID:** HRA-P1-06 + HRA-P1-07  
 **Název:** Sjednotit fotografie a placeholdery v kartách  
-**Stav:** VERIFY  
-**Dokončeno:** 100 % technicky
+**Stav:** IN PROGRESS  
+**Dokončeno:** 95 %
 
 ### Cíl
 Každá karta v Seznamu, Oblíbených a deníku má právě jeden mediální slot: buď fotografii, nebo čitelný typový placeholder. Na desktopu ani mobilu nesmí zůstávat dvojitý prázdný blok pod fotografií.
@@ -282,8 +282,8 @@ Hrad, zámek, zřícenina, tvrz, klášter a další podporované typy mají roz
 ---
 
 ### HRA-P1-06 – Sjednotit komponentu fotografie / placeholderu
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 95 %
 
 **Viditelný problém na desktopu:**
 - velké šedé/prázdné bloky,
@@ -299,8 +299,8 @@ Jedna responzivní komponenta:
 ---
 
 ### HRA-P1-07 – Opravit placeholdery bez fotografií
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 95 %
 
 **Viditelný problém:**
 Např. Hrádek u Nechanic / Lednice mají téměř černou ikonku na tmavém pozadí.
@@ -671,6 +671,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-03 – fyzický desktop test odhalil zbylý legacy placeholder**
+
+Zjištění a oprava:
+- screenshoty Seznamu i Oblíbených ukázaly, že vedle správné fotografie/typové ikony zůstává ještě druhý šedý obdélník,
+- kořen je ve starém desktopovém pravidle v `reference-shell.css`: `.placeCopy:before` kreslilo 106px šedý „fake image“ blok,
+- tento pseudo-placeholder je nyní odstraněný přímo u zdroje místo překrývání další vizuální záplatou,
+- regresní test nově výslovně kontroluje, že `.placeCopy::before` je vypnutý,
+- HRA-P1-06 a HRA-P1-07 se vrací do IN PROGRESS do výsledku CI a dalšího krátkého fyzického potvrzení.
+
+**Předchozí krok:**
 
 **2026-10-03 – jednotné fotografie/placeholdery: build + 18/18 visual PASS**
 
