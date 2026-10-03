@@ -155,8 +155,8 @@ Repozitář musí být schopný založit Hradník od nuly.
 ---
 
 ### HRA-P0-04 – Prověřit a přepojit všechny služby navázané na Supabase
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 80 %
 
 **Zkontrolovat minimálně:**
 - katalog,
@@ -657,7 +657,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
-**2026-10-03 – vytvořena standalone DB baseline migrace**
+**2026-10-03 – produkční Edge Functions se ukládají do repozitáře**
+
+Hotovo:
+- ověřeno, že repozitářové `hradnik-auth` a `hradnik-sync` jsou byte-for-byte shodné s aktuálně nasazenými funkcemi v nové Supabase,
+- uložen aktuálně nasazený `hradnik-photo`,
+- uložen aktuálně nasazený `hradnik-quality`, `hradnik-enrich-v4` a `hradnik-geocode-v3`,
+- starší `hradnik-geocode` zůstává zatím zachovaný pro historii; aktivní produkční varianta je `hradnik-geocode-v3`,
+- HRA-P0-04 zbývá doplnit o produkční `hradnik-admin` a následně provést ruční ověření toků.
+
+**Předchozí krok – vytvořena standalone DB baseline migrace**
 
 Hotovo:
 - skutečné schéma bylo načteno z nové Supabase `abqiprdggptuxebhpfyi`,
