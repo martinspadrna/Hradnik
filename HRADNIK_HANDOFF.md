@@ -54,15 +54,15 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P1-01  
-**Název:** Stabilizace startu reference shellu a navigačních regresních testů  
+**Název:** Odstranění MutationObserver feedback loopu a stabilizace navigačních regresních testů  
 **Stav:** IN PROGRESS  
 **Dokončeno:** 95 %
 
 ### Cíl
-Odstranit race condition při startu UI, kvůli které se reference shell nemusel vůbec připojit, pokud se základní aplikace vykreslila až po prvním pokusu o inicializaci.
+Odstranit feedback loop mezi MutationObserverem a opakovaným přepisováním stejného DOM, který po načtení dat zablokoval hlavní UI před prvním vykreslením.
 
 ### Poznámka
-P0-01 až P0-05 zůstávají ve stavu VERIFY a čekají na fyzické ověření produkce na PC/iPhonu. Tento krok nezasahuje do starého Supabase projektu.
+CI trace potvrdil, že auth i katalog z nové Supabase odpověděly 200, ale UI zůstalo na boot guardu. P0-01 až P0-05 zůstávají ve stavu VERIFY a čekají na fyzické ověření produkce na PC/iPhonu. Tento krok nezasahuje do starého Supabase projektu.
 ---
 
 # 5. Kompletní plán
@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 20 %
+- **Dokončeno:** 30 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -656,6 +656,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-03 – odstranění MutationObserver feedback loopu při startu**
+
+Hotovo:
+- build commitu `676bd032f33909407250257140a56112dc9ecf9a` prošel a Vercel ho nasadil jako READY do produkce,
+- visual-regression znovu selhal 18/18 scénářů na boot guardu; stažený Playwright trace ukázal, že `hradnik-auth` (`me`, `state_list`) i `hradnik_places` z nové Supabase odpověděly 200 během desítek ms,
+- tím se vyloučil Supabase/backend jako příčina tohoto CI FAIL,
+- skutečný kořen byl v `reference-runtime-retry.js`: MutationObserver sledoval childList a jeho callback v microtasku při každém průchodu znovu nastavoval stejné `innerHTML` navigačních tlačítek; tím sám vyráběl další mutaci a mohl vytvořit nekonečný microtask feedback loop bez dalšího paintu,
+- konfigurace navigačních tlačítek je nyní idempotentní a nový DOM se upravuje pouze jednou,
+- stejný opakovaný přepis byl odstraněn i z `reference-force-shell.js`; force shell už navíc nepřepisuje account tlačítka a neprovádí vlastní automatický návrat na mapu, aby měl routing jednoho hlavního vlastníka,
+- HRA-P1-09 posunuto na 30 %; HRA-P1-01 zůstává IN PROGRESS do výsledku nového CI běhu,
+- starého Supabase projektu se změna nedotkla.
+
+**Předchozí krok:**
 **2026-10-03 – oprava race condition při startu reference shellu**
 
 Hotovo:
@@ -765,13 +778,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit nový CI běh, potom fyzický test P0/P1
+## Ověřit CI po odstranění observer loopu
 
-1. zkontrolovat Build Hradník a Hradník visual regression na commitu s opravou startu shellu,
-2. pokud visual-regression projde, vrátit HRA-P1-01 do VERIFY a pokračovat fyzickým testem na iPhonu,
-3. fyzicky ověřit P0 na PC/iPhonu: katalog, přihlášení, fotografie, Oblíbené / Chceme / Navštívili jsme a že žádný request nemíří na `cgshssdjgzzuprlwnabl`,
-4. samostatně otestovat standalone DB baseline na čistém Supabase projektu/branchi před označením HRA-P0-03 jako DONE,
-5. po potvrzení navigace pokračovat HRA-P1-05 až HRA-P1-11 podle checklistu.
+1. zkontrolovat Build Hradník a Hradník visual regression na commitu s idempotentní konfigurací navigace,
+2. pokud se shell začne vykreslovat, řešit už jen konkrétní zbývající scénáře místo globálního boot FAIL,
+3. po zeleném navigačním CI přesunout HRA-P1-01 do VERIFY a fyzicky otestovat iPhone,
+4. fyzicky ověřit P0 na PC/iPhonu: katalog, přihlášení, fotografie, Oblíbené / Chceme / Navštívili jsme a že žádný request nemíří na `cgshssdjgzzuprlwnabl`,
+5. potom pokračovat HRA-P1-05 až HRA-P1-11 podle checklistu.
 ---
 
 # 14. Šablona aktualizace po každém kroku

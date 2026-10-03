@@ -89,7 +89,12 @@ function configure(nav){
   nav.classList.add('redesign-nav')
   let bs=buttons(nav)
   while(bs.length<6){const b=document.createElement('button');b.type='button';if(bs.length===5)b.className='reference-about-nav';nav.appendChild(b);bs=buttons(nav)}
-  bs.slice(0,6).forEach((b,i)=>{b.innerHTML=`<img src="/icons/${ICONS[i]}.svg" alt=""><span>${LABELS[i]}</span>`;b.setAttribute('aria-label',LABELS[i])})
+  bs.slice(0,6).forEach((b,i)=>{
+    if(b.dataset.referenceRuntimeReady===String(i))return
+    b.innerHTML=`<img src="/icons/${ICONS[i]}.svg" alt=""><span>${LABELS[i]}</span>`
+    b.setAttribute('aria-label',LABELS[i])
+    b.dataset.referenceRuntimeReady=String(i)
+  })
   bs[0].dataset.tab='map';bs[1].dataset.tab='catalog';bs[2].dataset.tab='mine';bs[3].dataset.tab='catalog';bs[4].removeAttribute('data-tab');bs[5].removeAttribute('data-tab')
 }
 
