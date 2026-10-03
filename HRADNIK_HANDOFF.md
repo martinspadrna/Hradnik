@@ -672,6 +672,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-03 – fotografie/placeholdery: build PASS, odstraněn stale-nav race v regresním testu**
+
+Hotovo:
+- commit `299da4f4cbcdc6c79d22302ec82266a6716602d3` sjednotil mediální slot karet a Build Hradník prošel,
+- visual-regression prošel 17/18 scénářů; iPhone včetně nového foto testu prošel,
+- jediný desktop FAIL nebyl v komponentě fotografie: po kliknutí na „Nedávno zobrazené“ držel helper starou, již odpojenou instanci navigace vytvořenou před překreslením Seznamu,
+- `reference-map-dashboard.js` nyní před návratem na mapu znovu vyhledá aktuální mapové tlačítko v DOM místo klikání na stale nav node,
+- HRA-P1-06 a HRA-P1-07 zůstávají IN PROGRESS do výsledku následujícího CI.
+
+**Předchozí krok:**
+
 **2026-10-03 – navigace bez „Vyhledávání“ fyzicky potvrzena + zahájeny jednotné karty**
 
 Hotovo:

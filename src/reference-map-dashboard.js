@@ -30,8 +30,9 @@ function openRecent(item){
     input.value=name;input.dispatchEvent(new Event('input',{bubbles:true}))
     setTimeout(()=>{
       document.querySelector('#list .placeMain')?.click()
-      // Preserve the opened detail and return to its exact point on the map.
-      setTimeout(()=>nav?.querySelector(':scope>button')?.click(),140)
+      // The list render replaces the navigation node. Re-query the current
+      // map button instead of clicking the stale detached nav captured above.
+      setTimeout(()=>document.querySelector('.redesign-sidebar>.redesign-nav>button:first-child')?.click(),140)
     },100)
   },160)
 }
