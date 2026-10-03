@@ -53,16 +53,16 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P1-06 + HRA-P1-07  
-**Název:** Sjednotit fotografie a placeholdery v kartách  
-**Stav:** VERIFY  
-**Dokončeno:** 100 % technicky i fyzicky
+**ID:** HRA-P1-08  
+**Název:** Opravit mapování Stav / Dochování / Popis v detailu  
+**Stav:** IN PROGRESS  
+**Dokončeno:** 90 %
 
 ### Cíl
-Každá karta v Seznamu, Oblíbených a deníku má právě jeden mediální slot: buď fotografii, nebo čitelný typový placeholder. Na desktopu ani mobilu nesmí zůstávat dvojitý prázdný blok pod fotografií.
+Enrichment popis památky musí zapisovat pouze do karty **Popis**. Karta **Stav** zůstává výhradně uživatelský stav návštěvy a **Dochování** fyzický stav památky.
 
 ### Poznámka
-Uživatel fyzicky potvrdil novou navigaci bez samostatného „Vyhledávání“ jako OK na mobilu i PC. HRA-P1-12 je DONE.
+Kořen původního problému byl nalezen v `src/info-ui.js`: pokud nenašel kartu „Základní informace“, zapisoval `info_summary` do první karty detailu. Tou je nyní „Stav“, takže dlouhý popis přepisoval „Navštíveno / Nenavštíveno“.
 ---
 
 # 5. Kompletní plán
@@ -282,7 +282,7 @@ Hrad, zámek, zřícenina, tvrz, klášter a další podporované typy mají roz
 ---
 
 ### HRA-P1-06 – Sjednotit komponentu fotografie / placeholderu
-- **Stav:** VERIFY
+- **Stav:** DONE
 - **Dokončeno:** 100 %
 
 **Viditelný problém na desktopu:**
@@ -299,7 +299,7 @@ Jedna responzivní komponenta:
 ---
 
 ### HRA-P1-07 – Opravit placeholdery bez fotografií
-- **Stav:** VERIFY
+- **Stav:** DONE
 - **Dokončeno:** 100 %
 
 **Viditelný problém:**
@@ -311,8 +311,8 @@ Placeholder je jasně čitelný a používá správnou typovou ikonu ve vizuáln
 ---
 
 ### HRA-P1-08 – Prověřit mapování polí v detailu památky
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Viditelný problém:**
 U „Zámek Hrádek u Nechanic“ je dlouhý text v sekci `STAV`, zatímco `POPIS` hlásí „Bez popisu“.
@@ -672,6 +672,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-04 – nalezen kořen chybného mapování „Stav / Popis“**
+
+Hotovo:
+- HRA-P1-06 a HRA-P1-07 jsou po fyzickém potvrzení uživatele DONE,
+- původní screenshot s dlouhým textem pod „STAV“ nebyl problém databázového pole v `main.legacy.js`,
+- kořen byl v `src/info-ui.js`: enrichment hledal „Základní informace“, a když kartu nenašel, použil první kartu detailu,
+- první kartou je „Stav“, takže `info_summary` přepsalo hodnotu „Navštíveno / Nenavštíveno“,
+- enrichment nyní smí cílit pouze na „Popis“ nebo kompatibilní starou kartu „Základní informace“,
+- regresní test nově ověřuje současně: Stav = Navštíveno a Popis = obohacený popis.
+
+**Předchozí krok:**
+
 **2026-10-04 – foto/placeholder fix fyzicky potvrzen, upraven falešně přísný test**
 
 Hotovo:
@@ -925,13 +937,14 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit jednotné fotografie a placeholdery
+## Ověřit detail Stav / Dochování / Popis
 
-1. potvrdit Build Hradník a visual-regression po změně karet,
-2. na PC otevřít Seznam a Oblíbené a zkontrolovat, že žádná karta nemá fotografii + druhý prázdný blok,
-3. zkontrolovat několik míst bez fotografie – musí mít čitelný zlatý typový placeholder,
-4. na iPhonu zkontrolovat stejné dvě varianty a že se karta neroztahuje mimo viewport,
-5. po potvrzení označit HRA-P1-06 a HRA-P1-07 jako DONE a pokračovat HRA-P1-08 – mapování polí v detailu.
+1. potvrdit Build Hradník a visual-regression po opravě `info-ui.js`,
+2. na PC otevřít detail památky s doplněným ověřeným popisem (např. Hrádek u Nechanic),
+3. ověřit, že **Stav** obsahuje jen „Navštíveno / Chceme navštívit / Nenavštíveno“,
+4. **Dochování** obsahuje pouze fyzickou klasifikaci památky,
+5. dlouhý informační text je pouze v **Popis**,
+6. po potvrzení označit HRA-P1-08 jako DONE a pokračovat HRA-P1-09/HRA-P1-10 podle priority.
 ---
 
 # 14. Šablona aktualizace po každém kroku

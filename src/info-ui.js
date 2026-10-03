@@ -57,12 +57,14 @@ async function enrichSheet(sheet){
     const row=await loadInfo(title)
     if(!sheet.isConnected)return
     const cards=[...grid.querySelectorAll('.card')]
-    const basic=cards.find(c=>/Základní informace/i.test(c.querySelector('h3')?.textContent||''))||cards[0]
-    if(!basic)return
-    let p=basic.querySelector('p')
-    if(!p){p=document.createElement('p');basic.appendChild(p)}
-    let meta=basic.querySelector('.infoMeta')
-    if(!meta){meta=document.createElement('div');meta.className='infoMeta';basic.appendChild(meta)}
+    // Enriched monument text belongs to the description card. Falling back to
+    // the first card used to overwrite the user's visit state ("Stav").
+    const descriptionCard=cards.find(c=>/^(Popis|Základní informace)$/i.test(c.querySelector('h3')?.textContent?.trim()||''))
+    if(!descriptionCard)return
+    let p=descriptionCard.querySelector('p')
+    if(!p){p=document.createElement('p');descriptionCard.appendChild(p)}
+    let meta=descriptionCard.querySelector('.infoMeta')
+    if(!meta){meta=document.createElement('div');meta.className='infoMeta';descriptionCard.appendChild(meta)}
     if(row?.info_summary){
       if(p.textContent!==row.info_summary)p.textContent=row.info_summary
       const status=statusMeta(row)

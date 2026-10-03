@@ -15,12 +15,30 @@ async function mockBackend(page, loggedIn = true) {
     else localStorage.removeItem('hradnik_session')
   }, loggedIn)
 
-  await page.route('**/rest/v1/hradnik_places*', route => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    headers: { 'content-range': '0-5/6' },
-    body: JSON.stringify(samplePlaces)
-  }))
+  await page.route('**/rest/v1/hradnik_places*', route => {
+    if (route.request().url().includes('info_summary')) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 1,
+          name: 'Hrad Test',
+          info_summary: 'Ověřený popis Hrad Test',
+          info_source: 'Hrady.cz',
+          info_source_url: 'https://example.test/hrad-test',
+          info_updated_at: '2026-10-03T00:00:00Z',
+          info_confidence: 0.95,
+          info_status: 'verified'
+        })
+      })
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'content-range': '0-5/6' },
+      body: JSON.stringify(samplePlaces)
+    })
+  })
 
   await page.route('**/functions/v1/hradnik-photo', route => route.fulfill({
     status: 200,
@@ -192,6 +210,12 @@ test('selected search result has a photo and carries its map focus', async ({ pa
   const detail = page.locator('.overlay[data-hradnik-detail-context="list"] .sheet')
   await expect(detail).toBeVisible()
   await expect(detail.locator('h1')).toHaveText('Hrad Test')
+  await expect(detail).toHaveAttribute('data-info-enriched', '1')
+  const stateCard = detail.locator('.detailGrid .card').filter({ hasText: 'Stav' })
+  const descriptionCard = detail.locator('.detailGrid .card').filter({ hasText: 'Popis' })
+  await expect(stateCard.locator('p')).toHaveText('Navštíveno')
+  await expect(descriptionCard.locator('p')).toHaveText('Ověřený popis Hrad Test')
+  await expect(stateCard.locator('p')).not.toContainText('Ověřený popis')
   if (test.info().project.name === 'desktop') {
     const box = await detail.boundingBox()
     expect(box?.width).toBeGreaterThanOrEqual(410)
