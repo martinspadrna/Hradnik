@@ -56,7 +56,7 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **ID:** HRA-P1-12  
 **Název:** Odstranit redundantní položku „Vyhledávání“ z hlavní navigace  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 90 %
+**Dokončeno:** 95 %
 
 ### Cíl
 Zachovat prioritní capture routing, ale vrátit observer synchronizaci na frame boundary. Historie CI přesně ukázala, že globální boot FAIL vznikl v commitu 3c9b04a po změně scheduleru z requestAnimationFrame na queueMicrotask.
@@ -671,6 +671,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-03 – navigace bez „Vyhledávání“: build PASS, oprava regresního testu**
+
+Hotovo:
+- commit `76074ff3b4a67019f83cfaeb209c570b9720c6fc` odstranil samostatnou položku „Vyhledávání“ z hlavní navigace,
+- Build Hradník prošel,
+- visual-regression měl pouze 2 stejné testovací FAILy (desktop + iPhone): test omylem čekal 5 kategorií místo správných 6,
+- aplikace v těchto bězích vykreslila všech 6 kategorií správně; nejde o funkční regresi,
+- očekávání testu bylo opraveno zpět na 6 kategorií,
+- HRA-P1-12 je 95 % a čeká na nový CI běh.
+
+**Předchozí krok:**
 
 **2026-10-03 – fyzický test navigace na PC i iPhonu potvrzen OK**
 

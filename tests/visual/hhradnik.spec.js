@@ -124,7 +124,7 @@ test('list search, categories and favorites route to useful screens', async ({ p
   await expect(page.locator('#list .place')).toHaveCount(1)
 
   await nav.nth(3).click()
-  await expect(page.locator('.reference-category-card')).toHaveCount(5)
+  await expect(page.locator('.reference-category-card')).toHaveCount(6)
   await page.locator('.reference-category-card').filter({ hasText: 'Zřícenina' }).click()
   await expect(page.locator('#list')).toBeVisible()
 
