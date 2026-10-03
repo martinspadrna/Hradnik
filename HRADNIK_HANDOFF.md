@@ -216,8 +216,8 @@ fungují bez zmizení obsahu.
 ---
 
 ### HRA-P1-02 – Opravit spodní mobilní navigaci
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Viditelný problém ze screenshotů:**
 - pátá položka „Kategorie“ nemá textový popisek,
@@ -234,8 +234,8 @@ Všech 5 položek má:
 ---
 
 ### HRA-P1-03 – Safe area a nepřekrývat obsah spodní lištou
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Viditelný problém:**
 Poslední obsah je na mobilu zakrytý fixed spodní navigací, např. poslední karta Kategorie.
@@ -251,8 +251,8 @@ Poslední karta/řádek lze vždy plně odscrollovat nad navigaci.
 ---
 
 ### HRA-P1-04 – Mobilní mapa má vyplnit dostupnou výšku
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Viditelný problém:**
 Pod mapou zůstává velká prázdná černá plocha až ke spodní navigaci.
@@ -656,6 +656,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-03 – mobilní spodní navigace, safe area a výška mapy**
+
+Hotovo:
+- finální mobilní layout znovu zobrazuje text 5. položky „Kategorie“ a ruší staré nahrazení textem „Více“,
+- běžné mobilní obrazovky mají spodní rezervu podle pevné navigace a iOS safe area,
+- mobilní mapa využívá dostupný prostor mezi 104px hlavičkou a přibližně 76px spodní navigací místo starého odečtu 315 px,
+- odstraněn minimální limit výšky mapy, který na menších displejích vytvářel nevyužitou plochu,
+- HRA-P1-02, HRA-P1-03 a HRA-P1-04 jsou VERIFY a čekají na fyzický iPhone test.
+
+**Předchozí krok:**
 
 **2026-10-03 – stabilizace hlavní navigace bez další CSS záplaty**
 
