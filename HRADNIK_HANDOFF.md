@@ -155,8 +155,8 @@ Repozitář musí být schopný založit Hradník od nuly.
 ---
 
 ### HRA-P0-04 – Prověřit a přepojit všechny služby navázané na Supabase
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 80 %
+- **Stav:** VERIFY
+- **Dokončeno:** 95 %
 
 **Zkontrolovat minimálně:**
 - katalog,
@@ -664,7 +664,8 @@ Hotovo:
 - uložen aktuálně nasazený `hradnik-photo`,
 - uložen aktuálně nasazený `hradnik-quality`, `hradnik-enrich-v4` a `hradnik-geocode-v3`,
 - starší `hradnik-geocode` zůstává zatím zachovaný pro historii; aktivní produkční varianta je `hradnik-geocode-v3`,
-- HRA-P0-04 zbývá doplnit o produkční `hradnik-admin` a následně provést ruční ověření toků.
+- uložen také aktuálně nasazený `hradnik-admin`; aktivní produkční backend Hradníku je nyní zdrojově zachycen v repozitáři,
+- HRA-P0-04 je VERIFY a čeká už jen na ruční ověření přihlášení, uživatelských stavů, fotografií, adminu a kontroly kvality na produkci.
 
 **Předchozí krok – vytvořena standalone DB baseline migrace**
 
