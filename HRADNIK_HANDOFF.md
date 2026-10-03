@@ -54,15 +54,15 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P1-01  
-**Název:** Odstranění MutationObserver feedback loopu a stabilizace navigačních regresních testů  
+**Název:** Stabilizace navigace bez microtask starvation  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 95 %
+**Dokončeno:** 97 %
 
 ### Cíl
-Odstranit feedback loop mezi MutationObserverem a opakovaným přepisováním stejného DOM, který po načtení dat zablokoval hlavní UI před prvním vykreslením.
+Zachovat prioritní capture routing, ale vrátit observer synchronizaci na frame boundary. Historie CI přesně ukázala, že globální boot FAIL vznikl v commitu 3c9b04a po změně scheduleru z requestAnimationFrame na queueMicrotask.
 
 ### Poznámka
-CI trace potvrdil, že auth i katalog z nové Supabase odpověděly 200, ale UI zůstalo na boot guardu. P0-01 až P0-05 zůstávají ve stavu VERIFY a čekají na fyzické ověření produkce na PC/iPhonu. Tento krok nezasahuje do starého Supabase projektu.
+CI trace potvrdil, že auth i katalog z nové Supabase odpovídají 200. Před commitem 3c9b04a stejný testovací balík normálně naběhl (12/18 testů prošlo); po něm selhávalo 18/18 ještě na boot guardu. P0-01 až P0-05 zůstávají VERIFY a čekají na fyzické ověření produkce.
 ---
 
 # 5. Kompletní plán
@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 30 %
+- **Dokončeno:** 35 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -656,6 +656,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-03 – CI bisect přesně našel regresi bootu**
+
+Hotovo:
+- porovnány visual-regression běhy jednotlivých commitů před a po rozbití startu,
+- commit `334eabd62b64da24054e78183365cdab78920168` ještě nabíhal: 12/18 testů prošlo,
+- následující jediný commit `3c9b04a88acf33a4692e000bb5a15e1522c2221c` změnil jen `reference-runtime-retry.js` (+5/-1) a od něj selhávalo 18/18 testů na boot guardu,
+- rozhodující změnou scheduleru bylo `requestAnimationFrame` → `queueMicrotask`; při současném množství DOM observerů tím vznikla microtask starvation před paintem,
+- předchozí pokus pouze idempotentizovat DOM přepisy nestačil; CI `fbbf3338...` stále selhal 18/18,
+- scheduler je proto vrácen na `requestAnimationFrame`, zatímco novější window-capture routing pro kliknutí zůstává zachovaný,
+- idempotentní DOM konfigurace z předchozího kroku zůstává jako další snížení observer churn,
+- HRA-P1-01 je 97 % a čeká na nový CI; HRA-P1-09 posunuto na 35 %.
+
+**Předchozí krok:**
 **2026-10-03 – odstranění MutationObserver feedback loopu při startu**
 
 Hotovo:
@@ -778,13 +791,12 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit CI po odstranění observer loopu
+## Ověřit CI po návratu scheduleru na requestAnimationFrame
 
-1. zkontrolovat Build Hradník a Hradník visual regression na commitu s idempotentní konfigurací navigace,
-2. pokud se shell začne vykreslovat, řešit už jen konkrétní zbývající scénáře místo globálního boot FAIL,
+1. potvrdit, že aplikace v Playwrightu znovu opustí boot guard a objeví se 6 navigačních tlačítek,
+2. pokud se vrátí stav přibližně 12/18 PASS, řešit už konkrétní navigační selhání zbylých testů,
 3. po zeleném navigačním CI přesunout HRA-P1-01 do VERIFY a fyzicky otestovat iPhone,
-4. fyzicky ověřit P0 na PC/iPhonu: katalog, přihlášení, fotografie, Oblíbené / Chceme / Navštívili jsme a že žádný request nemíří na `cgshssdjgzzuprlwnabl`,
-5. potom pokračovat HRA-P1-05 až HRA-P1-11 podle checklistu.
+4. poté pokračovat HRA-P1-06/HRA-P1-07 – jednotná karta fotografie/placeholderu, protože desktopové screenshoty ukazují dvojitou obrazovou vrstvu.
 ---
 
 # 14. Šablona aktualizace po každém kroku

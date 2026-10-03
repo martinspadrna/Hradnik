@@ -141,7 +141,7 @@ function ensure(){
   if(!firstMapDone&&!document.getElementById('map')){firstMapDone=true;route(0,nav)}
   requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));return true
 }
-function schedule(){if(frameQueued)return;frameQueued=true;queueMicrotask(()=>{frameQueued=false;ensure()})}
+function schedule(){if(frameQueued)return;frameQueued=true;requestAnimationFrame(()=>{frameQueued=false;ensure()})}
 
 // Route at the earliest capture point. Older design scripts use capture listeners
 // on the nav; intercepting on window prevents them from stealing the click.
