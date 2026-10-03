@@ -119,8 +119,8 @@ Supabase klient je vytvořený několikrát. Produkční konzole hlásí více i
 ---
 
 ### HRA-P0-03 – Doplnit úplnou zakládací migraci databáze
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Audit / problém:**
 Současné migrace předpokládají, že tabulky už existují. Nový prázdný Supabase projekt nelze spolehlivě postavit pouze z repozitáře.
@@ -657,7 +657,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
-**2026-10-03 – odstranění dočasného Supabase cutover mechanismu ze zdrojové logiky**
+**2026-10-03 – vytvořena standalone DB baseline migrace**
+
+Hotovo:
+- skutečné schéma bylo načteno z nové Supabase `abqiprdggptuxebhpfyi`,
+- vytvořena kanonická `20261003_hradnik_standalone_baseline.sql` se všemi 9 tabulkami, FK, kontrolami, indexy, RLS politikami, granty, triggery a 14 aktuálními DB funkcemi,
+- baseline obsahuje pouze bezpečné výchozí zdroje; neobsahuje produkční uživatele, hesla, relace ani sync/enrich tajemství,
+- `sync_key` se pro novou instalaci generuje náhodně,
+- staré Domácnost+-era migrace byly odstraněny z aktivní migrační složky, protože odkazovaly na `household_members` / `hradnik_place_state` nebo přepisovaly aktuální serverovou logiku,
+- HRA-P0-03 je VERIFY: zbývá otestovat baseline na skutečně čisté Supabase instanci/branchi.
+
+**Předchozí krok – odstranění dočasného Supabase cutover mechanismu ze zdrojové logiky**
 
 Hotovo:
 - ověřeno, že nový projekt `abqiprdggptuxebhpfyi` je ACTIVE_HEALTHY,
@@ -692,13 +702,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Nejprve ověřit HRA-P0-01 + HRA-P0-02, potom HRA-P0-03
+## HRA-P0-04 + ověření P0 baseline
 
-1. zkontrolovat GitHub Actions build po tomto commitu,
-2. ověřit produkční načtení katalogu, přihlášení, fotografie, administraci a quality UI,
-3. potvrdit, že runtime requesty míří pouze na `abqiprdggptuxebhpfyi`,
-4. po úspěchu označit HRA-P0-01 a HRA-P0-02 jako DONE,
-5. pokračovat HRA-P0-03: přenést skutečný aktuální serverový schema/migration stav nové Supabase do repozitáře, protože server má novější migrace než složka `supabase/migrations`.
+1. zachovat aktuální zdrojové verze všech produkčních Hradník Edge Functions v repozitáři,
+2. porovnat `hradnik-auth`, `hradnik-admin`, `hradnik-photo`, `hradnik-quality`, `hradnik-sync`, `hradnik-enrich-v4` a `hradnik-geocode-v3` se serverem,
+3. otestovat standalone baseline na čisté Supabase instanci/branchi před označením HRA-P0-03 jako DONE,
+4. fyzicky ověřit produkci na PC/iPhonu; HRA-P0-01 a HRA-P0-02 zůstávají VERIFY do tohoto testu,
+5. visual-regression FAIL je starší než aktuální cutover a bude řešen v P1 navigaci/UI.
 
 ---
 
