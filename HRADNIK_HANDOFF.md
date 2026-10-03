@@ -11,7 +11,7 @@
 - **Datum založení handoffu:** 2026-10-03
 - **Branch:** `main`
 - **HEAD:** aktuální commit větve `main` (tento soubor je součástí stejného commitu jako změny)
-- **Produkce:** frontend funguje přes dočasný cutover mechanismus; zdrojový kód se právě čistí tak, aby používal nový Supabase přímo
+- **Produkce:** zdrojový kód používá nový Supabase přímo; build na aktuálním P0/P1 stavu prochází, navigace a reference shell se ještě ověřují regresními testy
 - **Nový Supabase projekt:** `abqiprdggptuxebhpfyi`
 - **Nová Supabase URL:** `https://abqiprdggptuxebhpfyi.supabase.co`
 - **Starý Supabase projekt:** `cgshssdjgzzuprlwnabl`
@@ -53,17 +53,16 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P0-01 + HRA-P0-02  
-**Název:** Přímé napojení na nový Supabase + jediný sdílený klient  
-**Stav:** VERIFY  
-**Dokončeno:** 90 %
+**ID:** HRA-P1-01  
+**Název:** Stabilizace startu reference shellu a navigačních regresních testů  
+**Stav:** IN PROGRESS  
+**Dokončeno:** 95 %
 
 ### Cíl
-Odstranit runtime závislost Hradníku na `cgshssdjgzzuprlwnabl` a kompletně používat `abqiprdggptuxebhpfyi`.
+Odstranit race condition při startu UI, kvůli které se reference shell nemusel vůbec připojit, pokud se základní aplikace vykreslila až po prvním pokusu o inicializaci.
 
 ### Poznámka
-Nezačínat mazáním starého projektu. Nejprve zjistit všechny vazby, připravit novou DB/migrace a ověřit aplikaci.
-
+P0-01 až P0-05 zůstávají ve stavu VERIFY a čekají na fyzické ověření produkce na PC/iPhonu. Tento krok nezasahuje do starého Supabase projektu.
 ---
 
 # 5. Kompletní plán
@@ -197,8 +196,8 @@ Při nedostupném backendu aplikace nespadne do syrové DB hlášky.
 ## P1 – Stabilita navigace a hlavních komponent
 
 ### HRA-P1-01 – Opravit mobilní navigaci jako jeden celek
-- **Stav:** VERIFY
-- **Dokončeno:** 90 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 95 %
 
 **Audit / problém:**
 Automatický test na iPhonu selhal při přechodu Oblíbené → Vyhledávání. Obsah zmizel a zůstala jen spodní navigace.
@@ -657,6 +656,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-03 – oprava race condition při startu reference shellu**
+
+Hotovo:
+- build na HEAD `c1f7f3d040fbd4c9ffe0d9c189a3d3caa2e0aeb1` prošel,
+- visual-regression na stejném HEAD selhal ve všech scénářích na společné podmínce: `.redesign-sidebar .redesign-nav > button` mělo 0 prvků místo 6,
+- kořen nebyl v datech ani v Supabase, ale ve startu `reference-force-shell.js`: observer se připojil pouze tehdy, když první `run()` už našel vyrenderovaný header a navigaci,
+- při pomalejším/asynchronním startu se první `run()` trefil před render aplikace a shell už žádnou další změnu DOM nesledoval,
+- start reference shellu nyní observer připojí vždy, pokud existuje `#app`, a potom provede první `run()`; pozdější render tak spolehlivě vyvolá další inicializaci,
+- HRA-P1-01 je do výsledku nového CI běhu `IN PROGRESS` na 95 %,
+- starého Supabase projektu se tento krok nijak nedotkl.
+
+**Předchozí krok:**
+
 **2026-10-03 – typové ikony mapových markerů**
 
 Hotovo:
@@ -753,14 +765,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit P0 na zařízení, potom P1-01
+## Ověřit nový CI běh, potom fyzický test P0/P1
 
-1. zachovat aktuální zdrojové verze všech produkčních Hradník Edge Functions v repozitáři,
-2. porovnat `hradnik-auth`, `hradnik-admin`, `hradnik-photo`, `hradnik-quality`, `hradnik-sync`, `hradnik-enrich-v4` a `hradnik-geocode-v3` se serverem,
-3. otestovat standalone baseline na čisté Supabase instanci/branchi před označením HRA-P0-03 jako DONE,
-4. fyzicky ověřit produkci na PC/iPhonu; HRA-P0-01 a HRA-P0-02 zůstávají VERIFY do tohoto testu,
-5. visual-regression FAIL je starší než aktuální cutover a bude řešen v P1 navigaci/UI.
-
+1. zkontrolovat Build Hradník a Hradník visual regression na commitu s opravou startu shellu,
+2. pokud visual-regression projde, vrátit HRA-P1-01 do VERIFY a pokračovat fyzickým testem na iPhonu,
+3. fyzicky ověřit P0 na PC/iPhonu: katalog, přihlášení, fotografie, Oblíbené / Chceme / Navštívili jsme a že žádný request nemíří na `cgshssdjgzzuprlwnabl`,
+4. samostatně otestovat standalone DB baseline na čistém Supabase projektu/branchi před označením HRA-P0-03 jako DONE,
+5. po potvrzení navigace pokračovat HRA-P1-05 až HRA-P1-11 podle checklistu.
 ---
 
 # 14. Šablona aktualizace po každém kroku
