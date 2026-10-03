@@ -204,14 +204,20 @@ test('selected search result has a photo and carries its map focus', async ({ pa
     return center && Math.abs(center.lat - 50.54) < 0.002 && Math.abs(center.lng - 15.72) < 0.002
   })).toBe(true)
 
-  const recent = page.locator('.reference-recent-card', { hasText: 'Hrad Test' })
-  await expect(recent.locator('.reference-recent-photo')).toBeVisible()
-  await recent.click()
-  await expect(page.locator('.overlay .sheet h1')).toHaveText('Hrad Test')
-  await expect.poll(async () => page.evaluate(() => {
-    const center = window.__hradnikMap?.getCenter()
-    return center && Math.abs(center.lat - 50.54) < 0.002 && Math.abs(center.lng - 15.72) < 0.002
-  })).toBe(true)
+  // "Nedávno zobrazené" is a desktop dashboard rail. On mobile the map
+  // intentionally fills the available viewport and the recent rail is hidden.
+  if (test.info().project.name === 'desktop') {
+    const recent = page.locator('.reference-recent-card', { hasText: 'Hrad Test' })
+    await expect(recent.locator('.reference-recent-photo')).toBeVisible()
+    await recent.click()
+    await expect(page.locator('.overlay .sheet h1')).toHaveText('Hrad Test')
+    await expect.poll(async () => page.evaluate(() => {
+      const center = window.__hradnikMap?.getCenter()
+      return center && Math.abs(center.lat - 50.54) < 0.002 && Math.abs(center.lng - 15.72) < 0.002
+    })).toBe(true)
+  } else {
+    await expect(page.locator('.reference-recent')).toBeHidden()
+  }
 })
 
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {

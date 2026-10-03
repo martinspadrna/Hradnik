@@ -54,9 +54,9 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P1-01  
-**Název:** Stabilizace navigace bez microtask starvation  
+**Název:** Dokončení regresního ověření hlavní navigace  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 97 %
+**Dokončeno:** 99 %
 
 ### Cíl
 Zachovat prioritní capture routing, ale vrátit observer synchronizaci na frame boundary. Historie CI přesně ukázala, že globální boot FAIL vznikl v commitu 3c9b04a po změně scheduleru z requestAnimationFrame na queueMicrotask.
@@ -506,8 +506,8 @@ Platné fotky se načtou, neplatné odkazy se čistě nahradí placeholderem.
 ---
 
 ### HRA-P2-09 – Doplnit regresní testy hlavních workflow
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 60 %
 
 **Minimální scénáře:**
 - všech 5 hlavních sekcí,
@@ -656,6 +656,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-03 – navigační CI se vrátil z globálního FAIL na 17/18 PASS**
+
+Hotovo:
+- commit `4978a5efc5d0ba66421f03d46e509844da2b69a1` obnovil frame-scheduled synchronizaci a odstranil boot starvation,
+- visual-regression doběhl za 30,6 s místo přibližně 9 minut a prošlo 17 z 18 scénářů,
+- jediný zbývající FAIL nebyl navigační bug: iPhone test očekával viditelnou kartu „Nedávno zobrazené“, ale mobilní layout ji záměrně skrývá, aby mapa vyplnila dostupný viewport podle HRA-P1-04,
+- test byl opraven tak, aby fotografii a kliknutí na recent kartu ověřoval pouze na desktopu; na mobilu ověřuje, že recent rail zůstává skrytý,
+- HRA-P1-01 je 99 % do výsledku následujícího CI; HRA-P2-09 je IN PROGRESS na 60 %.
+
+**Předchozí krok:**
 **2026-10-03 – CI bisect přesně našel regresi bootu**
 
 Hotovo:
@@ -791,12 +801,12 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit CI po návratu scheduleru na requestAnimationFrame
+## Potvrdit 18/18 regresní testy a potom fyzický iPhone test
 
-1. potvrdit, že aplikace v Playwrightu znovu opustí boot guard a objeví se 6 navigačních tlačítek,
-2. pokud se vrátí stav přibližně 12/18 PASS, řešit už konkrétní navigační selhání zbylých testů,
-3. po zeleném navigačním CI přesunout HRA-P1-01 do VERIFY a fyzicky otestovat iPhone,
-4. poté pokračovat HRA-P1-06/HRA-P1-07 – jednotná karta fotografie/placeholderu, protože desktopové screenshoty ukazují dvojitou obrazovou vrstvu.
+1. ověřit nový Build Hradník a Hradník visual regression,
+2. při 18/18 PASS přesunout HRA-P1-01 do VERIFY (100 % technicky, čeká fyzické potvrzení),
+3. na iPhonu ověřit Mapa → Seznam → Oblíbené → Vyhledávání → Kategorie → Mapa, text „Kategorie“, spodní safe area a plnou výšku mapy,
+4. potom pokračovat HRA-P1-06/HRA-P1-07 – sjednocení fotografií a placeholderů na desktopu i mobilu.
 ---
 
 # 14. Šablona aktualizace po každém kroku
