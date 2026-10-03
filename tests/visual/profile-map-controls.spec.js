@@ -16,7 +16,7 @@ async function boot(page){
     return route.fulfill({status:200,contentType:'application/json',body:'{}'})
   })
   await page.goto('/')
-  await expect(page.locator('.redesign-sidebar .redesign-nav > button')).toHaveCount(6,{timeout:15000})
+  await expect(page.locator('.redesign-sidebar .redesign-nav > button')).toHaveCount(5,{timeout:15000})
   await expect(page.locator('#map')).toBeVisible({timeout:10000})
 }
 

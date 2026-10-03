@@ -43,7 +43,7 @@ async function openApp(page, loggedIn = true) {
   await mockBackend(page, loggedIn)
   await page.goto('/')
   const nav = page.locator('.redesign-sidebar .redesign-nav > button')
-  await expect(nav).toHaveCount(6, { timeout: 15000 })
+  await expect(nav).toHaveCount(5, { timeout: 15000 })
   await expect(page.locator('.redesign-sidebar')).toBeVisible()
   await expect(page.locator('header')).toBeVisible()
   return nav
@@ -53,9 +53,8 @@ async function waitDestination(page, index) {
   if (index === 0) await expect(page.locator('#map')).toBeVisible({ timeout: 10000 })
   if (index === 1) await expect(page.locator('#search')).toBeVisible()
   if (index === 2) await expect(page.locator('#mineList')).toBeVisible()
-  if (index === 3) await expect(page.locator('#search')).toBeFocused()
-  if (index === 4) await expect(page.locator('.reference-category-page')).toBeVisible()
-  if (index === 5) await expect(page.locator('.reference-about-page')).toBeVisible()
+  if (index === 3) await expect(page.locator('.reference-category-page')).toBeVisible()
+  if (index === 4) await expect(page.locator('.reference-about-page')).toBeVisible()
 }
 
 async function closeMapDetailIfOpen(page) {
@@ -66,11 +65,11 @@ async function closeMapDetailIfOpen(page) {
   }
 }
 
-test('captures all six reference destinations', async ({ page }, testInfo) => {
+test('captures all five reference destinations', async ({ page }, testInfo) => {
   const nav = await openApp(page)
-  const labels = ['mapa','seznam','oblibene','vyhledavani','kategorie','o-aplikaci']
+  const labels = ['mapa','seznam','oblibene','kategorie','o-aplikaci']
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     await nav.nth(i).click()
     await waitDestination(page, i)
     await page.waitForTimeout(i === 0 ? 900 : 220)
@@ -81,16 +80,16 @@ test('captures all six reference destinations', async ({ page }, testInfo) => {
   }
 
   if (testInfo.project.name === 'desktop') {
-    await nav.nth(5).click()
+    await nav.nth(4).click()
   } else {
     await page.locator('.mobileHeaderMenu').click()
     await expect(page.locator('.reference-mobile-drawer')).toHaveClass(/open/)
     await page.locator('[data-ref-mobile="about"]').click()
   }
-  await waitDestination(page, 5)
+  await waitDestination(page, 4)
   await page.waitForTimeout(220)
   await page.screenshot({
-    path: testInfo.outputPath(`hradnik-${testInfo.project.name}-06-${labels[5]}.png`),
+    path: testInfo.outputPath(`hradnik-${testInfo.project.name}-05-${labels[4]}.png`),
     fullPage: true
   })
 })
@@ -100,8 +99,8 @@ test('desktop/mobile shell matches the reference structure', async ({ page }) =>
   await expect(nav.nth(0)).toContainText('Mapa')
   await expect(nav.nth(1)).toContainText('Seznam')
   await expect(nav.nth(2)).toContainText('Oblíbené')
-  await expect(nav.nth(3)).toContainText('Vyhledávání')
-  await expect(nav.nth(4)).toContainText(/Kategorie|Více/)
+  await expect(nav.nth(3)).toContainText('Kategorie')
+  await expect(nav.nth(4)).toContainText('O aplikaci')
 
   if (test.info().project.name === 'desktop') {
     const sidebarBox = await page.locator('.redesign-sidebar').boundingBox()
@@ -113,19 +112,19 @@ test('desktop/mobile shell matches the reference structure', async ({ page }) =>
   } else {
     await expect(page.locator('.mobileHeaderMenu')).toBeVisible()
     await expect(page.locator('.mobileHeaderSearch')).toBeVisible()
-    await expect(nav.nth(5)).toBeHidden()
+    await expect(nav.nth(4)).toBeHidden()
   }
 })
 
-test('search, categories and favorites route to useful screens', async ({ page }) => {
+test('list search, categories and favorites route to useful screens', async ({ page }) => {
   const nav = await openApp(page)
-  await nav.nth(3).click()
-  await expect(page.locator('#search')).toBeFocused()
+  await nav.nth(1).click()
+  await expect(page.locator('#search')).toBeVisible()
   await page.locator('#search').fill('Hrad Test')
   await expect(page.locator('#list .place')).toHaveCount(1)
 
-  await nav.nth(4).click()
-  await expect(page.locator('.reference-category-card')).toHaveCount(6)
+  await nav.nth(3).click()
+  await expect(page.locator('.reference-category-card')).toHaveCount(5)
   await page.locator('.reference-category-card').filter({ hasText: 'Zřícenina' }).click()
   await expect(page.locator('#list')).toBeVisible()
 
@@ -182,7 +181,7 @@ test('map never opens a monument detail on its own', async ({ page }) => {
 
 test('selected search result has a photo and carries its map focus', async ({ page }) => {
   const nav = await openApp(page)
-  await nav.nth(3).click()
+  await nav.nth(1).click()
   await page.locator('#search').fill('Hrad Test')
   const result = page.locator('#list .place').first()
   await expect(result.locator('.placePhoto')).toBeVisible()

@@ -1,8 +1,8 @@
 /* Hradník — deterministic reference shell runtime.
    The app renders asynchronously, so this layer waits for the real navigation,
    moves it into the reference rail and routes before older capture listeners. */
-const LABELS=['Mapa','Seznam','Oblíbené','Vyhledávání','Kategorie','O aplikaci']
-const ICONS=['map','list','favorites','search','nav-grid','nav-info']
+const LABELS=['Mapa','Seznam','Oblíbené','Kategorie','O aplikaci']
+const ICONS=['map','list','favorites','nav-grid','nav-info']
 let firstMapDone=false
 let frameQueued=false
 
@@ -45,11 +45,11 @@ const buttons=nav=>nav?[...nav.querySelectorAll(':scope>button')]:[]
 
 function mark(nav,index){buttons(nav).forEach((b,i)=>{b.classList.toggle('active',i===index);b.classList.toggle('redesign-active',i===index)})}
 function syncActive(nav){
-  if(document.querySelector('.reference-about-page'))return mark(nav,5)
-  if(document.querySelector('.reference-category-page'))return mark(nav,4)
+  if(document.querySelector('.reference-about-page'))return mark(nav,4)
+  if(document.querySelector('.reference-category-page'))return mark(nav,3)
   if(document.getElementById('map'))return mark(nav,0)
   if(document.getElementById('mineList'))return mark(nav,2)
-  if(document.getElementById('search'))return mark(nav,document.activeElement?.id==='search'?3:1)
+  if(document.getElementById('search'))return mark(nav,1)
 }
 
 function captureNative(nav){
@@ -79,23 +79,28 @@ function route(index,nav=currentNav()){
   },900);return}
   if(index===1){callNative(bs[1],'catalog');return}
   if(index===2){callNative(bs[2],'mine');setTimeout(()=>document.getElementById('mf')?.click(),120);return}
-  if(index===3){callNative(bs[1],'catalog');setTimeout(()=>document.getElementById('search')?.focus(),120);return}
-  if(index===4){showCategories(nav);return}
-  if(index===5){showAbout(nav)}
+  if(index===3){showCategories(nav);return}
+  if(index===4){showAbout(nav)}
+}
+
+function focusCatalogSearch(){
+  route(1,currentNav())
+  setTimeout(()=>document.getElementById('search')?.focus(),120)
 }
 
 function configure(nav){
   captureNative(nav)
   nav.classList.add('redesign-nav')
   let bs=buttons(nav)
-  while(bs.length<6){const b=document.createElement('button');b.type='button';if(bs.length===5)b.className='reference-about-nav';nav.appendChild(b);bs=buttons(nav)}
-  bs.slice(0,6).forEach((b,i)=>{
+  while(bs.length>5){bs.at(-1)?.remove();bs=buttons(nav)}
+  while(bs.length<5){const b=document.createElement('button');b.type='button';nav.appendChild(b);bs=buttons(nav)}
+  bs.slice(0,5).forEach((b,i)=>{
     if(b.dataset.referenceRuntimeReady===String(i))return
     b.innerHTML=`<img src="/icons/${ICONS[i]}.svg" alt=""><span>${LABELS[i]}</span>`
     b.setAttribute('aria-label',LABELS[i])
     b.dataset.referenceRuntimeReady=String(i)
   })
-  bs[0].dataset.tab='map';bs[1].dataset.tab='catalog';bs[2].dataset.tab='mine';bs[3].dataset.tab='catalog';bs[4].removeAttribute('data-tab');bs[5].removeAttribute('data-tab')
+  bs[0].dataset.tab='map';bs[1].dataset.tab='catalog';bs[2].dataset.tab='mine';bs[3].removeAttribute('data-tab');bs[4].removeAttribute('data-tab')
 }
 
 function showCategories(nav){
@@ -104,9 +109,9 @@ function showCategories(nav){
   const data=[['Hrad','home','Hrady a hradní areály'],['Zámek','chateau','Zámky a zámecké areály'],['Zřícenina','ruin','Zříceniny a ruiny'],['Tvrz','fortress','Tvrze a opevněná sídla'],['Klášter','monastery','Kláštery a komendy'],['Opevněné místo','home','Další opevněná místa']]
   const grid=host.querySelector('.reference-category-grid')
   data.forEach(([label,icon,desc])=>{const b=document.createElement('button');b.className='reference-category-card';b.innerHTML=`<span class="reference-category-emblem"><img src="/icons/${icon}.svg" alt=""></span><span><b>${label}</b><small>${desc}</small></span>`;b.onclick=()=>{route(1,currentNav());setTimeout(()=>[...document.querySelectorAll('#typeChips button')].find(x=>x.textContent.trim()===label)?.click(),150)};grid.appendChild(b)})
-  mark(nav,4)
+  mark(nav,3)
 }
-function showAbout(nav){const host=content();if(!host)return;host.innerHTML='<section class="reference-about-page"><p class="eyebrow">O APLIKACI</p><h1>Hradník</h1><div class="reference-about-card"><img src="/hradnik-logo.svg" alt="Hradník"><p>Osobní průvodce českými hrady, zámky, zříceninami, tvrzemi, kláštery a dalšími historickými místy.</p><p><b>Objevuj. Poznávej. Chraň.</b></p></div></section>';mark(nav,5)}
+function showAbout(nav){const host=content();if(!host)return;host.innerHTML='<section class="reference-about-page"><p class="eyebrow">O APLIKACI</p><h1>Hradník</h1><div class="reference-about-card"><img src="/hradnik-logo.svg" alt="Hradník"><p>Osobní průvodce českými hrady, zámky, zříceninami, tvrzemi, kláštery a dalšími historickými místy.</p><p><b>Objevuj. Poznávej. Chraň.</b></p></div></section>';mark(nav,4)}
 
 function footer(side){if(side.querySelector('.reference-force-brand'))return;const f=document.createElement('div');f.className='reference-force-brand';f.innerHTML='<img src="/hradnik-app-icon.svg" alt=""><span>Objevuj.<br>Poznávej.<br>Chraň.</span>';side.appendChild(f)}
 
@@ -118,7 +123,7 @@ function openSettings(){
 function drawer(nav){
   let d=document.querySelector('.reference-mobile-drawer');if(d)return d
   d=document.createElement('div');d.className='reference-mobile-drawer';d.innerHTML='<div class="reference-mobile-drawer-panel"><div class="reference-mobile-drawer-head"><img src="/hradnik-logo.svg" alt="Hradník"><button class="reference-mobile-drawer-close" aria-label="Zavřít">×</button></div><button data-ref-mobile="categories">Kategorie</button><button data-ref-mobile="about">O aplikaci</button><button data-ref-mobile="settings">Nastavení</button></div>';document.body.appendChild(d)
-  const close=()=>d.classList.remove('open');d.onclick=e=>{if(e.target===d)close()};d.querySelector('.reference-mobile-drawer-close').onclick=close;d.querySelector('[data-ref-mobile="categories"]').onclick=()=>{close();route(4,currentNav())};d.querySelector('[data-ref-mobile="about"]').onclick=()=>{close();route(5,currentNav())};d.querySelector('[data-ref-mobile="settings"]').onclick=()=>{close();openSettings()};return d
+  const close=()=>d.classList.remove('open');d.onclick=e=>{if(e.target===d)close()};d.querySelector('.reference-mobile-drawer-close').onclick=close;d.querySelector('[data-ref-mobile="categories"]').onclick=()=>{close();route(3,currentNav())};d.querySelector('[data-ref-mobile="about"]').onclick=()=>{close();route(4,currentNav())};d.querySelector('[data-ref-mobile="settings"]').onclick=()=>{close();openSettings()};return d
 }
 
 function headerControls(header,nav){
@@ -130,7 +135,7 @@ function headerControls(header,nav){
   if(!account.querySelector('.reference-favorites-button')){const b=document.createElement('button');b.type='button';b.className='reference-header-action reference-favorites-button';b.setAttribute('aria-label','Oblíbené');b.innerHTML='<img src="/icons/favorites.svg" alt="">';b.onclick=()=>route(2,currentNav());account.prepend(b)}
   if(!account.querySelector('.reference-settings-button')){const b=document.createElement('button');b.type='button';b.className='reference-header-action reference-settings-button';b.setAttribute('aria-label','Nastavení');b.innerHTML='<img src="/icons/menu-settings.svg" alt="">';b.onclick=openSettings;account.appendChild(b)}
   if(!top.querySelector('.mobileHeaderMenu')){const b=document.createElement('button');b.type='button';b.className='mobileHeaderMenu';b.setAttribute('aria-label','Nabídka');b.innerHTML='<span></span><span></span><span></span>';b.onclick=()=>drawer(currentNav()).classList.add('open');top.prepend(b)}
-  if(!top.querySelector('.mobileHeaderSearch')){const b=document.createElement('button');b.type='button';b.className='mobileHeaderSearch';b.setAttribute('aria-label','Hledat');b.innerHTML='<img src="/icons/search.svg" alt="">';b.onclick=()=>route(3,currentNav());top.appendChild(b)}
+  if(!top.querySelector('.mobileHeaderSearch')){const b=document.createElement('button');b.type='button';b.className='mobileHeaderSearch';b.setAttribute('aria-label','Hledat');b.innerHTML='<img src="/icons/search.svg" alt="">';b.onclick=focusCatalogSearch;top.appendChild(b)}
 }
 
 function ensure(){
@@ -149,7 +154,7 @@ window.addEventListener('click',e=>{
   const menu=e.target?.closest?.('.mobileHeaderMenu')
   if(menu){e.preventDefault();e.stopImmediatePropagation();drawer(currentNav()).classList.add('open');return}
   const mobileSearch=e.target?.closest?.('.mobileHeaderSearch')
-  if(mobileSearch){e.preventDefault();e.stopImmediatePropagation();route(3,currentNav());return}
+  if(mobileSearch){e.preventDefault();e.stopImmediatePropagation();focusCatalogSearch();return}
   const b=e.target?.closest?.('.redesign-sidebar>.redesign-nav>button');if(!b)return
   const nav=b.parentElement,index=buttons(nav).indexOf(b);if(index<0)return
   e.preventDefault();e.stopImmediatePropagation();route(index,nav)

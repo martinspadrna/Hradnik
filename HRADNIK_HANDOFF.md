@@ -53,10 +53,10 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P1-01  
-**Název:** Fyzické ověření hlavní mobilní navigace po 18/18 PASS  
-**Stav:** VERIFY  
-**Dokončeno:** 100 % technicky
+**ID:** HRA-P1-12  
+**Název:** Odstranit redundantní položku „Vyhledávání“ z hlavní navigace  
+**Stav:** IN PROGRESS  
+**Dokončeno:** 90 %
 
 ### Cíl
 Zachovat prioritní capture routing, ale vrátit observer synchronizaci na frame boundary. Historie CI přesně ukázala, že globální boot FAIL vznikl v commitu 3c9b04a po změně scheduleru z requestAnimationFrame na queueMicrotask.
@@ -196,8 +196,8 @@ Při nedostupném backendu aplikace nespadne do syrové DB hlášky.
 ## P1 – Stabilita navigace a hlavních komponent
 
 ### HRA-P1-01 – Opravit mobilní navigaci jako jeden celek
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Audit / problém:**
 Automatický test na iPhonu selhal při přechodu Oblíbené → Vyhledávání. Obsah zmizel a zůstala jen spodní navigace.
@@ -215,8 +215,8 @@ fungují bez zmizení obsahu.
 ---
 
 ### HRA-P1-02 – Opravit spodní mobilní navigaci
-- **Stav:** VERIFY
-- **Dokončeno:** 90 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Viditelný problém ze screenshotů:**
 - pátá položka „Kategorie“ nemá textový popisek,
@@ -233,8 +233,8 @@ Všech 5 položek má:
 ---
 
 ### HRA-P1-03 – Safe area a nepřekrývat obsah spodní lištou
-- **Stav:** VERIFY
-- **Dokončeno:** 90 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Viditelný problém:**
 Poslední obsah je na mobilu zakrytý fixed spodní navigací, např. poslední karta Kategorie.
@@ -250,8 +250,8 @@ Poslední karta/řádek lze vždy plně odscrollovat nad navigaci.
 ---
 
 ### HRA-P1-04 – Mobilní mapa má vyplnit dostupnou výšku
-- **Stav:** VERIFY
-- **Dokončeno:** 90 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Viditelný problém:**
 Pod mapou zůstává velká prázdná černá plocha až ke spodní navigaci.
@@ -262,8 +262,8 @@ Mapa vyplní dostupný prostor mezi hlavičkou a spodní navigací.
 ---
 
 ### HRA-P1-05 – Sjednotit typové ikony památek
-- **Stav:** VERIFY
-- **Dokončeno:** 85 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Audit / screenshoty:**
 Mapa používá prakticky stejný hradní symbol pro různé typy památek, zatímco Kategorie už rozlišitelné ikony mají.
@@ -384,6 +384,26 @@ Pravděpodobně intermitentní konflikt CSS/stavu.
 
 **Akceptace:**
 Select má deterministický kontrast ve všech podporovaných stavech a na mobile/desktopu.
+
+---
+
+
+### HRA-P1-12 – Odstranit redundantní „Vyhledávání“ z hlavní navigace
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
+
+**Rozhodnutí uživatele:**
+Samostatná položka „Vyhledávání“ je zbytečná, protože pouze otevře hledání, které už je součástí obrazovky Seznam.
+
+**Cíl:**
+- desktop: Mapa · Seznam · Oblíbené · Kategorie · O aplikaci,
+- mobilní spodní navigace: Mapa · Seznam · Oblíbené · Kategorie,
+- „O aplikaci“ zůstává na mobilu dostupné z hamburger menu,
+- horní vyhledávání / mobilní ikona lupy nadále otevře Seznam a zaměří jeho vyhledávací pole,
+- žádná duplicitní samostatná stránka Vyhledávání.
+
+**Akceptace:**
+Build a visual-regression projdou a na PC/iPhonu nebude v hlavní navigaci položka „Vyhledávání“.
 
 ---
 
@@ -605,11 +625,8 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 - [ ] Mapa
 - [ ] Seznam
 - [ ] Oblíbené
-- [ ] Vyhledávání
 - [ ] Kategorie
 - [ ] rychlé přepínání mezi všemi sekcemi
-- [ ] Oblíbené → Vyhledávání
-- [ ] Vyhledávání → detail → zpět
 - [ ] poslední karta není zakrytá spodní navigací
 - [ ] mapa vyplňuje dostupný prostor
 - [ ] typové ikony jsou rozlišitelné
@@ -624,7 +641,6 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 - [ ] Mapa
 - [ ] Seznam
 - [ ] Oblíbené
-- [ ] Vyhledávání
 - [ ] Kategorie
 - [ ] obrázky v kartách
 - [ ] placeholdery bez fotografií
@@ -655,6 +671,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-03 – fyzický test navigace na PC i iPhonu potvrzen OK**
+
+Hotovo:
+- uživatel fyzicky potvrdil navigaci na mobilu i PC jako funkční,
+- HRA-P1-01, HRA-P1-02, HRA-P1-03 a HRA-P1-04 jsou DONE,
+- potvrzeny také rozlišitelné typové markery; HRA-P1-05 je DONE,
+- na základě používání bylo rozhodnuto odstranit samostatné „Vyhledávání“ z hlavní navigace, protože pouze duplikuje vyhledávání uvnitř Seznamu,
+- HRA-P1-12 je implementováno a čeká na CI + krátké fyzické potvrzení nového 4/5-položkového layoutu.
+
+**Předchozí krok:**
 
 **2026-10-03 – 18/18 visual-regression PASS + build PASS**
 
@@ -813,17 +840,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Fyzický iPhone test HRA-P1-01, potom fotografie/placeholdery
+## Ověřit navigaci bez samostatného „Vyhledávání“
 
-Na iPhonu ověřit:
-1. Mapa → Seznam → Oblíbené → Vyhledávání → Kategorie → Mapa,
-2. rychle projet stejnou sekvenci ještě jednou,
-3. potvrdit, že text „Kategorie“ je vidět,
-4. potvrdit, že spodní lišta nezakrývá poslední obsah,
-5. potvrdit, že mapa vyplňuje prostor až ke spodní navigaci,
-6. potvrdit, že typové markery jsou vizuálně rozlišitelné.
-
-Pokud vše sedí, označit HRA-P1-01 až HRA-P1-04 jako DONE a pokračovat HRA-P1-06 + HRA-P1-07: sjednocení fotografií a placeholderů na desktopu i mobilu.
+1. potvrdit Build Hradník a visual-regression po změně navigace,
+2. na PC ověřit: Mapa → Seznam → Oblíbené → Kategorie → O aplikaci,
+3. na iPhonu ověřit spodní navigaci: Mapa → Seznam → Oblíbené → Kategorie,
+4. na iPhonu klepnout na lupu v hlavičce a potvrdit, že otevře Seznam a zaměří vyhledávání,
+5. pokud vše sedí, označit HRA-P1-12 jako DONE a pokračovat HRA-P1-06 + HRA-P1-07 – fotografie a placeholdery.
 ---
 
 # 14. Šablona aktualizace po každém kroku
