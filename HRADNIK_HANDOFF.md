@@ -263,8 +263,8 @@ Mapa vyplní dostupný prostor mezi hlavičkou a spodní navigací.
 ---
 
 ### HRA-P1-05 – Sjednotit typové ikony památek
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 85 %
 
 **Audit / screenshoty:**
 Mapa používá prakticky stejný hradní symbol pro různé typy památek, zatímco Kategorie už rozlišitelné ikony mají.
@@ -656,6 +656,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-03 – typové ikony mapových markerů**
+
+Hotovo:
+- samostatné body na mapě už nepoužívají jeden univerzální hradní štít,
+- marker přebírá typ památky z barvy původní datové vrstvy a zobrazuje odpovídající ikonu pro hrad, zámek, zříceninu, tvrz nebo klášter,
+- clusterové body zůstávají číselné, protože zastupují více různých typů,
+- HRA-P1-05 je VERIFY; zbývá vizuálně potvrdit mapu a případně doladit „Opevněné místo“.
+
+**Předchozí krok:**
 
 **2026-10-03 – mobilní spodní navigace, safe area a výška mapy**
 

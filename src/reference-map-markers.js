@@ -1,6 +1,23 @@
 import L from 'leaflet'
 
-const icon=L.divIcon({className:'hradnik-reference-marker',html:'<img src="/icons/map-marker-reference.svg">',iconSize:[32,36],iconAnchor:[16,34]})
+const TYPE_ICON_BY_FILL=new Map([
+  ['#d34f4f','home'],
+  ['#8c63d6','chateau'],
+  ['#c57b38','ruin'],
+  ['#3c7ed8','fortress'],
+  ['#38a169','monastery'],
+  ['#6b7280','home']
+])
+const markerIcon=layer=>{
+  const key=String(layer?.options?.fillColor||'').toLowerCase()
+  const typeIcon=TYPE_ICON_BY_FILL.get(key)||'home'
+  return L.divIcon({
+    className:'hradnik-reference-marker',
+    html:`<span class="hradnik-reference-marker-shield"><img class="hradnik-reference-marker-type" src="/icons/${typeIcon}.svg" alt=""></span>`,
+    iconSize:[32,36],
+    iconAnchor:[16,34]
+  })
+}
 const clusterIcon=count=>L.divIcon({className:'hradnik-reference-cluster',html:`<span>${count>999?'999+':count}</span>`,iconSize:[42,42],iconAnchor:[21,21]})
 let mapRef=null
 let originalLayers=[]
@@ -31,7 +48,7 @@ function render(){
   const visible=originalLayers.filter(layer=>layer._map&&layer.getLatLng())
   if(zoom>=10){
     visible.forEach(layer=>{
-      const m=L.marker(layer.getLatLng(),{icon,keyboard:true,zIndexOffset:100}).addTo(mapRef)
+      const m=L.marker(layer.getLatLng(),{icon:markerIcon(layer),keyboard:true,zIndexOffset:100}).addTo(mapRef)
       const tooltip=layer.getTooltip?.()
       if(tooltip)m.bindTooltip(tooltip.getContent(),{direction:'top',offset:[0,-7]})
       m.on('click',()=>layer.fire('click'))
@@ -52,7 +69,7 @@ function render(){
   groups.forEach(group=>{
     if(group.length===1){
       const layer=group[0]
-      const m=L.marker(layer.getLatLng(),{icon,keyboard:true,zIndexOffset:100}).addTo(mapRef)
+      const m=L.marker(layer.getLatLng(),{icon:markerIcon(layer),keyboard:true,zIndexOffset:100}).addTo(mapRef)
       const tooltip=layer.getTooltip?.()
       if(tooltip)m.bindTooltip(tooltip.getContent(),{direction:'top',offset:[0,-7]})
       m.on('click',()=>layer.fire('click'))
