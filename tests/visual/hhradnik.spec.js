@@ -185,6 +185,7 @@ test('selected search result has a photo and carries its map focus', async ({ pa
   await page.locator('#search').fill('Hrad Test')
   const result = page.locator('#list .place').first()
   await expect(result.locator('.placePhoto')).toBeVisible()
+  await expect(result.locator('.placeIcon')).toHaveCount(0)
 
   await result.locator('.placeMain').click()
   const detail = page.locator('.overlay[data-hradnik-detail-context="list"] .sheet')

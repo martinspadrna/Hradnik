@@ -1,8 +1,37 @@
-/* Search results use imagery; a list detail owns a full-height, readable panel. */
+/* Search/list cards have exactly one media slot: photo OR type placeholder. */
 .placeMain{min-width:0}
-.placePhoto{width:118px;height:84px;flex:0 0 118px;object-fit:cover;border-radius:8px;background:#151d20;border:1px solid #2d393e}
-.place:has(.placePhoto) .placeIcon{display:none!important}
-.place:has(.placePhoto) .placeCopy{align-self:center}
+#list .placeMain,#mineList .placeMain,#diaryList .placeMain{
+  display:grid!important;
+  grid-template-columns:118px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:12px!important;
+}
+#list .placePhoto,#mineList .placePhoto,#diaryList .placePhoto{
+  display:block!important;
+  width:118px!important;
+  height:84px!important;
+  min-width:118px!important;
+  object-fit:cover!important;
+  border-radius:8px!important;
+  background:#151d20!important;
+  border:1px solid #2d393e!important;
+}
+#list .placeIcon,#mineList .placeIcon,#diaryList .placeIcon{
+  width:118px!important;
+  height:84px!important;
+  min-width:118px!important;
+  flex:none!important;
+  border-radius:8px!important;
+  background:radial-gradient(circle at 50% 45%,rgba(229,182,62,.16),transparent 56%),linear-gradient(145deg,#202a22,#101614)!important;
+  border:1px solid #344038!important;
+}
+#list .placeIcon img,#mineList .placeIcon img,#diaryList .placeIcon img{
+  width:34px!important;
+  height:34px!important;
+  object-fit:contain!important;
+  filter:invert(75%) sepia(61%) saturate(473%) hue-rotate(2deg) brightness(97%) contrast(90%)!important;
+}
+#list .placeCopy,#mineList .placeCopy,#diaryList .placeCopy{align-self:center;min-width:0}
 .detailPhoto{object-fit:contain!important;object-position:center!important;background:#080d10!important}
 
 /* Every monument keeps its own symbol, framed by the app's gold shield. */
@@ -16,14 +45,24 @@
 .reference-category-card>.reference-category-emblem>img{width:26px!important;height:26px!important;object-fit:contain!important;filter:invert(75%) sepia(61%) saturate(473%) hue-rotate(2deg) brightness(97%) contrast(90%)!important}
 
 @media(min-width:851px){
-  #list .place:has(.placePhoto) .placePhoto{display:block;width:100%;height:118px;border:0;border-radius:0;object-fit:cover}
-  #list .place:has(.placePhoto) .placeCopy{padding-top:10px}
-  #list .place:has(.placePhoto) .placeCopy:before{display:none}
   .overlay[data-hradnik-detail-context="list"]{top:70px!important;right:0!important;bottom:0!important;left:194px!important;grid-template-columns:minmax(0,1fr) minmax(410px,29vw)!important}
   .overlay[data-hradnik-detail-context="list"] .sheet{width:100%!important;height:100%!important;max-height:none!important;border-radius:0!important;padding:22px!important}
   .overlay[data-hradnik-detail-context="list"] .detailPhoto{width:100%!important;height:250px!important;border-radius:10px!important}
 }
 
 @media(max-width:850px){
-  .placePhoto{width:96px;height:72px;flex-basis:96px}
+  #list .placeMain,#mineList .placeMain,#diaryList .placeMain{
+    grid-template-columns:96px minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+  #list .placePhoto,#mineList .placePhoto,#diaryList .placePhoto,
+  #list .placeIcon,#mineList .placeIcon,#diaryList .placeIcon{
+    width:96px!important;
+    height:72px!important;
+    min-width:96px!important;
+  }
+  #list .placeIcon img,#mineList .placeIcon img,#diaryList .placeIcon img{
+    width:30px!important;
+    height:30px!important;
+  }
 }

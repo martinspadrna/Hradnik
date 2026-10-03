@@ -94,8 +94,12 @@ function renderPhoto(sheet, title, hit) {
   img.loading = 'eager'
   img.decoding = 'async'
   img.referrerPolicy = 'no-referrer'
-  img.onerror = () => img.remove()
   const icon = sheet.querySelector('.bigIcon')
+  const fallback = icon?.cloneNode(true) || null
+  img.onerror = () => {
+    if (fallback && img.isConnected) img.replaceWith(fallback)
+    else img.remove()
+  }
   if (icon) icon.replaceWith(img)
   else sheet.prepend(img)
 
@@ -136,6 +140,10 @@ async function addDetailPhoto(sheet) {
 
 function renderResultPhoto(card, title, hit) {
   if (!hit || card.querySelector('.placePhoto')) return
+  const main = card.querySelector('.placeMain')
+  if (!main) return
+  const icon = main.querySelector(':scope > .placeIcon')
+  const fallback = icon?.cloneNode(true) || null
   const photo = document.createElement('img')
   photo.className = 'placePhoto'
   photo.src = hit.photo
@@ -143,8 +151,12 @@ function renderResultPhoto(card, title, hit) {
   photo.loading = 'lazy'
   photo.decoding = 'async'
   photo.referrerPolicy = 'no-referrer'
-  photo.onerror = () => photo.remove()
-  card.querySelector('.placeMain')?.prepend(photo)
+  photo.onerror = () => {
+    if (fallback && photo.isConnected) photo.replaceWith(fallback)
+    else photo.remove()
+  }
+  if (icon) icon.replaceWith(photo)
+  else main.prepend(photo)
 }
 
 async function addResultPhoto(card) {

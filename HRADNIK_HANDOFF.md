@@ -53,16 +53,16 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P1-12  
-**Název:** Odstranit redundantní položku „Vyhledávání“ z hlavní navigace  
-**Stav:** VERIFY  
-**Dokončeno:** 100 % technicky
+**ID:** HRA-P1-06 + HRA-P1-07  
+**Název:** Sjednotit fotografie a placeholdery v kartách  
+**Stav:** IN PROGRESS  
+**Dokončeno:** 90 %
 
 ### Cíl
-Zachovat prioritní capture routing, ale vrátit observer synchronizaci na frame boundary. Historie CI přesně ukázala, že globální boot FAIL vznikl v commitu 3c9b04a po změně scheduleru z requestAnimationFrame na queueMicrotask.
+Každá karta v Seznamu, Oblíbených a deníku má právě jeden mediální slot: buď fotografii, nebo čitelný typový placeholder. Na desktopu ani mobilu nesmí zůstávat dvojitý prázdný blok pod fotografií.
 
 ### Poznámka
-CI trace potvrdil, že auth i katalog z nové Supabase odpovídají 200. Před commitem 3c9b04a stejný testovací balík normálně naběhl (12/18 testů prošlo); po něm selhávalo 18/18 ještě na boot guardu. P0-01 až P0-05 zůstávají VERIFY a čekají na fyzické ověření produkce.
+Uživatel fyzicky potvrdil novou navigaci bez samostatného „Vyhledávání“ jako OK na mobilu i PC. HRA-P1-12 je DONE.
 ---
 
 # 5. Kompletní plán
@@ -282,8 +282,8 @@ Hrad, zámek, zřícenina, tvrz, klášter a další podporované typy mají roz
 ---
 
 ### HRA-P1-06 – Sjednotit komponentu fotografie / placeholderu
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Viditelný problém na desktopu:**
 - velké šedé/prázdné bloky,
@@ -299,8 +299,8 @@ Jedna responzivní komponenta:
 ---
 
 ### HRA-P1-07 – Opravit placeholdery bez fotografií
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Viditelný problém:**
 Např. Hrádek u Nechanic / Lednice mají téměř černou ikonku na tmavém pozadí.
@@ -389,8 +389,8 @@ Select má deterministický kontrast ve všech podporovaných stavech a na mobil
 
 
 ### HRA-P1-12 – Odstranit redundantní „Vyhledávání“ z hlavní navigace
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Rozhodnutí uživatele:**
 Samostatná položka „Vyhledávání“ je zbytečná, protože pouze otevře hledání, které už je součástí obrazovky Seznam.
@@ -672,6 +672,20 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-03 – navigace bez „Vyhledávání“ fyzicky potvrzena + zahájeny jednotné karty**
+
+Hotovo:
+- uživatel potvrdil nový layout navigace na mobilu i PC jako OK,
+- HRA-P1-12 je DONE,
+- u karet se fotografie už nepřidává vedle existujícího placeholderu; nahrazuje jej jako jediný mediální prvek,
+- při chybě načtení fotografie se automaticky vrátí původní typový placeholder,
+- stejný fallback je doplněn i v detailu památky,
+- fotografie a placeholder mají sjednocený rozměr na desktopu i mobilu,
+- typový placeholder používá kontrastní zlatou ikonografii ve stylu Kategorie,
+- HRA-P1-06 a HRA-P1-07 čekají na CI a fyzické ověření.
+
+**Předchozí krok:**
+
 **2026-10-03 – samostatné „Vyhledávání“ odstraněno, CI PASS**
 
 Hotovo:
@@ -865,19 +879,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Krátce ověřit navigaci bez „Vyhledávání“, potom fotografie/placeholdery
+## Ověřit jednotné fotografie a placeholdery
 
-Na PC:
-1. Mapa → Seznam → Oblíbené → Kategorie → O aplikaci,
-2. potvrdit, že „Vyhledávání“ už v levé navigaci není,
-3. horní hledání musí otevřít Seznam a vyhledat zadaný text.
-
-Na iPhonu:
-1. spodní navigace musí mít jen Mapa → Seznam → Oblíbené → Kategorie,
-2. lupa v hlavičce musí otevřít Seznam a zaměřit hledání,
-3. zkontrolovat, že 4 položky spodní navigace jsou rovnoměrně rozložené.
-
-Po potvrzení označit HRA-P1-12 jako DONE a pokračovat HRA-P1-06 + HRA-P1-07 – sjednocení fotografií a placeholderů.
+1. potvrdit Build Hradník a visual-regression po změně karet,
+2. na PC otevřít Seznam a Oblíbené a zkontrolovat, že žádná karta nemá fotografii + druhý prázdný blok,
+3. zkontrolovat několik míst bez fotografie – musí mít čitelný zlatý typový placeholder,
+4. na iPhonu zkontrolovat stejné dvě varianty a že se karta neroztahuje mimo viewport,
+5. po potvrzení označit HRA-P1-06 a HRA-P1-07 jako DONE a pokračovat HRA-P1-08 – mapování polí v detailu.
 ---
 
 # 14. Šablona aktualizace po každém kroku
