@@ -178,8 +178,8 @@ Repozitář musí být schopný založit Hradník od nuly.
 ---
 
 ### HRA-P0-05 – Bezpečný český fallback při chybě backendu
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Audit / problém:**
 Chybová obrazovka ukazuje syrovou anglickou databázovou chybu.
@@ -657,7 +657,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
-**2026-10-03 – produkční Edge Functions se ukládají do repozitáře**
+**2026-10-03 – český fallback a lokální katalog při výpadku backendu**
+
+Hotovo:
+- úspěšně načtený katalog se ukládá do IndexedDB bez blokování UI,
+- při chybě Supabase se použije poslední lokálně uložený katalog a zobrazí se české upozornění,
+- při prvním spuštění bez cache se už nezobrazuje syrová anglická databázová chyba, ale srozumitelný český stav,
+- přechodný výpadek auth už nemaže uloženou relaci; lokální session se odstraní jen po skutečné odpovědi 401/403,
+- technické detaily zůstávají pouze v konzoli,
+- HRA-P0-05 je VERIFY a čeká na fyzický test online → offline na PC/iPhonu.
+
+**Předchozí krok – produkční Edge Functions se ukládají do repozitáře**
 
 Hotovo:
 - ověřeno, že repozitářové `hradnik-auth` a `hradnik-sync` jsou byte-for-byte shodné s aktuálně nasazenými funkcemi v nové Supabase,
@@ -712,7 +722,7 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P0-04 + ověření P0 baseline
+## Ověřit P0 na zařízení, potom P1-01
 
 1. zachovat aktuální zdrojové verze všech produkčních Hradník Edge Functions v repozitáři,
 2. porovnat `hradnik-auth`, `hradnik-admin`, `hradnik-photo`, `hradnik-quality`, `hradnik-sync`, `hradnik-enrich-v4` a `hradnik-geocode-v3` se serverem,
