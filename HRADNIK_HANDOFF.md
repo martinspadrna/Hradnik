@@ -54,9 +54,9 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P1-01  
-**Název:** Dokončení regresního ověření hlavní navigace  
-**Stav:** IN PROGRESS  
-**Dokončeno:** 99 %
+**Název:** Fyzické ověření hlavní mobilní navigace po 18/18 PASS  
+**Stav:** VERIFY  
+**Dokončeno:** 100 % technicky
 
 ### Cíl
 Zachovat prioritní capture routing, ale vrátit observer synchronizaci na frame boundary. Historie CI přesně ukázala, že globální boot FAIL vznikl v commitu 3c9b04a po změně scheduleru z requestAnimationFrame na queueMicrotask.
@@ -196,8 +196,8 @@ Při nedostupném backendu aplikace nespadne do syrové DB hlášky.
 ## P1 – Stabilita navigace a hlavních komponent
 
 ### HRA-P1-01 – Opravit mobilní navigaci jako jeden celek
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 95 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Audit / problém:**
 Automatický test na iPhonu selhal při přechodu Oblíbené → Vyhledávání. Obsah zmizel a zůstala jen spodní navigace.
@@ -506,8 +506,8 @@ Platné fotky se načtou, neplatné odkazy se čistě nahradí placeholderem.
 ---
 
 ### HRA-P2-09 – Doplnit regresní testy hlavních workflow
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 60 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Minimální scénáře:**
 - všech 5 hlavních sekcí,
@@ -656,6 +656,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-03 – 18/18 visual-regression PASS + build PASS**
+
+Hotovo:
+- HEAD `923f946590346b510a71c084c18a32cf910a31ef` má úspěšný workflow **Build Hradník**,
+- stejný HEAD má úspěšný workflow **Hradník visual regression**,
+- navigační balík nyní prošel kompletní sadou 18/18 desktop + iPhone regresních scénářů,
+- HRA-P1-01 je technicky hotové a přesunuto do `VERIFY`; zbývá pouze fyzické potvrzení na skutečném iPhonu,
+- HRA-P2-09 je `VERIFY` na 90 %: automatická sada funguje, později ještě doplnit cílený offline/backend-failure scénář a čistou-cache kontrolu,
+- starého Supabase projektu se tento krok nijak nedotkl.
+
+**Předchozí krok:**
+
 **2026-10-03 – navigační CI se vrátil z globálního FAIL na 17/18 PASS**
 
 Hotovo:
@@ -801,12 +813,17 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Potvrdit 18/18 regresní testy a potom fyzický iPhone test
+## Fyzický iPhone test HRA-P1-01, potom fotografie/placeholdery
 
-1. ověřit nový Build Hradník a Hradník visual regression,
-2. při 18/18 PASS přesunout HRA-P1-01 do VERIFY (100 % technicky, čeká fyzické potvrzení),
-3. na iPhonu ověřit Mapa → Seznam → Oblíbené → Vyhledávání → Kategorie → Mapa, text „Kategorie“, spodní safe area a plnou výšku mapy,
-4. potom pokračovat HRA-P1-06/HRA-P1-07 – sjednocení fotografií a placeholderů na desktopu i mobilu.
+Na iPhonu ověřit:
+1. Mapa → Seznam → Oblíbené → Vyhledávání → Kategorie → Mapa,
+2. rychle projet stejnou sekvenci ještě jednou,
+3. potvrdit, že text „Kategorie“ je vidět,
+4. potvrdit, že spodní lišta nezakrývá poslední obsah,
+5. potvrdit, že mapa vyplňuje prostor až ke spodní navigaci,
+6. potvrdit, že typové markery jsou vizuálně rozlišitelné.
+
+Pokud vše sedí, označit HRA-P1-01 až HRA-P1-04 jako DONE a pokračovat HRA-P1-06 + HRA-P1-07: sjednocení fotografií a placeholderů na desktopu i mobilu.
 ---
 
 # 14. Šablona aktualizace po každém kroku
