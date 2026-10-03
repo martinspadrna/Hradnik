@@ -55,8 +55,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 **ID:** HRA-P1-12  
 **Název:** Odstranit redundantní položku „Vyhledávání“ z hlavní navigace  
-**Stav:** IN PROGRESS  
-**Dokončeno:** 95 %
+**Stav:** VERIFY  
+**Dokončeno:** 100 % technicky
 
 ### Cíl
 Zachovat prioritní capture routing, ale vrátit observer synchronizaci na frame boundary. Historie CI přesně ukázala, že globální boot FAIL vznikl v commitu 3c9b04a po změně scheduleru z requestAnimationFrame na queueMicrotask.
@@ -389,8 +389,8 @@ Select má deterministický kontrast ve všech podporovaných stavech a na mobil
 
 
 ### HRA-P1-12 – Odstranit redundantní „Vyhledávání“ z hlavní navigace
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Rozhodnutí uživatele:**
 Samostatná položka „Vyhledávání“ je zbytečná, protože pouze otevře hledání, které už je součástí obrazovky Seznam.
@@ -672,6 +672,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-03 – samostatné „Vyhledávání“ odstraněno, CI PASS**
+
+Hotovo:
+- hlavní navigace už nemá samostatnou položku „Vyhledávání“,
+- desktop má: **Mapa · Seznam · Oblíbené · Kategorie · O aplikaci**,
+- mobilní spodní navigace má: **Mapa · Seznam · Oblíbené · Kategorie**; „O aplikaci“ zůstává v hamburger menu,
+- lupa v mobilní hlavičce a desktopové horní hledání dál otevírají Seznam a jeho vyhledávání,
+- Build Hradník na commitu `9a0a2448813ca035f6585fdb2b3b92ab7d2d9c0f` prošel,
+- Hradník visual regression na stejném commitu prošel,
+- HRA-P1-12 je technicky 100 % a čeká jen na krátké fyzické potvrzení nového layoutu na PC/iPhonu.
+
+**Předchozí krok:**
+
 **2026-10-03 – navigace bez „Vyhledávání“: build PASS, oprava regresního testu**
 
 Hotovo:
@@ -852,13 +865,19 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit navigaci bez samostatného „Vyhledávání“
+## Krátce ověřit navigaci bez „Vyhledávání“, potom fotografie/placeholdery
 
-1. potvrdit Build Hradník a visual-regression po změně navigace,
-2. na PC ověřit: Mapa → Seznam → Oblíbené → Kategorie → O aplikaci,
-3. na iPhonu ověřit spodní navigaci: Mapa → Seznam → Oblíbené → Kategorie,
-4. na iPhonu klepnout na lupu v hlavičce a potvrdit, že otevře Seznam a zaměří vyhledávání,
-5. pokud vše sedí, označit HRA-P1-12 jako DONE a pokračovat HRA-P1-06 + HRA-P1-07 – fotografie a placeholdery.
+Na PC:
+1. Mapa → Seznam → Oblíbené → Kategorie → O aplikaci,
+2. potvrdit, že „Vyhledávání“ už v levé navigaci není,
+3. horní hledání musí otevřít Seznam a vyhledat zadaný text.
+
+Na iPhonu:
+1. spodní navigace musí mít jen Mapa → Seznam → Oblíbené → Kategorie,
+2. lupa v hlavičce musí otevřít Seznam a zaměřit hledání,
+3. zkontrolovat, že 4 položky spodní navigace jsou rovnoměrně rozložené.
+
+Po potvrzení označit HRA-P1-12 jako DONE a pokračovat HRA-P1-06 + HRA-P1-07 – sjednocení fotografií a placeholderů.
 ---
 
 # 14. Šablona aktualizace po každém kroku
