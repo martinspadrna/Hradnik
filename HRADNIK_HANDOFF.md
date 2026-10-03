@@ -55,8 +55,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 **ID:** HRA-P1-06 + HRA-P1-07  
 **Název:** Sjednotit fotografie a placeholdery v kartách  
-**Stav:** IN PROGRESS  
-**Dokončeno:** 90 %
+**Stav:** VERIFY  
+**Dokončeno:** 100 % technicky
 
 ### Cíl
 Každá karta v Seznamu, Oblíbených a deníku má právě jeden mediální slot: buď fotografii, nebo čitelný typový placeholder. Na desktopu ani mobilu nesmí zůstávat dvojitý prázdný blok pod fotografií.
@@ -282,8 +282,8 @@ Hrad, zámek, zřícenina, tvrz, klášter a další podporované typy mají roz
 ---
 
 ### HRA-P1-06 – Sjednotit komponentu fotografie / placeholderu
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Viditelný problém na desktopu:**
 - velké šedé/prázdné bloky,
@@ -299,8 +299,8 @@ Jedna responzivní komponenta:
 ---
 
 ### HRA-P1-07 – Opravit placeholdery bez fotografií
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Viditelný problém:**
 Např. Hrádek u Nechanic / Lednice mají téměř černou ikonku na tmavém pozadí.
@@ -671,6 +671,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-03 – jednotné fotografie/placeholdery: build + 18/18 visual PASS**
+
+Hotovo:
+- commit `34d80cff43d3f655a2c5600056db52de73668e77` má úspěšný Build Hradník,
+- Hradník visual regression na stejném commitu prošel 18/18 scénářů,
+- karty mají jediný mediální slot: fotografie nahrazuje placeholder místo přidání vedle něj,
+- při chybě obrázku se vrátí typový placeholder; detail má stejný bezpečný fallback,
+- desktop a mobil používají stabilní rozměry média,
+- placeholder má kontrastní zlatou typovou ikonu,
+- HRA-P1-06 a HRA-P1-07 jsou technicky 100 % a čekají jen na fyzické potvrzení na PC/iPhonu.
+
+**Předchozí krok:**
 
 **2026-10-03 – fotografie/placeholdery: build PASS, odstraněn stale-nav race v regresním testu**
 
