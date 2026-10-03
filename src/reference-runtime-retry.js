@@ -136,11 +136,15 @@ function ensure(){
   if(!firstMapDone&&!document.getElementById('map')){firstMapDone=true;route(0,nav)}
   requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));return true
 }
-function schedule(){if(frameQueued)return;frameQueued=true;requestAnimationFrame(()=>{frameQueued=false;ensure()})}
+function schedule(){if(frameQueued)return;frameQueued=true;queueMicrotask(()=>{frameQueued=false;ensure()})}
 
 // Route at the earliest capture point. Older design scripts use capture listeners
 // on the nav; intercepting on window prevents them from stealing the click.
 window.addEventListener('click',e=>{
+  const menu=e.target?.closest?.('.mobileHeaderMenu')
+  if(menu){e.preventDefault();e.stopImmediatePropagation();drawer(currentNav()).classList.add('open');return}
+  const mobileSearch=e.target?.closest?.('.mobileHeaderSearch')
+  if(mobileSearch){e.preventDefault();e.stopImmediatePropagation();route(3,currentNav());return}
   const b=e.target?.closest?.('.redesign-sidebar>.redesign-nav>button');if(!b)return
   const nav=b.parentElement,index=buttons(nav).indexOf(b);if(index<0)return
   e.preventDefault();e.stopImmediatePropagation();route(index,nav)

@@ -197,8 +197,8 @@ Při nedostupném backendu aplikace nespadne do syrové DB hlášky.
 ## P1 – Stabilita navigace a hlavních komponent
 
 ### HRA-P1-01 – Opravit mobilní navigaci jako jeden celek
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Audit / problém:**
 Automatický test na iPhonu selhal při přechodu Oblíbené → Vyhledávání. Obsah zmizel a zůstala jen spodní navigace.
@@ -333,8 +333,8 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 ---
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 20 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -657,7 +657,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
-**2026-10-03 – český fallback a lokální katalog při výpadku backendu**
+**2026-10-03 – stabilizace hlavní navigace bez další CSS záplaty**
+
+Hotovo:
+- kořen selhání Seznam/Vyhledávání byl dohledán v souběhu několika MutationObserverů: starší shell si po překreslení bez mapy stihl naplánovat návrat na Mapu,
+- hlavní runtime router nyní reaguje na změnu DOM v microtasku a převezme nově vyrenderovanou navigaci ještě před starším requestAnimationFrame callbackem,
+- mobilní hamburger a tlačítko hledání jsou zachyceny na jediném window-capture routeru dříve než staré lokální handlery,
+- tím se odstraňuje známý konflikt, kdy hamburger otevíral jiný drawer a položka Profil zůstávala skrytá,
+- HRA-P1-01 je VERIFY; ověří ji nový Playwright běh a potom fyzický iPhone test,
+- HRA-P1-09 je rozpracovaný: router už má jedno prioritní místo, další staré prezentační vrstvy se budou čistit až po potvrzení stability.
+
+**Předchozí krok – český fallback a lokální katalog při výpadku backendu**
 
 Hotovo:
 - úspěšně načtený katalog se ukládá do IndexedDB bez blokování UI,
