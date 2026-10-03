@@ -1,10 +1,7 @@
 import './mobile.css'
-import { createClient } from '@supabase/supabase-js'
+import { supabase as db, edgeFunctionUrl } from './supabase.js'
 
-const SUPABASE_URL = 'https://cgshssdjgzzuprlwnabl.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_v7jeuZC-MNUEO5nfE5xcUQ_Pu9pT-X_'
-const db = createClient(SUPABASE_URL, SUPABASE_KEY)
-const PHOTO_URL = `${SUPABASE_URL}/functions/v1/hradnik-photo`
+const PHOTO_URL = edgeFunctionUrl('hradnik-photo')
 
 const photoCache = new Map()
 const lookupPromises = new Map()

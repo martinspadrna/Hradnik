@@ -1,4 +1,6 @@
-const ADMIN_URL = 'https://cgshssdjgzzuprlwnabl.supabase.co/functions/v1/hradnik-admin'
+import { edgeFunctionUrl } from './supabase.js'
+
+const ADMIN_URL = edgeFunctionUrl('hradnik-admin')
 const adminState = { user: null, places: [], search: '', includeDeleted: false }
 const adminToken = () => localStorage.getItem('hradnik_session') || ''
 

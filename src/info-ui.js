@@ -1,8 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-const SUPABASE_URL='https://cgshssdjgzzuprlwnabl.supabase.co'
-const SUPABASE_KEY='sb_publishable_v7jeuZC-MNUEO5nfE5xcUQ_Pu9pT-X_'
-const db=createClient(SUPABASE_URL,SUPABASE_KEY)
+import { supabase as db } from './supabase.js'
 const cache=new Map()
 const inflight=new WeakSet()
 const enriched=new WeakSet()

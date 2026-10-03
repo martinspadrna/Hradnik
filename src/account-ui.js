@@ -1,4 +1,6 @@
-const AUTH_URL='https://cgshssdjgzzuprlwnabl.supabase.co/functions/v1/hradnik-auth'
+import { edgeFunctionUrl } from './supabase.js'
+
+const AUTH_URL=edgeFunctionUrl('hradnik-auth')
 let user=null
 let busy=false
 let ensureQueued=false

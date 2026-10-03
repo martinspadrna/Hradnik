@@ -1,12 +1,9 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import './styles.css'
-import { createClient } from '@supabase/supabase-js'
+import { supabase, edgeFunctionUrl } from './supabase.js'
 
-const SUPABASE_URL = 'https://cgshssdjgzzuprlwnabl.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_v7jeuZC-MNUEO5nfE5xcUQ_Pu9pT-X_'
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-const AUTH_URL = `${SUPABASE_URL}/functions/v1/hradnik-auth`
+const AUTH_URL = edgeFunctionUrl('hradnik-auth')
 const app = document.querySelector('#app')
 
 const TYPES = ['Vše', 'Hrad', 'Zámek', 'Zřícenina', 'Tvrz', 'Klášter', 'Opevněné místo']

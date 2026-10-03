@@ -1,4 +1,6 @@
-const QUALITY_URL='https://cgshssdjgzzuprlwnabl.supabase.co/functions/v1/hradnik-quality'
+import { edgeFunctionUrl } from './supabase.js'
+
+const QUALITY_URL=edgeFunctionUrl('hradnik-quality')
 const qtoken=()=>localStorage.getItem('hradnik_session')||''
 const qesc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 const qheaders=()=>({'Content-Type':'application/json',Authorization:`Bearer ${qtoken()}`})

@@ -9,9 +9,9 @@
 
 - **Projekt:** Hradník
 - **Datum založení handoffu:** 2026-10-03
-- **Branch:** doplnit podle aktuálního repozitáře
-- **HEAD:** doplnit podle aktuálního repozitáře
-- **Produkce:** podle prvního auditu nefunkční / nestabilní kvůli vazbě na starý Supabase projekt
+- **Branch:** `main`
+- **HEAD:** aktuální commit větve `main` (tento soubor je součástí stejného commitu jako změny)
+- **Produkce:** frontend funguje přes dočasný cutover mechanismus; zdrojový kód se právě čistí tak, aby používal nový Supabase přímo
 - **Nový Supabase projekt:** `abqiprdggptuxebhpfyi`
 - **Nová Supabase URL:** `https://abqiprdggptuxebhpfyi.supabase.co`
 - **Starý Supabase projekt:** `cgshssdjgzzuprlwnabl`
@@ -53,10 +53,10 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P0-01  
-**Název:** Kompletní přepojení Hradníku na nový Supabase projekt  
-**Stav:** TODO  
-**Dokončeno:** 0 %
+**ID:** HRA-P0-01 + HRA-P0-02  
+**Název:** Přímé napojení na nový Supabase + jediný sdílený klient  
+**Stav:** VERIFY  
+**Dokončeno:** 90 %
 
 ### Cíl
 Odstranit runtime závislost Hradníku na `cgshssdjgzzuprlwnabl` a kompletně používat `abqiprdggptuxebhpfyi`.
@@ -71,8 +71,8 @@ Nezačínat mazáním starého projektu. Nejprve zjistit všechny vazby, připra
 ## P0 – Kritické: funkční backend a bezpečná migrace
 
 ### HRA-P0-01 – Kompletně přepojit Hradník na nový Supabase
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Audit / problém:**
 Frontend stále používá starý Supabase projekt `cgshssdjgzzuprlwnabl`, zatímco aktuální samostatný projekt Hradníku je `abqiprdggptuxebhpfyi`. Staré API podle auditu vrací 404 a aplikace může místo obsahu zobrazit technickou chybu.
@@ -100,8 +100,8 @@ Frontend stále používá starý Supabase projekt `cgshssdjgzzuprlwnabl`, zatí
 ---
 
 ### HRA-P0-02 – Centralizovat konfiguraci a Supabase klienta
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** VERIFY
+- **Dokončeno:** 90 %
 
 **Audit / problém:**
 Supabase klient je vytvořený několikrát. Produkční konzole hlásí více instancí stejného auth klienta, což může způsobovat problémy s relací.
@@ -657,16 +657,22 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
-**2026-10-03 – audit a konsolidace problémů**
+**2026-10-03 – odstranění dočasného Supabase cutover mechanismu ze zdrojové logiky**
 
 Hotovo:
-- sloučen první audit z Worku,
-- vyhodnoceny desktopové screenshoty,
-- vyhodnoceny mobilní screenshoty,
-- vytvořen kompletní seznam P0–P3,
-- založen tento handoff dokument.
+- ověřeno, že nový projekt `abqiprdggptuxebhpfyi` je ACTIVE_HEALTHY,
+- ověřeno, že nový projekt obsahuje 9 tabulek Hradníku včetně 3004 záznamů `hradnik_places`,
+- ověřeno, že Hradník edge funkce jsou nasazené v novém projektu,
+- starý projekt již neobsahuje veřejné tabulky `hradnik_*`,
+- vytvořen jediný `src/supabase.js` pro URL, publishable key, sdíleného klienta a URL edge funkcí,
+- odstraněny přímé staré Supabase URL/key z hlavních runtime modulů,
+- odstraněn build-time přepis staré Supabase na novou,
+- odstraněn globální fetch monkeypatch `supabase-cutover.js`,
+- HRA-P0-01 a HRA-P0-02 čekají na build/runtime ověření.
 
-Aplikace zatím nebyla v rámci tohoto handoff kroku měněna.
+Důležité zjištění:
+- původní audit popisoval starší stav; vlastní data a backend už byly 11. 9. 2026 přeneseny do nové Supabase,
+- zbývající problém byl hlavně v tom, že zdrojové moduly stále obsahovaly staré URL a spoléhaly na dočasný přepis.
 
 ---
 
@@ -686,16 +692,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P0-01 + HRA-P0-02 – audit vazeb a centralizace Supabase
+## Nejprve ověřit HRA-P0-01 + HRA-P0-02, potom HRA-P0-03
 
-Doporučený postup:
-1. načíst aktuální HEAD,
-2. vyhledat všechny výskyty `cgshssdjgzzuprlwnabl`,
-3. vyhledat všechna místa, kde se vytváří Supabase klient,
-4. zdokumentovat runtime závislosti,
-5. připravit jeden centrální klient/config,
-6. nic nemaž ze starého projektu,
-7. aktualizovat tento soubor před commitem i po něm.
+1. zkontrolovat GitHub Actions build po tomto commitu,
+2. ověřit produkční načtení katalogu, přihlášení, fotografie, administraci a quality UI,
+3. potvrdit, že runtime requesty míří pouze na `abqiprdggptuxebhpfyi`,
+4. po úspěchu označit HRA-P0-01 a HRA-P0-02 jako DONE,
+5. pokračovat HRA-P0-03: přenést skutečný aktuální serverový schema/migration stav nové Supabase do repozitáře, protože server má novější migrace než složka `supabase/migrations`.
 
 ---
 
@@ -722,4 +725,4 @@ Další doporučený krok:
 
 Použij:
 
-> **Pokračuj v projektu Hradník podle aktuálního `HRADNIK_HANDOFF.md` a aktuálního HEAD větve `development` (nebo aktuální pracovní větve uvedené v handoffu). Všechno důležité je v tomto souboru. Nejdřív ho celý načti, neopakuj audit od začátku a pokračuj bodem označeným jako „Aktuálně řešený úkol“. Po každém dokončeném nebo mnou potvrzeném kroku aktualizuj `HRADNIK_HANDOFF.md` ve stejném commitu včetně stavu, procent, HEAD, ručního testu a dalšího kroku. Nic nemaž ze starého Supabase projektu, dokud nový Hradník není plně ověřený.**
+> **Pokračuj v projektu Hradník podle aktuálního `HRADNIK_HANDOFF.md` a aktuálního HEAD větve `main`. Všechno důležité je v tomto souboru. Nejdřív ho celý načti, neopakuj audit od začátku a pokračuj bodem označeným jako „Aktuálně řešený úkol“. Po každém dokončeném nebo mnou potvrzeném kroku aktualizuj `HRADNIK_HANDOFF.md` ve stejném commitu včetně stavu, procent, HEAD, ručního testu a dalšího kroku. Nic nemaž ze starého Supabase projektu, dokud nový Hradník není plně ověřený.**
