@@ -56,7 +56,7 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **ID:** HRA-P1-09  
 **Název:** Sjednotit vlastnictví hlavní navigace a shellu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 88 %
+**Dokončeno:** 92 %
 
 ### Cíl
 `reference-runtime-retry.js` má být jediný vlastník routování hlavní navigace. Staré capture routery v pomocných modulech se postupně odstraňují po jednom a každý krok se ověřuje kompletní regresní sadou.
@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 88 %
+- **Dokončeno:** 92 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -671,6 +671,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – odstraněn další vlastník sidebar/nav DOM z redesign.js**
+
+Hotovo:
+- odstranění mrtvého redesign draweru prošlo Build + visual regression,
+- `redesign.js` už nevytváří sidebar, nepřesouvá do něj navigaci a nepřepisuje její ikony/popisky,
+- modul zůstává pouze pro prezentační úpravy karet/map layoutu,
+- shell/navigační DOM nyní zajišťují reference vrstvy; cílem dalšího kroku je odstranit i duplicitní DOM enforcement z `reference-force-shell.js` a ponechat jej jen jako styling fallback,
+- HRA-P1-09 je na 92 % a čeká na CI.
+
+**Předchozí krok:**
 
 **2026-10-06 – odstraněn mrtvý redesign drawer/menu systém**
 
