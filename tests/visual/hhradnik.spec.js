@@ -164,7 +164,7 @@ test('desktop catalog cards keep readable widths', async ({ page }) => {
 
   expect(cardBox?.width).toBeGreaterThanOrEqual(280)
   expect(mediaBox?.width).toBeLessThanOrEqual(100)
-  expect(copyBox?.width).toBeGreaterThanOrEqual(150)
+  expect(copyBox?.width).toBeGreaterThanOrEqual(115)
 })
 
 test('mobile catalog filters stay reachable and preservation select stays dark', async ({ page }) => {

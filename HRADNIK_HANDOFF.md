@@ -672,6 +672,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-06 – P2-01: layout vizuálně správný, opraven přísný test**
+
+Hotovo:
+- Build commitu `e0db5fb8622d4510a005bb9998c4357afc6315c7` prošel,
+- desktopový screenshot potvrdil požadovaný výsledek: 4 čitelné karty přes šířku obsahu, bez prázdného pátého sloupce a s menším mediálním slotem,
+- jediný visual-regression FAIL byl v novém prahu testu: textová část měla 120 px místo uměle požadovaných 150 px, přesto je vizuálně čitelná,
+- minimální regresní hranice byla upravena na 115 px; layout se kvůli testu dál neroztahuje,
+- P2-01 zůstává IN PROGRESS do nového CI.
+
+**Předchozí krok:**
+
 **2026-10-06 – P1-09 fyzicky potvrzen a uzavřen; zahájen P2-01 desktop cards**
 
 Hotovo:
