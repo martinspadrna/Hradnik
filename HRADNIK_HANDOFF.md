@@ -410,8 +410,8 @@ Build a visual-regression projdou a na PC/iPhonu nebude v hlavní navigaci polo�
 ## P2 – Responsive, UX, konzole a testy
 
 ### HRA-P2-01 – Upravit desktopové karty
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 95 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Viditelný problém:**
 - příliš velké obrázkové plochy,
@@ -671,6 +671,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – P2-02 test reprodukoval původní úzké „Nedávno zobrazené“**
+
+Zjištění a oprava:
+- P2-01 desktop card test v kombinovaném CI prošel; P2-01 je technicky 100 % ve VERIFY,
+- nový P2-02 test přesně reprodukoval původní problém: při pěti položkách měla karta „Nedávno zobrazené“ jen 42,875 px,
+- screenshot potvrdil názvy zkrácené na fragmenty typu „Hr…“, „Zn…“, „Au…“,
+- `.reference-recent-list` nyní explicitně vlastní celý dostupný řádek: `width:100%`, `display:grid!important` a pět sloupců s minimem 180 px,
+- změna opravuje kořen rozměrového kolapsu místo dalšího zkracování obsahu,
+- P2-02 zůstává IN PROGRESS do zeleného CI.
+
+**Předchozí krok:**
 
 **2026-10-06 – P2-02 chráněno cíleným testem „Nedávno zobrazené“**
 
