@@ -672,6 +672,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-06 – P1-09 routing/active-state cleanup ověřen 18/18 PASS**
+
+Hotovo:
+- commit `070eb78c5e96eab333afe1e004910947be6f8e8a` má Build Hradník PASS i Hradník visual regression PASS,
+- hlavní navigaci už neroutuje `detail-layout.js` ani `redesign.js`,
+- `redesign.js` už ani nepřepisuje aktivní položku navigace a nepřidává opakované search focus/input listenery,
+- `reference-runtime-retry.js` je nyní jediný vlastník routování a hlavního active-state,
+- HRA-P1-09 zůstává na 70 %: další úklid header/menu/shell vrstev dělat až po krátkém fyzickém ověření současného stabilního stavu,
+- HRA-P1-10 a HRA-P1-11 jsou technicky 100 % ve VERIFY.
+
+**Předchozí krok:**
+
 **2026-10-06 – třetí krok P1-09: odstraněn duplicitní active/search state z redesign.js**
 
 Hotovo:
@@ -981,12 +993,20 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit filtry + první architektonický úklid
+## Krátké fyzické ověření před dalším architektonickým úklidem
 
-1. potvrdit Build Hradník a visual-regression na aktuálním HEAD,
-2. pokud projdou, HRA-P1-10/P1-11 přesunout do VERIFY a fyzicky na iPhonu zkontrolovat poslední chip + select,
-3. HRA-P1-08 stále krátce fyzicky ověřit v detailu Hrádku u Nechanic,
-4. poté pokračovat HRA-P1-09: odstranit další duplicitní routing z `redesign.js`, ale zachovat `reference-runtime-retry.js` jako jediného vlastníka hlavní navigace.
+Na iPhonu:
+1. Seznam → přejet typové filtry až na „Opevněné místo“ a potvrdit, že poslední chip jde celý zobrazit/stisknout,
+2. potvrdit tmavý a čitelný select „Dochované + zříceniny“,
+3. projet Mapa → Seznam → Oblíbené → Kategorie → Mapa a potvrdit stabilní aktivní položku navigace.
+
+Na PC:
+1. otevřít detail Hrádku u Nechanic a ověřit **Stav / Dochování / Popis**,
+2. krátce projet hlavní navigaci.
+
+Po potvrzení:
+- HRA-P1-08, P1-10 a P1-11 označit DONE,
+- pokračovat P1-09 dalším bezpečným úklidem duplicitního header/menu wiring.
 ---
 
 # 14. Šablona aktualizace po každém kroku
