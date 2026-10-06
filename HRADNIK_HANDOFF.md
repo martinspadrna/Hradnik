@@ -54,9 +54,9 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P1-09  
-**Název:** Sjednotit vlastnictví hlavní navigace a aktivního stavu  
+**Název:** Sjednotit vlastnictví hlavní navigace a header ovládání  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 70 %
+**Dokončeno:** 80 %
 
 ### Cíl
 `reference-runtime-retry.js` má být jediný vlastník routování hlavní navigace. Staré capture routery v pomocných modulech se postupně odstraňují po jednom a každý krok se ověřuje kompletní regresní sadou.
@@ -311,8 +311,8 @@ Placeholder je jasně čitelný a používá správnou typovou ikonu ve vizuáln
 ---
 
 ### HRA-P1-08 – Prověřit mapování polí v detailu památky
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Viditelný problém:**
 U „Zámek Hrádek u Nechanic“ je dlouhý text v sekci `STAV`, zatímco `POPIS` hlásí „Bez popisu“.
@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 70 %
+- **Dokončeno:** 80 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -357,8 +357,8 @@ Nejde o kompletní přepis aplikace. Jde o bezpečné odstranění kořenových 
 ---
 
 ### HRA-P1-10 – Opravit responsivní filtry Seznamu/Vyhledávání
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Viditelný problém:**
 Řada typových filtrů na mobilu přetéká doprava a poslední tlačítko je uříznuté.
@@ -373,8 +373,8 @@ Nejde o kompletní přepis aplikace. Jde o bezpečné odstranění kořenových 
 ---
 
 ### HRA-P1-11 – Stabilizovat select „Dochované + zříceniny“
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Audit / problém:**
 V prvním auditu světlé písmo na téměř bílém pozadí. Na aktuálním screenshotu vypadá správně.
@@ -671,6 +671,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – fyzické ověření P1-08/P1-10/P1-11 OK + centralizace header controls**
+
+Hotovo:
+- uživatel fyzicky potvrdil detail Stav / Dochování / Popis, mobilní filtry, select a hlavní navigaci jako OK,
+- HRA-P1-08, HRA-P1-10 a HRA-P1-11 jsou DONE,
+- `redesign.js` už nevytváří ani neváže globální vyhledávání a mobilní hamburger/lupu,
+- tyto prvky nyní vlastní `reference-runtime-retry.js`, stejně jako hlavní routing navigace,
+- tím se odstranily další dva duplicitní handlery nad stejnými DOM selektory,
+- HRA-P1-09 je na 80 % a čeká na CI tohoto kroku.
+
+**Předchozí krok:**
 
 **2026-10-06 – P1-09 routing/active-state cleanup ověřen 18/18 PASS**
 
@@ -993,20 +1005,12 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Krátké fyzické ověření před dalším architektonickým úklidem
+## Dokončit bezpečný P1-09 úklid
 
-Na iPhonu:
-1. Seznam → přejet typové filtry až na „Opevněné místo“ a potvrdit, že poslední chip jde celý zobrazit/stisknout,
-2. potvrdit tmavý a čitelný select „Dochované + zříceniny“,
-3. projet Mapa → Seznam → Oblíbené → Kategorie → Mapa a potvrdit stabilní aktivní položku navigace.
-
-Na PC:
-1. otevřít detail Hrádku u Nechanic a ověřit **Stav / Dochování / Popis**,
-2. krátce projet hlavní navigaci.
-
-Po potvrzení:
-- HRA-P1-08, P1-10 a P1-11 označit DONE,
-- pokračovat P1-09 dalším bezpečným úklidem duplicitního header/menu wiring.
+1. potvrdit Build Hradník a visual-regression po přesunu header controls pod `reference-runtime-retry.js`,
+2. pokud projdou, prověřit zda je starý `redesign-menu-trigger/redesign-drawer` skutečně mrtvý na desktopu i mobilu,
+3. odstranit ho pouze pokud jeho funkce jsou pokryté současným profilem, Nastavením a mobilním drawerem,
+4. potom zhodnotit, zda lze HRA-P1-09 uzavřít nebo ponechat zbytek až do P3 technického úklidu.
 ---
 
 # 14. Šablona aktualizace po každém kroku
