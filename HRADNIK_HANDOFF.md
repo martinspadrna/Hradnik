@@ -53,16 +53,16 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P1-10 + HRA-P1-11  
-**Název:** Mobilní filtry Seznamu a stabilní kontrast selectu  
+**ID:** HRA-P1-09  
+**Název:** Sjednotit vlastnictví hlavní navigace  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 90 %
+**Dokončeno:** 55 %
 
 ### Cíl
-Typové filtry v Seznamu musí být na úzkém mobilu vždy dosažitelné záměrným horizontálním posunem, bez uříznutého posledního tlačítka. Select „Dochované + zříceniny“ musí mít deterministický tmavý vzhled a čitelný text ve všech stavech.
+`reference-runtime-retry.js` má být jediný vlastník routování hlavní navigace. Staré capture routery v pomocných modulech se postupně odstraňují po jednom a každý krok se ověřuje kompletní regresní sadou.
 
 ### Poznámka
-HRA-P1-08 prošlo Build + visual regression a je technicky hotové; fyzické ověření detailu zůstává doporučené, ale neblokuje pokračování.
+HRA-P1-10 a HRA-P1-11 už mají Build + visual regression PASS a jsou technicky ve VERIFY; fyzický iPhone test zůstává doporučený.
 ---
 
 # 5. Kompletní plán
@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 45 %
+- **Dokončeno:** 55 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -357,8 +357,8 @@ Nejde o kompletní přepis aplikace. Jde o bezpečné odstranění kořenových 
 ---
 
 ### HRA-P1-10 – Opravit responsivní filtry Seznamu/Vyhledávání
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Viditelný problém:**
 Řada typových filtrů na mobilu přetéká doprava a poslední tlačítko je uříznuté.
@@ -373,8 +373,8 @@ Nejde o kompletní přepis aplikace. Jde o bezpečné odstranění kořenových 
 ---
 
 ### HRA-P1-11 – Stabilizovat select „Dochované + zříceniny“
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Audit / problém:**
 V prvním auditu světlé písmo na téměř bílém pozadí. Na aktuálním screenshotu vypadá správně.
@@ -671,6 +671,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – druhý krok P1-09: odstraněn capture router z redesign.js**
+
+Hotovo:
+- HRA-P1-10 + HRA-P1-11 mají na commitu `51ca3bb4c1b72da5e633e8261b1b001fa75c7b8e` Build PASS + visual regression PASS a jsou ve VERIFY,
+- z `detail-layout.js` už byl odstraněn jeho zastaralý globální nav router,
+- nyní byl odstraněn i capture router v `redesign.js` s původní šestipoložkovou mapou `[2,1,3,1,4,5]`,
+- `redesign.js` dál pouze staví/vzhledově upravuje sidebar; routování má řešit `reference-runtime-retry.js`,
+- P1-09 je na 55 %; po zeleném CI lze dál řešit duplicitní aktivní-state/header wiring.
+
+**Předchozí krok:**
 
 **2026-10-06 – první bezpečný krok P1-09: odstraněn druhý vlastník navigace z detail-layout**
 
