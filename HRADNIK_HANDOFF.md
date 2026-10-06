@@ -54,9 +54,9 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P1-09  
-**Název:** Sjednotit vlastnictví hlavní navigace a header ovládání  
+**Název:** Sjednotit vlastnictví hlavní navigace a shellu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 80 %
+**Dokončeno:** 88 %
 
 ### Cíl
 `reference-runtime-retry.js` má být jediný vlastník routování hlavní navigace. Staré capture routery v pomocných modulech se postupně odstraňují po jednom a každý krok se ověřuje kompletní regresní sadou.
@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 80 %
+- **Dokončeno:** 88 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -671,6 +671,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – odstraněn mrtvý redesign drawer/menu systém**
+
+Hotovo:
+- předchozí přesun header controls pod `reference-runtime-retry.js` prošel Build + visual regression,
+- `redesign-menu-trigger` byl na mobilu explicitně skrytý a na desktopu žil uvnitř skrytého původního header bloku, takže jeho drawer nebyl reálně dosažitelný,
+- odstraněny z `redesign.js` mrtvé funkce `addMenuStyles`, `addMenu`, `openPanel` a nepoužívaná `MENU_ICONS`,
+- současný profil zůstává v `account-ui.js`, Nastavení a mobilní drawer v `reference-runtime-retry.js`, O aplikaci/Kategorie v hlavní reference navigaci,
+- `redesign.js` tak už nevytváří další paralelní menu DOM ani jeho handlery,
+- HRA-P1-09 je na 88 % a čeká na CI tohoto kroku.
+
+**Předchozí krok:**
 
 **2026-10-06 – fyzické ověření P1-08/P1-10/P1-11 OK + centralizace header controls**
 
