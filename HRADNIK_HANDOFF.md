@@ -53,10 +53,10 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-02  
-**Název:** Opravit „Nedávno zobrazené“ pod desktopovou mapou  
-**Stav:** IN PROGRESS  
-**Dokončeno:** 90 %
+**ID:** HRA-P2-01 + HRA-P2-02  
+**Název:** Fyzicky ověřit desktopové karty a „Nedávno zobrazené“  
+**Stav:** VERIFY  
+**Dokončeno:** 100 % technicky
 
 ### Cíl
 Karty „Nedávno zobrazené“ nesmí znovu zkolabovat na extrémně úzké sloupce, ve kterých z názvu zůstane jen několik znaků.
@@ -424,8 +424,8 @@ Stabilní rozměry karet a obrázků, čitelný text, žádné obří prázdné 
 ---
 
 ### HRA-P2-02 – Opravit „Nedávno zobrazené“ pod desktopovou mapou
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Viditelný problém:**
 Karty jsou extrémně úzké a názvy se zkracují na několik znaků (`Jan...`, `Zno...`).
@@ -671,6 +671,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – P2-01 + P2-02 CI PASS**
+
+Hotovo:
+- commit `9dfa65e7fe70c5d583f38d9351ad8c41a4252414` má Build Hradník PASS i Hradník visual regression PASS,
+- P2-01 desktopové karty prošly testem minimální šířky karty, média a textové části,
+- P2-02 cílený test s pěti položkami „Nedávno zobrazené“ prošel; žádná karta už nekolabuje na desítky pixelů,
+- původní problém fragmentů názvů typu „Hr… / Zn… / Au…“ je technicky opraven,
+- P2-01 a P2-02 jsou technicky 100 % ve VERIFY a čekají jen na krátké vizuální potvrzení na PC.
+
+**Předchozí krok:**
 
 **2026-10-06 – P2-02 test reprodukoval původní úzké „Nedávno zobrazené“**
 
@@ -1085,12 +1096,14 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit P2-01 a pokračovat „Nedávno zobrazené“
+## Krátce ověřit desktopové karty
 
-1. potvrdit Build Hradník a visual regression,
-2. na PC zkontrolovat Seznam + Oblíbené: názvy nesmí být namačkané do několika znaků na řádek,
-3. pokud sedí, P2-01 označit DONE,
-4. pokračovat P2-02 cíleným regresním testem šířky karet „Nedávno zobrazené“.
+Na PC:
+1. otevřít **Seznam** a zkontrolovat, že karty jsou širší a názvy nejsou namačkané,
+2. otevřít několik památek na mapě a podívat se na **Nedávno zobrazené**,
+3. pět karet musí být normálně širokých a název má být identifikovatelný.
+
+Po potvrzení označit P2-01 a P2-02 jako DONE. Potom pokračovat P2-03 – zkompaktnění mobilní hlavičky; tento krok mění výškové offsety mapy/detailu/draweru, proto se má dělat až po tomto checkpointu.
 ---
 
 # 14. Šablona aktualizace po každém kroku
