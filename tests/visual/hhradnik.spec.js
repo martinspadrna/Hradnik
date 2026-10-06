@@ -167,6 +167,28 @@ test('desktop catalog cards keep readable widths', async ({ page }) => {
   expect(copyBox?.width).toBeGreaterThanOrEqual(115)
 })
 
+test('desktop recent cards keep usable widths', async ({ page }) => {
+  test.skip(test.info().project.name !== 'desktop')
+  await page.addInitScript(items => {
+    localStorage.setItem('hradnik_recent_places_v1', JSON.stringify(items))
+  }, [
+    { name: 'Hrádek u Nechanic', kind: 'Zámek', location: 'Hradec Králové' },
+    { name: 'Znojmo – hradní areál', kind: 'Hrad', location: 'Znojmo' },
+    { name: 'Augustiniánský klášter', kind: 'Klášter', location: 'Brno' },
+    { name: 'Zřícenina hradu Trosky', kind: 'Zřícenina', location: 'Semily' },
+    { name: 'Tvrz dlouhého názvu', kind: 'Tvrz', location: 'Česko' }
+  ])
+
+  const nav = await openApp(page)
+  await nav.nth(0).click()
+
+  const cards = page.locator('.reference-recent-card')
+  await expect(cards).toHaveCount(5)
+  const widths = await cards.evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().width))
+  expect(Math.min(...widths)).toBeGreaterThanOrEqual(180)
+  await expect(cards.first().locator('.reference-recent-copy b')).toHaveText('Hrádek u Nechanic')
+})
+
 test('mobile catalog filters stay reachable and preservation select stays dark', async ({ page }) => {
   test.skip(test.info().project.name !== 'iphone')
   const nav = await openApp(page)

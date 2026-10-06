@@ -53,16 +53,16 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-01  
-**Název:** Upravit desktopové karty  
+**ID:** HRA-P2-02  
+**Název:** Opravit „Nedávno zobrazené“ pod desktopovou mapou  
 **Stav:** IN PROGRESS  
 **Dokončeno:** 90 %
 
 ### Cíl
-Desktopové karty mají využívat šířku obrazovky efektivněji, ale nesmí být příliš úzké. Fotografie/placeholder nemá vytlačit název do několika krátkých řádků.
+Karty „Nedávno zobrazené“ nesmí znovu zkolabovat na extrémně úzké sloupce, ve kterých z názvu zůstane jen několik znaků.
 
-### Změna
-Desktopový grid používá pružné sloupce s minimem 280 px a mediální slot je zmenšen na 96×72 px.
+### Stav
+Současné CSS už používá pět rovnoměrných sloupců přes plnou šířku dashboardu. Přidán cílený desktop regresní test s pěti reálnějšími názvy a minimální šířkou 180 px.
 ---
 
 # 5. Kompletní plán
@@ -411,7 +411,7 @@ Build a visual-regression projdou a na PC/iPhonu nebude v hlavní navigaci polo�
 
 ### HRA-P2-01 – Upravit desktopové karty
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Dokončeno:** 95 %
 
 **Viditelný problém:**
 - příliš velké obrázkové plochy,
@@ -424,8 +424,8 @@ Stabilní rozměry karet a obrázků, čitelný text, žádné obří prázdné 
 ---
 
 ### HRA-P2-02 – Opravit „Nedávno zobrazené“ pod desktopovou mapou
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Viditelný problém:**
 Karty jsou extrémně úzké a názvy se zkracují na několik znaků (`Jan...`, `Zno...`).
@@ -671,6 +671,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – P2-02 chráněno cíleným testem „Nedávno zobrazené“**
+
+Hotovo:
+- P2-01 screenshot po úpravě ukazuje čitelnější 4sloupcový desktop grid; nový threshold testu byl srovnán s reálným layoutem,
+- pro P2-02 přidán desktop test s 5 položkami v `hradnik_recent_places_v1`,
+- test hlídá, že všech pět karet existuje, každá má minimálně 180 px a plný název zůstává v DOM,
+- pokud kombinovaný CI projde, P2-01 i P2-02 lze přesunout do VERIFY.
+
+**Předchozí krok:**
 
 **2026-10-06 – P2-01: layout vizuálně správný, opraven přísný test**
 
