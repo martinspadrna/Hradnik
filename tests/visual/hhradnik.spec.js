@@ -151,6 +151,22 @@ test('list search, categories and favorites route to useful screens', async ({ p
   await expect(page.locator('#mineList')).toBeVisible()
 })
 
+test('desktop catalog cards keep readable widths', async ({ page }) => {
+  test.skip(test.info().project.name !== 'desktop')
+  const nav = await openApp(page)
+  await nav.nth(1).click()
+
+  const card = page.locator('#list .place').first()
+  await expect(card).toBeVisible()
+  const cardBox = await card.boundingBox()
+  const mediaBox = await card.locator('.placeIcon,.placePhoto').first().boundingBox()
+  const copyBox = await card.locator('.placeCopy').boundingBox()
+
+  expect(cardBox?.width).toBeGreaterThanOrEqual(280)
+  expect(mediaBox?.width).toBeLessThanOrEqual(100)
+  expect(copyBox?.width).toBeGreaterThanOrEqual(150)
+})
+
 test('mobile catalog filters stay reachable and preservation select stays dark', async ({ page }) => {
   test.skip(test.info().project.name !== 'iphone')
   const nav = await openApp(page)

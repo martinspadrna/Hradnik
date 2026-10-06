@@ -53,16 +53,16 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P1-09  
-**Název:** Sjednotit vlastnictví hlavní navigace a shellu  
+**ID:** HRA-P2-01  
+**Název:** Upravit desktopové karty  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 97 %
+**Dokončeno:** 90 %
 
 ### Cíl
-`reference-runtime-retry.js` má být jediný vlastník routování hlavní navigace. Staré capture routery v pomocných modulech se postupně odstraňují po jednom a každý krok se ověřuje kompletní regresní sadou.
+Desktopové karty mají využívat šířku obrazovky efektivněji, ale nesmí být příliš úzké. Fotografie/placeholder nemá vytlačit název do několika krátkých řádků.
 
-### Poznámka
-HRA-P1-10 a HRA-P1-11 už mají Build + visual regression PASS a jsou technicky ve VERIFY; fyzický iPhone test zůstává doporučený.
+### Změna
+Desktopový grid používá pružné sloupce s minimem 280 px a mediální slot je zmenšen na 96×72 px.
 ---
 
 # 5. Kompletní plán
@@ -332,8 +332,8 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 ---
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 97 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -410,8 +410,8 @@ Build a visual-regression projdou a na PC/iPhonu nebude v hlavní navigaci polo�
 ## P2 – Responsive, UX, konzole a testy
 
 ### HRA-P2-01 – Upravit desktopové karty
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Viditelný problém:**
 - příliš velké obrázkové plochy,
@@ -671,6 +671,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – P1-09 fyzicky potvrzen a uzavřen; zahájen P2-01 desktop cards**
+
+Hotovo:
+- uživatel potvrdil centralizovaný shell jako OK,
+- poslední P1-09 změna `2d274ced44d50446a7ba33f5458498b4116ca2d5` má Build PASS + visual regression PASS,
+- HRA-P1-09 je DONE; další plošný dead-code/CSS úklid se přesouvá do P3,
+- P2-01 mění desktop grid z pevných úzkých pěti sloupců na `auto-fill` s minimální šířkou 280 px,
+- mediální slot karty je zmenšen z 118×84 na 96×72 px, aby zůstalo více prostoru názvu a metadatům,
+- přidán desktop regresní test minimální šířky karty, média a textové části.
+
+**Předchozí krok:**
 
 **2026-10-06 – reference-force-shell převeden na style-only fallback**
 
@@ -1040,15 +1052,12 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Fyzicky potvrdit centralizovaný shell
+## Ověřit P2-01 a pokračovat „Nedávno zobrazené“
 
-Po zeleném CI krátce ověřit na PC i iPhonu:
-1. Mapa → Seznam → Oblíbené → Kategorie → Mapa,
-2. horní hledání / mobilní lupa,
-3. profil a Nastavení,
-4. otevření detailu a návrat zpět.
-
-Pokud vše sedí, HRA-P1-09 označit DONE. Zbytek starých CSS vrstev a obecný dead-code úklid přesunout do P3, aby se teď zbytečně neriskoval funkční stav.
+1. potvrdit Build Hradník a visual regression,
+2. na PC zkontrolovat Seznam + Oblíbené: názvy nesmí být namačkané do několika znaků na řádek,
+3. pokud sedí, P2-01 označit DONE,
+4. pokračovat P2-02 cíleným regresním testem šířky karet „Nedávno zobrazené“.
 ---
 
 # 14. Šablona aktualizace po každém kroku

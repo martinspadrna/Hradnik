@@ -2,24 +2,24 @@
 .placeMain{min-width:0}
 #list .placeMain,#mineList .placeMain,#diaryList .placeMain{
   display:grid!important;
-  grid-template-columns:118px minmax(0,1fr)!important;
+  grid-template-columns:96px minmax(0,1fr)!important;
   align-items:center!important;
   gap:12px!important;
 }
 #list .placePhoto,#mineList .placePhoto,#diaryList .placePhoto{
   display:block!important;
-  width:118px!important;
-  height:84px!important;
-  min-width:118px!important;
+  width:96px!important;
+  height:72px!important;
+  min-width:96px!important;
   object-fit:cover!important;
   border-radius:8px!important;
   background:#151d20!important;
   border:1px solid #2d393e!important;
 }
 #list .placeIcon,#mineList .placeIcon,#diaryList .placeIcon{
-  width:118px!important;
-  height:84px!important;
-  min-width:118px!important;
+  width:96px!important;
+  height:72px!important;
+  min-width:96px!important;
   flex:none!important;
   border-radius:8px!important;
   background:radial-gradient(circle at 50% 45%,rgba(229,182,62,.16),transparent 56%),linear-gradient(145deg,#202a22,#101614)!important;
@@ -45,6 +45,11 @@
 .reference-category-card>.reference-category-emblem>img{width:26px!important;height:26px!important;object-fit:contain!important;filter:invert(75%) sepia(61%) saturate(473%) hue-rotate(2deg) brightness(97%) contrast(90%)!important}
 
 @media(min-width:851px){
+  #list,#mineList,#diaryList{
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr))!important;
+    gap:10px!important;
+    align-content:start!important;
+  }
   .overlay[data-hradnik-detail-context="list"]{top:70px!important;right:0!important;bottom:0!important;left:194px!important;grid-template-columns:minmax(0,1fr) minmax(410px,29vw)!important}
   .overlay[data-hradnik-detail-context="list"] .sheet{width:100%!important;height:100%!important;max-height:none!important;border-radius:0!important;padding:22px!important}
   .overlay[data-hradnik-detail-context="list"] .detailPhoto{width:100%!important;height:250px!important;border-radius:10px!important}
