@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 35 %
+- **Dokončeno:** 45 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -672,6 +672,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-06 – první bezpečný krok P1-09: odstraněn druhý vlastník navigace z detail-layout**
+
+Hotovo:
+- `detail-layout.js` už řeší pouze stav otevřeného detailu,
+- odstraněn jeho starý globální capture router s šestipoložkovou mapou `[2,1,3,1,4,5]`,
+- tento router byl po odstranění samostatného Vyhledávání zastaralý a mohl při každém novém nav DOM přidávat další globální click listener,
+- hlavní routing zůstává v `reference-runtime-retry.js`, takže má navigace jednoho jasnějšího vlastníka,
+- HRA-P1-09 posunuto na 45 %; další kandidát k odstranění je duplicitní capture routing v `redesign.js`, ale až po zeleném CI tohoto kroku.
+
+**Předchozí krok:**
+
 **2026-10-06 – P1-08 CI PASS, zahájeny mobilní filtry a select kontrast**
 
 Hotovo:
@@ -948,14 +959,12 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit mobilní filtry a kontrast selectu
+## Ověřit filtry + první architektonický úklid
 
-1. potvrdit Build Hradník a visual-regression po HRA-P1-10/P1-11,
-2. na iPhonu otevřít Seznam a přejet typové filtry až na „Opevněné místo“,
-3. poslední chip musí jít celý zobrazit a stisknout,
-4. select „Dochované + zříceniny“ musí mít tmavé pozadí a čitelný světlý text,
-5. na PC krátce potvrdit, že filtry zůstaly beze změny,
-6. po potvrzení označit HRA-P1-10 a HRA-P1-11 jako DONE; poté pokračovat HRA-P1-09 – bezpečné zjednodušování architektury bez plošného přepisu.
+1. potvrdit Build Hradník a visual-regression na aktuálním HEAD,
+2. pokud projdou, HRA-P1-10/P1-11 přesunout do VERIFY a fyzicky na iPhonu zkontrolovat poslední chip + select,
+3. HRA-P1-08 stále krátce fyzicky ověřit v detailu Hrádku u Nechanic,
+4. poté pokračovat HRA-P1-09: odstranit další duplicitní routing z `redesign.js`, ale zachovat `reference-runtime-retry.js` jako jediného vlastníka hlavní navigace.
 ---
 
 # 14. Šablona aktualizace po každém kroku
