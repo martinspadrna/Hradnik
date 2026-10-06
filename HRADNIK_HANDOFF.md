@@ -54,9 +54,9 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P1-09  
-**Název:** Sjednotit vlastnictví hlavní navigace  
+**Název:** Sjednotit vlastnictví hlavní navigace a aktivního stavu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 55 %
+**Dokončeno:** 70 %
 
 ### Cíl
 `reference-runtime-retry.js` má být jediný vlastník routování hlavní navigace. Staré capture routery v pomocných modulech se postupně odstraňují po jednom a každý krok se ověřuje kompletní regresní sadou.
@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 55 %
+- **Dokončeno:** 70 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -671,6 +671,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – třetí krok P1-09: odstraněn duplicitní active/search state z redesign.js**
+
+Hotovo:
+- commit `6b5054c6e195ec635b896c63f4202bb84b8095a8` má Build PASS + visual regression PASS po odstranění druhého capture routeru,
+- `redesign.js` už neurčuje aktivní položku hlavní navigace přes staré indexy deníku/statistik,
+- odstraněn i `syncSearchState`, který při opakovaném observer apply přidával další focus/input listenery na vyhledávání,
+- aktivní stav i routing hlavní navigace má nyní řešit `reference-runtime-retry.js`,
+- P1-09 je na 70 %; zbývá zkontrolovat duplicitní header/menu wiring a staré shell vrstvy bez plošného přepisu.
+
+**Předchozí krok:**
 
 **2026-10-06 – druhý krok P1-09: odstraněn capture router z redesign.js**
 
