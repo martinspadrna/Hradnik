@@ -56,7 +56,7 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **ID:** HRA-P1-09  
 **Název:** Sjednotit vlastnictví hlavní navigace a shellu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 92 %
+**Dokončeno:** 97 %
 
 ### Cíl
 `reference-runtime-retry.js` má být jediný vlastník routování hlavní navigace. Staré capture routery v pomocných modulech se postupně odstraňují po jednom a každý krok se ověřuje kompletní regresní sadou.
@@ -333,7 +333,7 @@ Každá UI sekce zobrazuje odpovídající datové pole.
 
 ### HRA-P1-09 – Zjednodušit frontendovou architekturu
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 92 %
+- **Dokončeno:** 97 %
 
 **Audit / problém:**
 - přes 20 skriptů na jedné stránce,
@@ -671,6 +671,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-06 – reference-force-shell převeden na style-only fallback**
+
+Hotovo:
+- commit `5ecd90bd78e14c51ba63ccf7e760735f0111b7ca` má Build PASS + visual regression PASS po odstranění sidebar/nav ownership z `redesign.js`,
+- `reference-force-shell.js` už nevytváří ani nepřesouvá navigaci, nevytváří header controls a nemá vlastní MutationObserver nad `#app`,
+- modul nyní pouze přidává finální reference CSS vrstvu,
+- veškerý shell DOM, hlavní routing, active-state, header search, mobilní menu a sidebar vlastní `reference-runtime-retry.js`,
+- tím se odstranil poslední známý paralelní vlastník shell DOM z původního konfliktu,
+- HRA-P1-09 je na 97 % a čeká na CI + krátké fyzické potvrzení shellu.
+
+**Předchozí krok:**
 
 **2026-10-06 – odstraněn další vlastník sidebar/nav DOM z redesign.js**
 
@@ -1028,12 +1040,15 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Dokončit bezpečný P1-09 úklid
+## Fyzicky potvrdit centralizovaný shell
 
-1. potvrdit Build Hradník a visual-regression po přesunu header controls pod `reference-runtime-retry.js`,
-2. pokud projdou, prověřit zda je starý `redesign-menu-trigger/redesign-drawer` skutečně mrtvý na desktopu i mobilu,
-3. odstranit ho pouze pokud jeho funkce jsou pokryté současným profilem, Nastavením a mobilním drawerem,
-4. potom zhodnotit, zda lze HRA-P1-09 uzavřít nebo ponechat zbytek až do P3 technického úklidu.
+Po zeleném CI krátce ověřit na PC i iPhonu:
+1. Mapa → Seznam → Oblíbené → Kategorie → Mapa,
+2. horní hledání / mobilní lupa,
+3. profil a Nastavení,
+4. otevření detailu a návrat zpět.
+
+Pokud vše sedí, HRA-P1-09 označit DONE. Zbytek starých CSS vrstev a obecný dead-code úklid přesunout do P3, aby se teď zbytečně neriskoval funkční stav.
 ---
 
 # 14. Šablona aktualizace po každém kroku
