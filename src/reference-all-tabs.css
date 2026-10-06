@@ -28,7 +28,8 @@ main.redesign-main{color:var(--hr-text)!important}
 }
 .redesign-main .search{height:44px!important;padding:0 14px!important}
 .redesign-main .search::placeholder{color:#707976!important}
-.redesign-main select{min-height:40px!important;padding:8px 11px!important}
+.redesign-main select{min-height:40px!important;padding:8px 11px!important;background-color:var(--hr-panel3)!important;color:var(--hr-text)!important;color-scheme:dark!important}
+.redesign-main select option{background:#141b1f!important;color:#f0eee8!important}
 .redesign-main .search:focus,.redesign-main input:focus,.redesign-main select:focus,.redesign-main textarea:focus{border-color:#675522!important;box-shadow:0 0 0 2px #d8aa3114!important}
 .redesign-main .chips{gap:6px!important;padding:4px 0 11px!important}
 .redesign-main .chips button{height:36px!important;padding:0 12px!important;border-radius:8px!important;background:#11191d!important;border:1px solid #29353b!important;color:#aeb4b1!important;font-size:11px!important;font-weight:850!important;box-shadow:none!important}
@@ -103,6 +104,27 @@ main.redesign-main{color:var(--hr-text)!important}
   .redesign-main h1{font-size:23px!important}
   .redesign-main .chips{overflow-x:auto!important}
   .redesign-main .chips button{flex:0 0 auto!important}
+  .redesign-main #typeChips{
+    display:flex!important;
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding:4px 8px 10px 0!important;
+    scroll-padding-inline:8px!important;
+    overscroll-behavior-inline:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+  }
+  .redesign-main #typeChips::-webkit-scrollbar{display:none!important}
+  .redesign-main #typeChips button{
+    flex:0 0 auto!important;
+    white-space:nowrap!important;
+  }
+  .redesign-main .filterLine{display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important}
+  .redesign-main .filterLine select{max-width:100%!important;min-width:0!important}
   .redesign-main .stats.big>div{min-height:76px!important}
   .redesign-main #map{height:450px!important}
   .overlay .sheet{padding:14px!important;border-radius:16px 16px 0 0!important}

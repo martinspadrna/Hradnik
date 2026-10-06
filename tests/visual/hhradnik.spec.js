@@ -151,6 +151,43 @@ test('list search, categories and favorites route to useful screens', async ({ p
   await expect(page.locator('#mineList')).toBeVisible()
 })
 
+test('mobile catalog filters stay reachable and preservation select stays dark', async ({ page }) => {
+  test.skip(test.info().project.name !== 'iphone')
+  const nav = await openApp(page)
+  await nav.nth(1).click()
+
+  const chips = page.locator('#typeChips')
+  await expect(chips).toBeVisible()
+  const metrics = await chips.evaluate(el => ({
+    clientWidth: el.clientWidth,
+    scrollWidth: el.scrollWidth,
+    overflowX: getComputedStyle(el).overflowX,
+    wrap: getComputedStyle(el).flexWrap
+  }))
+  expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
+  expect(metrics.overflowX).toBe('auto')
+  expect(metrics.wrap).toBe('nowrap')
+
+  const lastChip = chips.locator('button').last()
+  await lastChip.scrollIntoViewIfNeeded()
+  const box = await lastChip.boundingBox()
+  const viewport = page.viewportSize()
+  expect(box).toBeTruthy()
+  expect(viewport).toBeTruthy()
+  expect(box.x).toBeGreaterThanOrEqual(0)
+  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width)
+
+  const preservation = page.locator('#preservation')
+  await expect(preservation).toBeVisible()
+  const style = await preservation.evaluate(el => {
+    const s = getComputedStyle(el)
+    return { color: s.color, backgroundColor: s.backgroundColor, colorScheme: s.colorScheme }
+  })
+  expect(style.colorScheme).toContain('dark')
+  expect(style.color).not.toBe(style.backgroundColor)
+})
+
+
 test('map, list detail and settings remain interactive', async ({ page }) => {
   let nav = await openApp(page)
   await nav.nth(0).click()

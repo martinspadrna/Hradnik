@@ -53,16 +53,16 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P1-08  
-**Název:** Opravit mapování Stav / Dochování / Popis v detailu  
+**ID:** HRA-P1-10 + HRA-P1-11  
+**Název:** Mobilní filtry Seznamu a stabilní kontrast selectu  
 **Stav:** IN PROGRESS  
 **Dokončeno:** 90 %
 
 ### Cíl
-Enrichment popis památky musí zapisovat pouze do karty **Popis**. Karta **Stav** zůstává výhradně uživatelský stav návštěvy a **Dochování** fyzický stav památky.
+Typové filtry v Seznamu musí být na úzkém mobilu vždy dosažitelné záměrným horizontálním posunem, bez uříznutého posledního tlačítka. Select „Dochované + zříceniny“ musí mít deterministický tmavý vzhled a čitelný text ve všech stavech.
 
 ### Poznámka
-Kořen původního problému byl nalezen v `src/info-ui.js`: pokud nenašel kartu „Základní informace“, zapisoval `info_summary` do první karty detailu. Tou je nyní „Stav“, takže dlouhý popis přepisoval „Navštíveno / Nenavštíveno“.
+HRA-P1-08 prošlo Build + visual regression a je technicky hotové; fyzické ověření detailu zůstává doporučené, ale neblokuje pokračování.
 ---
 
 # 5. Kompletní plán
@@ -311,8 +311,8 @@ Placeholder je jasně čitelný a používá správnou typovou ikonu ve vizuáln
 ---
 
 ### HRA-P1-08 – Prověřit mapování polí v detailu památky
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Viditelný problém:**
 U „Zámek Hrádek u Nechanic“ je dlouhý text v sekci `STAV`, zatímco `POPIS` hlásí „Bez popisu“.
@@ -357,8 +357,8 @@ Nejde o kompletní přepis aplikace. Jde o bezpečné odstranění kořenových 
 ---
 
 ### HRA-P1-10 – Opravit responsivní filtry Seznamu/Vyhledávání
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Viditelný problém:**
 Řada typových filtrů na mobilu přetéká doprava a poslední tlačítko je uříznuté.
@@ -373,8 +373,8 @@ Nejde o kompletní přepis aplikace. Jde o bezpečné odstranění kořenových 
 ---
 
 ### HRA-P1-11 – Stabilizovat select „Dochované + zříceniny“
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Audit / problém:**
 V prvním auditu světlé písmo na téměř bílém pozadí. Na aktuálním screenshotu vypadá správně.
@@ -672,6 +672,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-06 – P1-08 CI PASS, zahájeny mobilní filtry a select kontrast**
+
+Hotovo:
+- commit `c3e5cb8b7a0a9f7ce996597001e4f75882355bcf` má Build Hradník PASS i Hradník visual regression PASS,
+- HRA-P1-08 je technicky 100 % a přesunuté do VERIFY,
+- pro HRA-P1-10 je `#typeChips` na mobilu explicitně jeden řádek s horizontálním posunem, bez neúmyslného ořezu posledního filtru,
+- pro HRA-P1-11 má select explicitní tmavé `background/color/color-scheme` a tmavé option hodnoty,
+- přidán iPhone regresní test: ověřuje skutečný horizontální overflow, dosažitelnost posledního chipu a tmavý select.
+
+**Předchozí krok:**
+
 **2026-10-04 – nalezen kořen chybného mapování „Stav / Popis“**
 
 Hotovo:
@@ -937,14 +948,14 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit detail Stav / Dochování / Popis
+## Ověřit mobilní filtry a kontrast selectu
 
-1. potvrdit Build Hradník a visual-regression po opravě `info-ui.js`,
-2. na PC otevřít detail památky s doplněným ověřeným popisem (např. Hrádek u Nechanic),
-3. ověřit, že **Stav** obsahuje jen „Navštíveno / Chceme navštívit / Nenavštíveno“,
-4. **Dochování** obsahuje pouze fyzickou klasifikaci památky,
-5. dlouhý informační text je pouze v **Popis**,
-6. po potvrzení označit HRA-P1-08 jako DONE a pokračovat HRA-P1-09/HRA-P1-10 podle priority.
+1. potvrdit Build Hradník a visual-regression po HRA-P1-10/P1-11,
+2. na iPhonu otevřít Seznam a přejet typové filtry až na „Opevněné místo“,
+3. poslední chip musí jít celý zobrazit a stisknout,
+4. select „Dochované + zříceniny“ musí mít tmavé pozadí a čitelný světlý text,
+5. na PC krátce potvrdit, že filtry zůstaly beze změny,
+6. po potvrzení označit HRA-P1-10 a HRA-P1-11 jako DONE; poté pokračovat HRA-P1-09 – bezpečné zjednodušování architektury bez plošného přepisu.
 ---
 
 # 14. Šablona aktualizace po každém kroku
