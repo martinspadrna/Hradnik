@@ -53,8 +53,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-04  
-**Název:** Sjednotit responzivní chování PC a mobilu  
+**ID:** HRA-P2-05  
+**Název:** Prověřit stabilitu markerů a clusterů mapy  
 **Stav:** IN PROGRESS  
 **Dokončeno:** 90 %
 
@@ -456,8 +456,8 @@ Menší hlavička bez porušení iOS safe area a klikacích ploch.
 ---
 
 ### HRA-P2-04 – Sjednotit responzivní chování PC a mobilu
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Audit / screenshoty:**
 Stejná data se na telefonu zobrazují správněji než na desktopu.
@@ -468,8 +468,8 @@ Breakpointy mají měnit layout, ne datovou strukturu / logiku komponenty.
 ---
 
 ### HRA-P2-05 – Prověřit stabilitu markerů a clusterů mapy
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Prověřit:**
 - změna filtru,
@@ -676,6 +676,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-04 CI PASS; zahájen P2-05 map lifecycle**
+
+Hotovo:
+- commit `695f7cf56ba911c2da3362496b5a49dedb88e5b7` má Build Hradník PASS + visual regression PASS,
+- společný card/detail DOM kontrakt prošel na desktopu i iPhonu,
+- HRA-P2-04 je DONE: runtime nemá viewport/user-agent větev pro datový renderer; breakpointy mění layout, ne data/komponentu,
+- pro P2-05 přidán regresní scénář: jedna aktivní Leaflet mapa, filtr Zřícenina, Mapa/Satelit s právě jednou tile vrstvou, zoom bez duplikace reference markerů, detail bez výměny mapy a návrat Seznam → Mapa s jediným připojeným mapovým kontejnerem,
+- HRA-P2-05 čeká na CI.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-04: první shared-DOM test opraven podle skutečného filtru**
 
@@ -1148,11 +1159,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit P2-04 a pokračovat stabilitou mapy
+## Ověřit P2-05 map lifecycle
 
-1. potvrdit Build Hradník + visual regression s novým shared-DOM testem,
-2. pokud projdou, označit HRA-P2-04 jako DONE,
-3. pokračovat HRA-P2-05: prověřit, že filtrování, zoom, přepnutí Mapa/Satelit, detail a opakované návraty na mapu nevytvářejí duplicitní Leaflet instance/markery ani neztrácejí stav.
+1. potvrdit Build Hradník + visual regression,
+2. pokud scénář projde na desktopu i iPhonu, označit HRA-P2-05 jako DONE,
+3. pokračovat HRA-P2-06 – konzistence stavu mezi obrazovkami: hledání, typ/dochování filtr, otevřený detail, mapová pozice a uživatelský stav.
 ---
 
 # 14. Šablona aktualizace po každém kroku

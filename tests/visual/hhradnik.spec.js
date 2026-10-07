@@ -316,6 +316,78 @@ test('map, list detail and settings remain interactive', async ({ page }) => {
   await page.locator('.reference-settings-close').click()
 })
 
+test('map lifecycle stays singular across filters, styles, zoom and navigation', async ({ page }) => {
+  let nav = await openApp(page)
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+
+  await expect.poll(async () => page.evaluate(() => {
+    const map = window.__hradnikMap
+    return !!map && !!map._container?.isConnected
+  })).toBe(true)
+
+  const firstMapId = await page.evaluate(() => window.__hradnikMap?._leaflet_id)
+  expect(firstMapId).toBeTruthy()
+  await expect(page.locator('#map')).toHaveCount(1)
+
+  await page.locator('.reference-filter-button').click()
+  const ruin = page.locator('#mapTypes button').filter({ hasText: 'Zřícenina' })
+  await expect(ruin).toBeVisible()
+  await ruin.click()
+  await expect(page.locator('#map')).toBeVisible()
+
+  await expect.poll(async () => page.evaluate(() => window.__hradnikMap?._leaflet_id)).not.toBe(firstMapId)
+  const filteredMapId = await page.evaluate(() => window.__hradnikMap?._leaflet_id)
+  await expect(page.locator('#map')).toHaveCount(1)
+
+  const styleButtons = page.locator('.hradnik-map-style button')
+  await expect(styleButtons).toHaveCount(2)
+  await styleButtons.filter({ hasText: 'Mapa' }).click()
+  await expect.poll(async () => page.evaluate(() => window.__hradnikMap?._hradnikMapStyle)).toBe('map')
+  await styleButtons.filter({ hasText: 'Satelit' }).click()
+  await expect.poll(async () => page.evaluate(() => window.__hradnikMap?._hradnikMapStyle)).toBe('satellite')
+  const tileLayerCount = await page.evaluate(() => {
+    let count = 0
+    window.__hradnikMap?.eachLayer(layer => {
+      if (window.L && layer instanceof window.L.TileLayer) count += 1
+    })
+    return count
+  })
+  expect(tileLayerCount).toBe(1)
+
+  await page.evaluate(() => window.__hradnikMap?.setZoom(11, { animate: false }))
+  await expect.poll(async () => page.locator('.hradnik-reference-marker').count()).toBeGreaterThan(0)
+  const markerCount = await page.locator('.hradnik-reference-marker').count()
+
+  await page.evaluate(() => window.__hradnikMap?.setZoom(10, { animate: false }))
+  await page.evaluate(() => window.__hradnikMap?.setZoom(11, { animate: false }))
+  await page.waitForTimeout(1100)
+  expect(await page.locator('.hradnik-reference-marker').count()).toBe(markerCount)
+
+  await page.locator('.hradnik-reference-marker').first().click()
+  await expect(page.locator('.overlay .sheet')).toBeVisible()
+  expect(await page.evaluate(() => window.__hradnikMap?._leaflet_id)).toBe(filteredMapId)
+  await page.locator('.overlay .close').click()
+  await expect(page.locator('.overlay')).toHaveCount(0)
+
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(1).click()
+  await expect(page.locator('#list')).toBeVisible()
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await expect(page.locator('#map')).toHaveCount(1)
+
+  const finalState = await page.evaluate(() => ({
+    id: window.__hradnikMap?._leaflet_id,
+    connected: !!window.__hradnikMap?._container?.isConnected,
+    mapContainers: document.querySelectorAll('#map').length
+  }))
+  expect(finalState.id).not.toBe(filteredMapId)
+  expect(finalState.connected).toBe(true)
+  expect(finalState.mapContainers).toBe(1)
+})
+
 test('map never opens a monument detail on its own', async ({ page }) => {
   const nav = await openApp(page)
   await expect(page.locator('.overlay')).toHaveCount(0)
