@@ -55,8 +55,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 **ID:** HRA-P2-03  
 **Název:** Zkompaktnit mobilní hlavičku  
-**Stav:** IN PROGRESS  
-**Dokončeno:** 90 %
+**Stav:** VERIFY  
+**Dokončeno:** 100 % technicky
 
 ### Cíl
 Mobilní hlavička má mít jednu sdílenou výšku, zachovat iOS safe-area a všechny navázané prvky (mapa, detail overlay, mobilní drawer) musí používat stejný offset.
@@ -441,8 +441,8 @@ Položka je identifikovatelná bez otevření detailu.
 ---
 
 ### HRA-P2-03 – Zkompaktnit mobilní hlavičku
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** VERIFY
+- **Dokončeno:** 100 % technicky
 
 **Viditelný problém:**
 Horní oblast zabírá hodně vertikálního prostoru.
@@ -676,6 +676,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-03 kompaktní mobilní hlavička: CI PASS**
+
+Hotovo:
+- commit `54dec86a95cd8121fb52a5ce6d5a2207ff13648f` má Build Hradník PASS,
+- Hradník visual regression na stejném commitu má PASS,
+- mobilní hlavička používá jedinou sdílenou výšku 56 px + `env(safe-area-inset-top)`,
+- aktivní konfliktní hodnoty 58 / 60 / 104 px byly sjednoceny,
+- mapa, detail overlay a mobilní drawer používají stejný horní offset,
+- iPhone regresní test ověřil kompaktní výšku, minimálně 40px hamburger/lupu, návaznost mapy na spodní navigaci a drawer začínající pod hlavičkou,
+- HRA-P2-03 je technicky 100 % ve VERIFY a čeká jen na fyzické potvrzení na iPhonu.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-01/P2-02 fyzicky potvrzeny; zahájen P2-03**
 
