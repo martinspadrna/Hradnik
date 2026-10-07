@@ -40,6 +40,7 @@ function rememberMapView(){
       ui.mapViewState={lat:center.lat,lng:center.lng,zoom}
     }
     map.remove()
+    if(window.__hradnikMap===map)window.__hradnikMap=null
   }catch{}
   ui.map=null
 }

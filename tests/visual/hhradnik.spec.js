@@ -364,7 +364,13 @@ test('map lifecycle stays singular across filters, styles, zoom and navigation',
   await page.waitForTimeout(1100)
   expect(await page.locator('.hradnik-reference-marker').count()).toBe(markerCount)
 
-  await page.locator('.hradnik-reference-marker').first().click()
+  const opened = await page.evaluate(() => {
+    const layer=(window.__hradnikMap?._hradnikReferenceOriginals||[]).find(item=>item?._map&&item.getLatLng)
+    if(!layer)return false
+    layer.fire('click',{latlng:layer.getLatLng(),layer})
+    return true
+  })
+  expect(opened).toBe(true)
   await expect(page.locator('.overlay .sheet')).toBeVisible()
   expect(await page.evaluate(() => window.__hradnikMap?._leaflet_id)).toBe(filteredMapId)
   await page.locator('.overlay .close').click()

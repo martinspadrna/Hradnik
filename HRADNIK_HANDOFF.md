@@ -677,6 +677,20 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-07 – P2-06 CI odhalil stale `window.__hradnikMap`; opraveno**
+
+Zjištění:
+- nový P2-06 test zachování hledání/filtrů/map viewportu prošel na desktopu i iPhonu,
+- Build prošel,
+- visual regression měl 2 vedlejší FAILy:
+  1. po korektním `map.remove()` zůstával krátce globální `window.__hradnikMap` ukazovat na již odstraněnou Leaflet instanci; desktop focus test pak mohl zavolat `getCenter()` nad odstraněným map pane,
+  2. iPhone map-lifecycle test se snažil fyzicky kliknout na marker, který byl po záměrném zachování viewportu mimo viditelnou oblast.
+- `rememberMapView()` nyní při odstranění aktuální mapy zároveň nulje odpovídající `window.__hradnikMap`; nová instance ho znovu nastaví svým init hookem,
+- map-lifecycle test otevírá detail přes původní aktivní Leaflet layer event místo závislosti na tom, zda je marker právě ve viewportu,
+- HRA-P2-06 zůstává IN PROGRESS do zeleného opakovaného CI.
+
+**Předchozí krok:**
+
 **2026-10-07 – P2-05 map lifecycle PASS; P2-06 zachování stavu**
 
 Hotovo:
