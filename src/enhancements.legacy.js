@@ -169,11 +169,31 @@ async function addResultPhoto(card) {
   if (found && card.isConnected) renderResultPhoto(card, title, found)
 }
 
+const observedResultCards = new WeakSet()
+const resultPhotoObserver = typeof IntersectionObserver === 'function'
+  ? new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return
+        resultPhotoObserver.unobserve(entry.target)
+        void addResultPhoto(entry.target)
+      })
+    }, { rootMargin: '420px 0px' })
+  : null
+
 function hydrateResultPhotos() {
-  // A bounded lazy pass keeps a broad catalog view fast while giving searches
-  // and the visible first results the useful visual recognition users expect.
+  // Use one shared card renderer and lazy-hydrate every card as it approaches
+  // the viewport. The old fixed "first 16" pass made valid photos beyond the
+  // first screen look permanently missing in a long catalog.
   document.querySelectorAll('#list .place, #mineList .place, #diaryList .place')
-    .forEach((card, index) => { if (index < 16) void addResultPhoto(card) })
+    .forEach((card, index) => {
+      if (!resultPhotoObserver) {
+        if (index < 16) void addResultPhoto(card)
+        return
+      }
+      if (observedResultCards.has(card)) return
+      observedResultCards.add(card)
+      resultPhotoObserver.observe(card)
+    })
 }
 
 function haversineKm(aLat, aLon, bLat, bLon) {

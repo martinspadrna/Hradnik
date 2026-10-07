@@ -53,8 +53,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-06  
-**Název:** Udržet konzistentní stav mezi obrazovkami  
+**ID:** HRA-P2-07  
+**Název:** Prověřit načítání fotografií a jejich URL  
 **Stav:** IN PROGRESS  
 **Dokončeno:** 90 %
 
@@ -485,8 +485,8 @@ Breakpointy mají měnit layout, ne datovou strukturu / logiku komponenty.
 ---
 
 ### HRA-P2-06 – Udržet konzistentní stav mezi obrazovkami
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Prověřit:**
 - hledaný text,
@@ -502,8 +502,8 @@ Stav se nesmí náhodně resetovat kvůli observerům nebo opakované inicializa
 ---
 
 ### HRA-P2-07 – Prověřit načítání fotografií a jejich URL
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Cíl:**
 Rozlišit:
@@ -676,6 +676,20 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-06 PASS; P2-07 audit fotografií**
+
+Hotovo:
+- commit `a22ca1eba427d27850d750bc61ff9abb066ea341` má Build PASS + visual regression PASS,
+- HRA-P2-06 je DONE,
+- audit nového Supabase `abqiprdggptuxebhpfyi`: 2046 aktuálních/viditelných míst, 748 s uloženou foto URL a 1298 bez uložené foto URL,
+- v `photo_urls` není ani jedna URL na starý `cgsh…` ani nový Supabase storage; fotografie jsou externí Wikimedia a projekt nemá žádný Storage bucket,
+- nalezeno 723 legacy Wikimedia URL s `http://`; frontend je sice už za běhu převáděl na HTTPS, ale Edge Function vracela uloženou HTTP adresu beze změny,
+- `hradnik-photo` nově normalizuje Wikimedia HTTP → HTTPS i pro uložené adresy a při použití starou hodnotu opraví v DB,
+- přidána idempotentní SQL migrace pro hromadnou normalizaci existujících Wikimedia URL,
+- odstraněn skutečný lazy-load problém: starý kód hydratoval fotografie jen prvním 16 kartám; nyní IntersectionObserver postupně načte každou kartu, která se přiblíží viewportu, s původním fallbackem na prvních 16 pro starší prohlížeče.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-06 core test PASS; odstraněn překryv dvou mapových testů**
 
@@ -1197,11 +1211,12 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit P2-06
+## Dokončit P2-07
 
-1. potvrdit Build Hradník + visual regression,
-2. pokud projdou, označit HRA-P2-06 jako DONE,
-3. pokračovat HRA-P2-07 – audit fotografií a storage URL: rozlišit skutečně chybějící foto, starou Supabase URL, oprávnění a lazy-load problém.
+1. nasadit aktualizovaný `hradnik-photo` do nového Supabase,
+2. aplikovat bezpečnou normalizaci 723 Wikimedia URL z HTTP na HTTPS a ověřit, že počet HTTP URL klesl na 0,
+3. potvrdit Build Hradník + visual regression,
+4. po ověření označit P2-07 DONE a pokračovat P2-08 – čistá runtime konzole.
 ---
 
 # 14. Šablona aktualizace po každém kroku
