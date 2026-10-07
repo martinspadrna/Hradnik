@@ -9,13 +9,16 @@ const samplePlaces = [
   { id: 5, name: 'Klášter Test', kind: 'Klášter', character: 'dochovaný klášter', district: 'Liberec', region: 'Liberecký', municipality: 'Testov', latitude: 50.77, longitude: 15.05, description: 'Dochovaný klášter', official_url: null, ticket_url: null, opening_hours: null, ticket_prices: null, photo_urls: [] }
 ]
 
-async function mockBackend(page, loggedIn = true) {
+async function mockBackend(page, loggedIn = true, options = {}) {
   await page.addInitScript(loggedIn => {
     if (loggedIn) localStorage.setItem('hradnik_session', 'visual-regression-session')
     else localStorage.removeItem('hradnik_session')
   }, loggedIn)
 
   await page.route('**/rest/v1/hradnik_places*', route => {
+    if (options.catalogFailure) {
+      return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'temporary backend failure' }) })
+    }
     if (route.request().url().includes('info_summary')) {
       return route.fulfill({
         status: 200,
@@ -57,8 +60,8 @@ async function mockBackend(page, loggedIn = true) {
   })
 }
 
-async function openApp(page, loggedIn = true) {
-  await mockBackend(page, loggedIn)
+async function openApp(page, loggedIn = true, options = {}) {
+  await mockBackend(page, loggedIn, options)
   await page.goto('/')
   const nav = page.locator('.redesign-sidebar .redesign-nav > button')
   await expect(nav).toHaveCount(5, { timeout: 15000 })
@@ -531,6 +534,49 @@ test('core navigation stays free of application runtime errors', async ({ page }
     /cgshssdjgzzuprlwnabl|multiple gotrueclient|multiple.*auth.*client|uncaught|unhandled|typeerror|referenceerror|syntaxerror|404.*supabase/i.test(text)
   )
   expect(appErrors).toEqual([])
+})
+
+test('clean visitor gets a friendly Czech fallback when catalog backend is down', async ({ page }) => {
+  await mockBackend(page, false, { catalogFailure: true })
+  await page.goto('/')
+  const notice = page.locator('.authCard .notice')
+  await expect(notice).toBeVisible()
+  await expect(notice).toContainText('Hradník se teď nepodařilo načíst')
+  await expect(page.locator('body')).not.toContainText('temporary backend failure')
+  await expect(page.locator('body')).not.toContainText('relation')
+})
+
+test('cached catalog stays usable when backend becomes unavailable', async ({ page }) => {
+  await openApp(page, false)
+  await expect(page.locator('.redesign-sidebar .redesign-nav > button')).toHaveCount(5)
+
+  await expect.poll(async () => page.evaluate(async () => {
+    return await new Promise(resolve => {
+      const req=indexedDB.open('hradnik-cache-v1',1)
+      req.onerror=()=>resolve(0)
+      req.onsuccess=()=>{
+        const db=req.result
+        const tx=db.transaction('catalog','readonly')
+        const get=tx.objectStore('catalog').get('places')
+        get.onerror=()=>resolve(0)
+        get.onsuccess=()=>resolve(Array.isArray(get.result?.places)?get.result.places.length:0)
+      }
+    })
+  })).toBe(samplePlaces.length)
+
+  await page.unroute('**/rest/v1/hradnik_places*')
+  await page.route('**/rest/v1/hradnik_places*', route => route.fulfill({
+    status: 503,
+    contentType: 'application/json',
+    body: JSON.stringify({ message: 'temporary backend failure' })
+  }))
+  await page.reload()
+
+  await expect(page.locator('.hradnik-offline-notice')).toBeVisible()
+  await expect(page.locator('.hradnik-offline-notice')).toContainText('Server je teď nedostupný')
+  await expect(page.locator('.redesign-sidebar .redesign-nav > button')).toHaveCount(5)
+  await page.locator('.redesign-sidebar .redesign-nav > button').nth(1).click()
+  await expect(page.locator('#list .place')).toHaveCount(4)
 })
 
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {

@@ -53,10 +53,10 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-08  
-**Název:** Vyčistit runtime konzoli  
+**ID:** HRA-P2-09  
+**Název:** Doplnit regresní testy hlavních workflow  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 90 %
+**Dokončeno:** 98 %
 
 ### Cíl
 Mobilní hlavička má mít jednu sdílenou výšku, zachovat iOS safe-area a všechny navázané prvky (mapa, detail overlay, mobilní drawer) musí používat stejný offset.
@@ -518,8 +518,8 @@ Platné fotky se načtou, neplatné odkazy se čistě nahradí placeholderem.
 ---
 
 ### HRA-P2-08 – Vyčistit runtime konzoli
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Po dokončení nesmí zůstávat:**
 - 404 na starý Supabase,
@@ -531,8 +531,8 @@ Platné fotky se načtou, neplatné odkazy se čistě nahradí placeholderem.
 ---
 
 ### HRA-P2-09 – Doplnit regresní testy hlavních workflow
-- **Stav:** VERIFY
-- **Dokončeno:** 90 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 98 %
 
 **Minimální scénáře:**
 - všech 5 hlavních sekcí,
@@ -676,6 +676,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-08 console gate PASS; doplněny offline/cache scénáře P2-09**
+
+Hotovo:
+- commit `d5ad57838fc6ddc5d13b54ad40c0dd6311a8befe` má Build PASS + visual regression PASS,
+- runtime console gate prošel na desktopu i iPhonu bez app-owned page errors, starého `cgsh…`, multiple auth-client warningu a vlastních uncaught/type/reference/syntax chyb,
+- HRA-P2-08 je DONE,
+- P2-09 nově testuje čistého návštěvníka při 503 katalogu: zobrazí se česká uživatelská chyba a syrová backend hláška se nepropíše do UI,
+- druhý scénář nejdřív skutečně naplní IndexedDB katalog cache, pak při 503 backendu reloadne aplikaci a ověřuje offline notice + použitelný Seznam z cache,
+- tím se doplňují dva poslední zásadní scénáře z původního regresního checklistu.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-07 fotografie DONE; zahájen P2-08 console gate**
 
@@ -1224,11 +1236,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit P2-08
+## Ověřit P2-09
 
-1. potvrdit Build Hradník + visual regression s console gate,
-2. pokud projde, označit HRA-P2-08 jako DONE,
-3. pokračovat P2-09: doplnit poslední chybějící regresní scénáře – hlavně dočasně nedostupný backend a čistá cache / nový návštěvník.
+1. potvrdit Build Hradník + visual regression s clean-cache a backend-failure scénáři,
+2. pokud projdou, označit HRA-P2-09 jako DONE,
+3. pokračovat P2-10 – praktický restore/install drill na čistém novém Supabase projektu nebo bezpečné větvi podle možností, bez zásahu do starého projektu.
 ---
 
 # 14. Šablona aktualizace po každém kroku
