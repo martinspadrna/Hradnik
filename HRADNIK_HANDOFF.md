@@ -53,8 +53,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-07  
-**Název:** Prověřit načítání fotografií a jejich URL  
+**ID:** HRA-P2-08  
+**Název:** Vyčistit runtime konzoli  
 **Stav:** IN PROGRESS  
 **Dokončeno:** 90 %
 
@@ -502,8 +502,8 @@ Stav se nesmí náhodně resetovat kvůli observerům nebo opakované inicializa
 ---
 
 ### HRA-P2-07 – Prověřit načítání fotografií a jejich URL
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Cíl:**
 Rozlišit:
@@ -518,8 +518,8 @@ Platné fotky se načtou, neplatné odkazy se čistě nahradí placeholderem.
 ---
 
 ### HRA-P2-08 – Vyčistit runtime konzoli
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Po dokončení nesmí zůstávat:**
 - 404 na starý Supabase,
@@ -676,6 +676,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-07 fotografie DONE; zahájen P2-08 console gate**
+
+Hotovo:
+- commit `eb503b9078eb2d3d1dba54fd44a7ffb059a414ae` má Build PASS + visual regression PASS,
+- `hradnik-photo` verze 2 je nasazená v novém Supabase `abqiprdggptuxebhpfyi`,
+- 723 legacy Wikimedia adres bylo v DB převedeno z HTTP na HTTPS; následná kontrola: **0 HTTP**, **748 HTTPS**, **0 URL na starý Supabase**,
+- projekt nemá žádný Supabase Storage bucket; fotografie Hradníku jsou aktuálně externí Wikimedia, takže zde není skrytý problém storage oprávnění,
+- IntersectionObserver odstranil limit „foto jen prvním 16 kartám“,
+- HRA-P2-07 je DONE,
+- pro P2-08 přidán runtime gate: zachytává `pageerror` a vlastní konzolové chyby typu starý `cgsh…`, multiple auth client, uncaught/unhandled, TypeError/ReferenceError/SyntaxError a Supabase 404 během hlavní navigace.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-06 PASS; P2-07 audit fotografií**
 
@@ -1211,12 +1224,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Dokončit P2-07
+## Ověřit P2-08
 
-1. nasadit aktualizovaný `hradnik-photo` do nového Supabase,
-2. aplikovat bezpečnou normalizaci 723 Wikimedia URL z HTTP na HTTPS a ověřit, že počet HTTP URL klesl na 0,
-3. potvrdit Build Hradník + visual regression,
-4. po ověření označit P2-07 DONE a pokračovat P2-08 – čistá runtime konzole.
+1. potvrdit Build Hradník + visual regression s console gate,
+2. pokud projde, označit HRA-P2-08 jako DONE,
+3. pokračovat P2-09: doplnit poslední chybějící regresní scénáře – hlavně dočasně nedostupný backend a čistá cache / nový návštěvník.
 ---
 
 # 14. Šablona aktualizace po každém kroku

@@ -504,6 +504,35 @@ test('catalog filters and map viewport survive navigation changes', async ({ pag
   await expect(page.locator('#mineList .place')).toContainText('Hrad Test')
 })
 
+test('core navigation stays free of application runtime errors', async ({ page }) => {
+  const consoleErrors = []
+  const pageErrors = []
+  page.on('console', message => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
+  page.on('pageerror', error => pageErrors.push(error.message))
+
+  let nav = await openApp(page)
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(1).click()
+  await expect(page.locator('#list')).toBeVisible()
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(2).click()
+  await expect(page.locator('#mineList')).toBeVisible()
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(3).click()
+  await expect(page.locator('.reference-category-page')).toBeVisible()
+  await page.waitForTimeout(350)
+
+  expect(pageErrors).toEqual([])
+  const appErrors = consoleErrors.filter(text =>
+    /cgshssdjgzzuprlwnabl|multiple gotrueclient|multiple.*auth.*client|uncaught|unhandled|typeerror|referenceerror|syntaxerror|404.*supabase/i.test(text)
+  )
+  expect(appErrors).toEqual([])
+})
+
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {
   await openApp(page, false)
   const bridge = await page.evaluate(() => ({
