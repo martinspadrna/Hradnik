@@ -53,10 +53,10 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-09  
-**Název:** Doplnit regresní testy hlavních workflow  
-**Stav:** IN PROGRESS  
-**Dokončeno:** 98 %
+**ID:** HRA-P2-10  
+**Název:** Ověřit instalaci na čistém novém Supabase projektu  
+**Stav:** BLOCKED  
+**Dokončeno:** 10 %
 
 ### Cíl
 Mobilní hlavička má mít jednu sdílenou výšku, zachovat iOS safe-area a všechny navázané prvky (mapa, detail overlay, mobilní drawer) musí používat stejný offset.
@@ -531,8 +531,8 @@ Platné fotky se načtou, neplatné odkazy se čistě nahradí placeholderem.
 ---
 
 ### HRA-P2-09 – Doplnit regresní testy hlavních workflow
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 98 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Minimální scénáře:**
 - všech 5 hlavních sekcí,
@@ -552,8 +552,8 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 ---
 
 ### HRA-P2-10 – Ověřit instalaci na čistém novém Supabase projektu
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** BLOCKED
+- **Dokončeno:** 10 %
 
 **Akceptace:**
 1. čistý projekt,
@@ -676,6 +676,20 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-09 kompletní regresní sada PASS; P2-10 čeká na čisté Supabase prostředí**
+
+Hotovo:
+- commit `91d9c5468f3d06f99560ad023387958219157d1e` má Build PASS + visual regression PASS,
+- clean-visitor backend failure scénář prošel,
+- cache → backend 503 → offline fallback scénář prošel,
+- HRA-P2-09 je DONE,
+- pro HRA-P2-10 bylo ověřeno, že nový Supabase projekt `abqiprdggptuxebhpfyi` aktuálně nemá žádnou development branch,
+- skutečný fresh-install drill tedy vyžaduje vytvoření dočasné Supabase branch nebo jiného čistého projektu,
+- vytvoření Supabase branch může být zpoplatněné a vyžaduje explicitní potvrzení nákladu/organizace; bez toho se branch nesmí vytvořit,
+- starý Supabase projekt zůstává beze změn.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-08 console gate PASS; doplněny offline/cache scénáře P2-09**
 
@@ -1236,11 +1250,16 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit P2-09
+## P2-10 – fresh Supabase drill (čeká na souhlas)
 
-1. potvrdit Build Hradník + visual regression s clean-cache a backend-failure scénáři,
-2. pokud projdou, označit HRA-P2-09 jako DONE,
-3. pokračovat P2-10 – praktický restore/install drill na čistém novém Supabase projektu nebo bezpečné větvi podle možností, bez zásahu do starého projektu.
+Pro úplné ověření standalone instalace vytvořit dočasnou Supabase development branch z projektu `abqiprdggptuxebhpfyi`, na čisté databázi ověřit baseline migrace, Edge Functions a start aplikace bez ručních skrytých kroků a po testu branch zrušit.
+
+**Blokace:** vytvoření branch může mít náklad. Před vytvořením je nutné:
+1. zvolit Supabase organizaci,
+2. zjistit aktuální cenu branch,
+3. uživatel musí cenu výslovně potvrdit.
+
+Do té doby nic nevytvářet a nic nemazat.
 ---
 
 # 14. Šablona aktualizace po každém kroku
