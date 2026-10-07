@@ -53,16 +53,21 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-01 + HRA-P2-02  
-**Název:** Fyzicky ověřit desktopové karty a „Nedávno zobrazené“  
-**Stav:** VERIFY  
-**Dokončeno:** 100 % technicky
+**ID:** HRA-P2-03  
+**Název:** Zkompaktnit mobilní hlavičku  
+**Stav:** IN PROGRESS  
+**Dokončeno:** 90 %
 
 ### Cíl
-Karty „Nedávno zobrazené“ nesmí znovu zkolabovat na extrémně úzké sloupce, ve kterých z názvu zůstane jen několik znaků.
+Mobilní hlavička má mít jednu sdílenou výšku, zachovat iOS safe-area a všechny navázané prvky (mapa, detail overlay, mobilní drawer) musí používat stejný offset.
 
-### Stav
-Současné CSS už používá pět rovnoměrných sloupců přes plnou šířku dashboardu. Přidán cílený desktop regresní test s pěti reálnějšími názvy a minimální šířkou 180 px.
+### Implementace
+Zavedeno:
+- `--hr-mobile-header-content: 56px`
+- `--hr-mobile-header-height: 56px + env(safe-area-inset-top)`
+- `--hr-mobile-nav-height: 76px`
+
+Aktivní konfliktní hodnoty 58 / 60 / 104 px byly sjednoceny přes tyto proměnné.
 ---
 
 # 5. Kompletní plán
@@ -410,8 +415,8 @@ Build a visual-regression projdou a na PC/iPhonu nebude v hlavní navigaci polo�
 ## P2 – Responsive, UX, konzole a testy
 
 ### HRA-P2-01 – Upravit desktopové karty
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Viditelný problém:**
 - příliš velké obrázkové plochy,
@@ -424,8 +429,8 @@ Stabilní rozměry karet a obrázků, čitelný text, žádné obří prázdné 
 ---
 
 ### HRA-P2-02 – Opravit „Nedávno zobrazené“ pod desktopovou mapou
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Viditelný problém:**
 Karty jsou extrémně úzké a názvy se zkracují na několik znaků (`Jan...`, `Zno...`).
@@ -436,8 +441,8 @@ Položka je identifikovatelná bez otevření detailu.
 ---
 
 ### HRA-P2-03 – Zkompaktnit mobilní hlavičku
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Viditelný problém:**
 Horní oblast zabírá hodně vertikálního prostoru.
@@ -671,6 +676,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-01/P2-02 fyzicky potvrzeny; zahájen P2-03**
+
+Hotovo:
+- uživatel fyzicky potvrdil desktopové karty i „Nedávno zobrazené“ jako OK,
+- HRA-P2-01 a HRA-P2-02 jsou DONE,
+- P2-03 odstranil konflikt mobilních výšek 58/60/104 px zavedením jedné sdílené hlavičkové proměnné,
+- header content má 56 px a bezpečný horní inset se přičítá přes `env(safe-area-inset-top)`,
+- mobilní mapa, detail overlay a drawer používají stejný `--hr-mobile-header-height`,
+- přidán iPhone regresní test kompaktní výšky hlavičky, 40px klikacích ploch, mapy vůči spodní navigaci a drawer offsetu.
+
+**Předchozí krok:**
 
 **2026-10-06 – P2-01 + P2-02 CI PASS**
 
@@ -1096,14 +1113,15 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Krátce ověřit desktopové karty
+## Ověřit P2-03 na iPhonu
 
-Na PC:
-1. otevřít **Seznam** a zkontrolovat, že karty jsou širší a názvy nejsou namačkané,
-2. otevřít několik památek na mapě a podívat se na **Nedávno zobrazené**,
-3. pět karet musí být normálně širokých a název má být identifikovatelný.
+1. potvrdit Build Hradník + visual regression,
+2. na iPhonu zkontrolovat, že horní lišta je znatelně nižší než dřív,
+3. hamburger a lupa musí zůstat pohodlně klikatelné,
+4. mapa musí končit těsně nad spodní navigací bez prázdného pásu,
+5. otevřít detail a hamburger drawer – oba musí začínat pod hlavičkou a nekolidovat se spodní navigací.
 
-Po potvrzení označit P2-01 a P2-02 jako DONE. Potom pokračovat P2-03 – zkompaktnění mobilní hlavičky; tento krok mění výškové offsety mapy/detailu/draweru, proto se má dělat až po tomto checkpointu.
+Po potvrzení označit P2-03 DONE a pokračovat P2-04 – sjednocení responsive chování bez duplicitní datové logiky.
 ---
 
 # 14. Šablona aktualizace po každém kroku

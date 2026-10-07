@@ -1,6 +1,6 @@
 /* Hradník — reference shell enforcement + final desktop/mobile alignment. */
 function style(){if(document.getElementById('reference-force-style'))return;const s=document.createElement('style');s.id='reference-force-style';s.textContent=`
-:root{--rf-bg:#080b0e;--rf-panel:#10161a;--rf-line:#293238;--rf-gold:#f0c44a;--rf-text:#f3f1eb}
+:root{--rf-bg:#080b0e;--rf-panel:#10161a;--rf-line:#293238;--rf-gold:#f0c44a;--rf-text:#f3f1eb;--hr-mobile-header-content:56px;--hr-mobile-header-height:calc(var(--hr-mobile-header-content) + env(safe-area-inset-top,0px));--hr-mobile-nav-height:76px}
 html,body,#app{background:var(--rf-bg)!important;color:var(--rf-text)!important}
 @media(min-width:851px){
 header{position:fixed!important;inset:0 0 auto 0!important;height:85px!important;padding:0 20px!important;background:#080b0e!important;border-bottom:1px solid #252e33!important;z-index:910!important}
@@ -48,14 +48,14 @@ body:has(.overlay) #content:has(#map) #map{width:calc(100% - 307px)!important}
 .overlay .sheet a{color:var(--rf-gold)!important}
 }
 @media(max-width:850px){
-header{height:104px!important;position:sticky!important;top:0!important;padding:0 12px!important;background:#080b0e!important;border-bottom:1px solid #242d32!important;z-index:910!important}
-header .top{height:104px!important;min-height:104px!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;position:relative!important}
+header{height:var(--hr-mobile-header-height)!important;min-height:var(--hr-mobile-header-height)!important;box-sizing:border-box!important;position:sticky!important;top:0!important;padding:env(safe-area-inset-top,0px) 12px 0!important;background:#080b0e!important;border-bottom:1px solid #242d32!important;z-index:910!important}
+header .top{height:var(--hr-mobile-header-content)!important;min-height:var(--hr-mobile-header-content)!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;position:relative!important}
 header .top>div:first-child{position:absolute!important;left:50%!important;transform:translateX(-50%)!important;display:flex!important;align-items:center!important}
-header .top>div:first-child .logo{width:135px!important;height:36px!important;font-size:0!important;background:url('/hradnik-logo.svg') center/contain no-repeat!important;color:transparent!important}
+header .top>div:first-child .logo{width:128px!important;height:34px!important;font-size:0!important;background:url('/hradnik-logo.svg') center/contain no-repeat!important;color:transparent!important}
 header .top>div:first-child .sub,header .account{display:none!important}
-.mobileHeaderMenu{display:grid!important;place-items:center!important;width:38px!important;height:38px!important;padding:0!important;border:0!important;background:transparent!important;z-index:3!important}
+.mobileHeaderMenu{display:grid!important;place-items:center!important;width:40px!important;height:40px!important;padding:0!important;border:0!important;background:transparent!important;z-index:3!important}
 .mobileHeaderMenu span{display:block!important;width:21px!important;height:2px!important;background:#eee!important;margin:2px 0!important}
-.mobileHeaderSearch{display:grid!important;place-items:center!important;width:38px!important;height:38px!important;border:0!important;background:transparent!important;padding:0!important;margin-left:auto!important}
+.mobileHeaderSearch{display:grid!important;place-items:center!important;width:40px!important;height:40px!important;border:0!important;background:transparent!important;padding:0!important;margin-left:auto!important}
 .mobileHeaderSearch img{width:24px!important;height:24px!important}
 .globalSearchWrap,.reference-force-count{display:none!important}
 main.wrap.redesign-main{width:100%!important;margin:0!important;padding:0 8px 84px!important;max-width:none!important}
@@ -66,8 +66,8 @@ main.wrap.redesign-main{width:100%!important;margin:0!important;padding:0 8px 84
 .redesign-sidebar .nav button:nth-child(5){display:none!important}
 .reference-force-brand{display:none!important}
 .hero,.mapFilters,.mapLegend,#content>section>.sectionTitle{display:none!important}
-#content:has(#map) #map{height:calc(100dvh - 360px)!important;min-height:350px!important;width:100%!important;border:0!important;border-radius:0!important}
-.overlay{position:fixed!important;inset:104px 0 76px!important;background:rgba(0,0,0,.55)!important;z-index:915!important}
+#content:has(#map) #map{height:calc(100dvh - var(--hr-mobile-header-height) - var(--hr-mobile-nav-height))!important;min-height:0!important;width:100%!important;border:0!important;border-radius:0!important}
+.overlay{position:fixed!important;inset:var(--hr-mobile-header-height) 0 var(--hr-mobile-nav-height)!important;background:rgba(0,0,0,.55)!important;z-index:915!important}
 .overlay .sheet{position:absolute!important;left:0!important;right:0!important;bottom:0!important;max-height:92%!important;overflow:auto!important;border:1px solid #293238!important;border-bottom:0!important;border-radius:16px 16px 0 0!important;background:#10161a!important;padding:18px!important}
 .overlay .sheet .close{position:absolute!important;right:14px!important;top:12px!important;width:36px!important;height:36px!important;border:1px solid #30383d!important;border-radius:9px!important;background:#171d20!important;color:#eee!important;font-size:24px!important}
 .overlay .sheet h1{font-family:Georgia,'Times New Roman',serif!important;font-size:24px!important;line-height:1.15!important;margin:5px 44px 4px 0!important}

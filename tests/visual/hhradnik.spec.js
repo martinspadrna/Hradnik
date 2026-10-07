@@ -226,6 +226,39 @@ test('mobile catalog filters stay reachable and preservation select stays dark',
 })
 
 
+test('mobile header uses one compact safe-area height', async ({ page }) => {
+  test.skip(test.info().project.name !== 'iphone')
+  const nav = await openApp(page)
+  const header = page.locator('header')
+  const menu = page.locator('.mobileHeaderMenu')
+  const search = page.locator('.mobileHeaderSearch')
+  const headerBox = await header.boundingBox()
+  const menuBox = await menu.boundingBox()
+  const searchBox = await search.boundingBox()
+
+  expect(headerBox).toBeTruthy()
+  expect(menuBox).toBeTruthy()
+  expect(searchBox).toBeTruthy()
+  expect(headerBox.height).toBeLessThanOrEqual(72)
+  expect(menuBox.height).toBeGreaterThanOrEqual(40)
+  expect(searchBox.height).toBeGreaterThanOrEqual(40)
+
+  await nav.nth(0).click()
+  const mapBox = await page.locator('#map').boundingBox()
+  const bottomNavBox = await page.locator('.redesign-sidebar').boundingBox()
+  expect(mapBox).toBeTruthy()
+  expect(bottomNavBox).toBeTruthy()
+  const headerBottom = headerBox.y + headerBox.height
+  const mapBottom = mapBox.y + mapBox.height
+  expect(mapBox.y).toBeGreaterThanOrEqual(headerBottom - 2)
+  expect(mapBottom).toBeLessThanOrEqual(bottomNavBox.y + 2)
+
+  await menu.click()
+  const drawerBox = await page.locator('.reference-mobile-drawer').boundingBox()
+  expect(drawerBox).toBeTruthy()
+  expect(Math.abs(drawerBox.y - headerBottom)).toBeLessThanOrEqual(2)
+})
+
 test('map, list detail and settings remain interactive', async ({ page }) => {
   let nav = await openApp(page)
   await nav.nth(0).click()
