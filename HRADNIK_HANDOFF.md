@@ -53,8 +53,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-05  
-**Název:** Prověřit stabilitu markerů a clusterů mapy  
+**ID:** HRA-P2-06  
+**Název:** Udržet konzistentní stav mezi obrazovkami  
 **Stav:** IN PROGRESS  
 **Dokončeno:** 90 %
 
@@ -468,8 +468,8 @@ Breakpointy mají měnit layout, ne datovou strukturu / logiku komponenty.
 ---
 
 ### HRA-P2-05 – Prověřit stabilitu markerů a clusterů mapy
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Prověřit:**
 - změna filtru,
@@ -485,8 +485,8 @@ Breakpointy mají měnit layout, ne datovou strukturu / logiku komponenty.
 ---
 
 ### HRA-P2-06 – Udržet konzistentní stav mezi obrazovkami
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Prověřit:**
 - hledaný text,
@@ -676,6 +676,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-05 map lifecycle PASS; P2-06 zachování stavu**
+
+Hotovo:
+- commit `30ac87d2fa728dc3c62b248a16af758597ac649a` má Build PASS + visual regression PASS,
+- map lifecycle test prošel na desktopu i iPhonu: filtr, Mapa/Satelit, zoom, marker detail a návrat Seznam → Mapa bez duplicitní aktivní mapy/markerů,
+- HRA-P2-05 je DONE,
+- pro P2-06 doplněn `ui.mapViewState` a jediný helper `rememberMapView()`, který před překreslením uloží střed + zoom a korektně odstraní starou Leaflet instanci,
+- při návratu na mapu se obnoví ručně zvolený center/zoom; explicitní focus památky má stále přednost,
+- hledání, typ a dochování už běží nad stejným `ui` stavem a nový test ověřuje jejich zachování přes Seznam → Mapa → Seznam,
+- test navíc ověřuje zachování uživatelského Oblíbeného seznamu.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-04 CI PASS; zahájen P2-05 map lifecycle**
 
@@ -1159,11 +1172,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit P2-05 map lifecycle
+## Ověřit P2-06
 
 1. potvrdit Build Hradník + visual regression,
-2. pokud scénář projde na desktopu i iPhonu, označit HRA-P2-05 jako DONE,
-3. pokračovat HRA-P2-06 – konzistence stavu mezi obrazovkami: hledání, typ/dochování filtr, otevřený detail, mapová pozice a uživatelský stav.
+2. pokud projdou, označit HRA-P2-06 jako DONE,
+3. pokračovat HRA-P2-07 – audit fotografií a storage URL: rozlišit skutečně chybějící foto, starou Supabase URL, oprávnění a lazy-load problém.
 ---
 
 # 14. Šablona aktualizace po každém kroku

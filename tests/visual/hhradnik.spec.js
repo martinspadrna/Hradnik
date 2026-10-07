@@ -447,6 +447,46 @@ test('selected search result has a photo and carries its map focus', async ({ pa
   }
 })
 
+test('catalog filters and map viewport survive navigation changes', async ({ page }) => {
+  let nav = await openApp(page)
+  await nav.nth(1).click()
+
+  await page.locator('#search').fill('Test')
+  await page.locator('#preservation').selectOption('all')
+  await page.locator('#typeChips button').filter({ hasText: /^Hrad$/ }).click()
+  await expect(page.locator('#search')).toHaveValue('Test')
+  await expect(page.locator('#preservation')).toHaveValue('all')
+  await expect(page.locator('#typeChips button').filter({ hasText: /^Hrad$/ })).toHaveClass(/active/)
+  await expect(page.locator('#list .place')).toHaveCount(1)
+
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await page.evaluate(() => window.__hradnikMap?.setView([50.2, 15.8], 9, { animate: false }))
+  await expect.poll(async () => page.evaluate(() => window.__hradnikMap?.getZoom())).toBe(9)
+
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(1).click()
+  await expect(page.locator('#search')).toHaveValue('Test')
+  await expect(page.locator('#preservation')).toHaveValue('all')
+  await expect(page.locator('#typeChips button').filter({ hasText: /^Hrad$/ })).toHaveClass(/active/)
+
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await expect.poll(async () => page.evaluate(() => {
+    const map=window.__hradnikMap
+    const c=map?.getCenter()
+    return !!c && Math.abs(c.lat-50.2)<0.01 && Math.abs(c.lng-15.8)<0.01 && map.getZoom()===9
+  })).toBe(true)
+
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(2).click()
+  await page.locator('#mf').click()
+  await expect(page.locator('#mineList .place')).toHaveCount(1)
+  await expect(page.locator('#mineList .place')).toContainText('Hrad Test')
+})
+
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {
   await openApp(page, false)
   const bridge = await page.evaluate(() => ({
