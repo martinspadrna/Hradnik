@@ -53,10 +53,10 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-03  
-**Název:** Zkompaktnit mobilní hlavičku  
-**Stav:** VERIFY  
-**Dokončeno:** 100 % technicky
+**ID:** HRA-P2-04  
+**Název:** Sjednotit responzivní chování PC a mobilu  
+**Stav:** IN PROGRESS  
+**Dokončeno:** 90 %
 
 ### Cíl
 Mobilní hlavička má mít jednu sdílenou výšku, zachovat iOS safe-area a všechny navázané prvky (mapa, detail overlay, mobilní drawer) musí používat stejný offset.
@@ -441,8 +441,8 @@ Položka je identifikovatelná bez otevření detailu.
 ---
 
 ### HRA-P2-03 – Zkompaktnit mobilní hlavičku
-- **Stav:** VERIFY
-- **Dokončeno:** 100 % technicky
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Viditelný problém:**
 Horní oblast zabírá hodně vertikálního prostoru.
@@ -456,8 +456,8 @@ Menší hlavička bez porušení iOS safe area a klikacích ploch.
 ---
 
 ### HRA-P2-04 – Sjednotit responzivní chování PC a mobilu
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 90 %
 
 **Audit / screenshoty:**
 Stejná data se na telefonu zobrazují správněji než na desktopu.
@@ -676,6 +676,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-07 – P2-03 fyzicky potvrzen; P2-04 chráněno společným DOM kontraktem**
+
+Hotovo:
+- uživatel fyzicky potvrdil kompaktní mobilní hlavičku jako OK,
+- HRA-P2-03 je DONE,
+- audit runtime JS nenašel žádné větvení podle `innerWidth`, `matchMedia`, `isMobile`, `screen.width` ani user-agentu pro vykreslení seznamu/karet,
+- katalog na PC i mobilu používá stejnou funkci `card(p)`, stejný stav `ui` a stejný detail renderer; rozdíl je pouze v CSS breakpointech,
+- přidán společný regresní test běžící v desktop i iPhone projektu: stejný počet karet, `.placeMain`, `.placeCopy`, dva metadata řádky, dva quick actions, právě jeden media slot a shodný detailový DOM,
+- HRA-P2-04 čeká na zelený CI.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-03 kompaktní mobilní hlavička: CI PASS**
 
@@ -1126,15 +1138,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Ověřit P2-03 na iPhonu
+## Ověřit P2-04 a pokračovat stabilitou mapy
 
-1. potvrdit Build Hradník + visual regression,
-2. na iPhonu zkontrolovat, že horní lišta je znatelně nižší než dřív,
-3. hamburger a lupa musí zůstat pohodlně klikatelné,
-4. mapa musí končit těsně nad spodní navigací bez prázdného pásu,
-5. otevřít detail a hamburger drawer – oba musí začínat pod hlavičkou a nekolidovat se spodní navigací.
-
-Po potvrzení označit P2-03 DONE a pokračovat P2-04 – sjednocení responsive chování bez duplicitní datové logiky.
+1. potvrdit Build Hradník + visual regression s novým shared-DOM testem,
+2. pokud projdou, označit HRA-P2-04 jako DONE,
+3. pokračovat HRA-P2-05: prověřit, že filtrování, zoom, přepnutí Mapa/Satelit, detail a opakované návraty na mapu nevytvářejí duplicitní Leaflet instance/markery ani neztrácejí stav.
 ---
 
 # 14. Šablona aktualizace po každém kroku

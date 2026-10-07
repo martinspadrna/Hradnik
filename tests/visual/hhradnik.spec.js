@@ -259,6 +259,27 @@ test('mobile header uses one compact safe-area height', async ({ page }) => {
   expect(Math.abs(drawerBox.y - headerBottom)).toBeLessThanOrEqual(2)
 })
 
+test('catalog uses the same card DOM and data contract on desktop and iphone', async ({ page }) => {
+  const nav = await openApp(page)
+  await nav.nth(1).click()
+
+  const cards = page.locator('#list .place')
+  await expect(cards).toHaveCount(samplePlaces.length)
+  const first = cards.first()
+  await expect(first.locator(':scope > .placeMain')).toHaveCount(1)
+  await expect(first.locator('.placeCopy')).toHaveCount(1)
+  await expect(first.locator('.placeCopy > b')).toContainText('Karlštejn')
+  await expect(first.locator('.placeCopy > small')).toHaveCount(2)
+  await expect(first.locator('.quick button')).toHaveCount(2)
+  await expect(first.locator('.placeIcon,.placePhoto')).toHaveCount(1)
+
+  await first.locator('.placeMain').click()
+  const detail = page.locator('.overlay .sheet')
+  await expect(detail).toBeVisible()
+  await expect(detail.locator('h1')).toHaveText('Karlštejn')
+  await expect(detail.locator('.detailGrid .card')).toHaveCount(3)
+})
+
 test('map, list detail and settings remain interactive', async ({ page }) => {
   let nav = await openApp(page)
   await nav.nth(0).click()
