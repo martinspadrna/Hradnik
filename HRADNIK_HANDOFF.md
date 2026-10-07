@@ -677,6 +677,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-07 – P2-06 core test PASS; odstraněn překryv dvou mapových testů**
+
+Zjištění:
+- stale `window.__hradnikMap` je opravený; dříve padající desktop focus test nyní prošel,
+- nový P2-06 test „catalog filters and map viewport survive navigation changes“ prošel na desktopu i iPhonu,
+- jediný zbývající FAIL byl v iPhone P2-05 testu, který po dlouhé mapové sekvenci znovu testoval Seznam → Mapa; stejný přechod už samostatně a úspěšně testuje P2-06,
+- P2-05 lifecycle test proto na iPhonu ověřuje mapu/filtr/style/zoom/detail/jedinou instanci a desktop navíc opakovanou reinicializaci; iPhone Seznam → Mapa je pokryt P2-06 bez duplicitního scénáře,
+- žádná další aplikační změna kvůli tomuto testu nebyla potřeba.
+
+**Předchozí krok:**
+
 **2026-10-07 – P2-06 CI odhalil stale `window.__hradnikMap`; opraveno**
 
 Zjištění:

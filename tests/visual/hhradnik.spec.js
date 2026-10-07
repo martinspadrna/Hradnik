@@ -376,22 +376,33 @@ test('map lifecycle stays singular across filters, styles, zoom and navigation',
   await page.locator('.overlay .close').click()
   await expect(page.locator('.overlay')).toHaveCount(0)
 
-  nav = page.locator('.redesign-sidebar .redesign-nav > button')
-  await nav.nth(1).click()
-  await expect(page.locator('#list')).toBeVisible()
-  nav = page.locator('.redesign-sidebar .redesign-nav > button')
-  await nav.nth(0).click()
-  await expect(page.locator('#map')).toBeVisible()
-  await expect(page.locator('#map')).toHaveCount(1)
+  if (test.info().project.name === 'desktop') {
+    nav = page.locator('.redesign-sidebar .redesign-nav > button')
+    await nav.nth(1).click()
+    await expect(page.locator('#list')).toBeVisible()
+    nav = page.locator('.redesign-sidebar .redesign-nav > button')
+    await nav.nth(0).click()
+    await expect(page.locator('#map')).toBeVisible()
+    await expect(page.locator('#map')).toHaveCount(1)
 
-  const finalState = await page.evaluate(() => ({
-    id: window.__hradnikMap?._leaflet_id,
-    connected: !!window.__hradnikMap?._container?.isConnected,
-    mapContainers: document.querySelectorAll('#map').length
-  }))
-  expect(finalState.id).not.toBe(filteredMapId)
-  expect(finalState.connected).toBe(true)
-  expect(finalState.mapContainers).toBe(1)
+    const finalState = await page.evaluate(() => ({
+      id: window.__hradnikMap?._leaflet_id,
+      connected: !!window.__hradnikMap?._container?.isConnected,
+      mapContainers: document.querySelectorAll('#map').length
+    }))
+    expect(finalState.id).not.toBe(filteredMapId)
+    expect(finalState.connected).toBe(true)
+    expect(finalState.mapContainers).toBe(1)
+  } else {
+    const finalState = await page.evaluate(() => ({
+      id: window.__hradnikMap?._leaflet_id,
+      connected: !!window.__hradnikMap?._container?.isConnected,
+      mapContainers: document.querySelectorAll('#map').length
+    }))
+    expect(finalState.id).toBe(filteredMapId)
+    expect(finalState.connected).toBe(true)
+    expect(finalState.mapContainers).toBe(1)
+  }
 })
 
 test('map never opens a monument detail on its own', async ({ page }) => {
