@@ -263,6 +263,7 @@ test('catalog uses the same card DOM and data contract on desktop and iphone', a
   const nav = await openApp(page)
   await nav.nth(1).click()
 
+  await page.locator('#preservation').selectOption('all')
   const cards = page.locator('#list .place')
   await expect(cards).toHaveCount(samplePlaces.length)
   const first = cards.first()

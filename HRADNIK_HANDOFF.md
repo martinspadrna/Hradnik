@@ -677,6 +677,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-07 – P2-04: první shared-DOM test opraven podle skutečného filtru**
+
+Zjištění:
+- Build commitu `24f3ca45c0d8b5e65fe76996021aebc38cfdfaa1` prošel,
+- visual regression selhal pouze v novém P2-04 testu na desktopu i iPhonu stejným způsobem: test očekával všech 6 mock památek, ale výchozí filtr „Dochované + zříceniny“ správně zobrazil jen 4,
+- nejde o rozdíl desktop/mobile ani funkční regresi,
+- test nyní před porovnáním společného DOM přepne Dochování na „Vše“, takže ověřuje všech 6 stejných dat na obou projektech.
+
+**Předchozí krok:**
+
 **2026-10-07 – P2-03 fyzicky potvrzen; P2-04 chráněno společným DOM kontraktem**
 
 Hotovo:
