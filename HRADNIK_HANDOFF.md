@@ -56,17 +56,19 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **ID:** HRA-P3-01  
 **Název:** Postupné odstranění duplicitních CSS pravidel a dalšího technického dluhu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 5 %
+**Dokončeno:** 10 %
 
-### První bezpečný krok (2026-10-16)
-- Odstranit dvě totožné globální CSS deklarace (`:root` a `html,body,#app`) ze `src/reference-lock.css`, které už bezprostředně před ním obsahuje `src/reference-true.css`.
-- Žádný breakpoint, layout ani JS se nemění; očekávaný vizuální rozdíl je nulový.
-- **Původní HEAD:** `fe3544efb7e65972bb731c24e9028cb76219eebf`; **nový HEAD:** commit na `main` obsahující tento handoff (přesná SHA je na GitHubu).
-- **Automatické ověření:** workflow `Build Hradník` a `Hradník visual regression` se spouští pushnutím změny; výsledky je nutné zkontrolovat před dalším refaktorem.
-- **Ruční ověření:** desktop a iPhone: hlavička, boční/spodní navigace, mapa a detail.
-- **Další krok:** po zeleném CI analyzovat další přesné překryvy CSS, nikoliv plošně mazat hardlock pravidla.
-
-**HRA-P2-10** zůstává **BLOCKED (10 %)**. Fresh Supabase branch nevytvářet bez výslovného schválení případného nákladu.
+### Druhý bezpečný krok (2026-10-16)
+- Výchozí HEAD `93617c114e7e9e55046e8eea1462815e816eaf2c` s **Build Hradník PASS a Hradník visual regression PASS**.
+- Odstraněny další dvě přesně shodné mobilní deklarace v `src/reference-lock.css`:
+  - `.mobileHeaderMenu span`
+  - `.mobileHeaderSearch img`
+- Obě pravidla zůstávají beze změny v dříve načítaném `src/reference-true.css` ve stejném breakpointu `max-width:850px`; očekávaná vizuální změna je nulová.
+- **HEAD po změně:** commit větve `main` obsahující tento zápis (SHA zjistit z GitHubu).
+- **Automatické ověření:** `Build Hradník` a `Hradník visual regression` automaticky po pushi; po commitu zkontrolovat jejich výsledek.
+- **Ruční ověření:** na iPhonu zkontrolovat hamburger menu a mobilní vyhledávání, na PC rychlé přepnutí hlavních sekcí.
+- **Další krok:** pokračovat pouze po zeleném CI, další skutečné duplicity odstranit izolovaně. Žádný plošný přepis.
+- **HRA-P2-10:** nadále BLOCKED, 10 %, žádné vytváření placené Supabase branch bez souhlasu.
 
 ---
 
@@ -569,7 +571,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 5 %
+- **Dokončeno:** 10 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -676,6 +678,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-16 – P3-01 druhá malá CSS deduplikace**
+
+- Předchozí commit `93617c114e7e9e55046e8eea1462815e816eaf2c` prošel workflow `Build Hradník` i `Hradník visual regression` (PASS).
+- V `src/reference-lock.css` odstraněny dvě identické deklarace pro mobilní hamburger a ikonu lupy; jejich zdroj v `src/reference-true.css` zůstává.
+- Stejný media breakpoint a deklarace byly ověřeny před změnou; očekává se nulová změna vizuálu.
+- **HEAD:** tento commit na `main`, rodičovský HEAD `93617c114e7e9e55046e8eea1462815e816eaf2c`.
+- **CI tohoto kroku:** Build Hradník a visual regression po pushi; do výsledku neuzavírat.
+- **Další krok:** zkontrolovat oba workflow, pak pokračovat další izolovanou deduplikací.
+- Starý i nový Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-16 – zahájen P3-01, odstraněna přesná duplicita globálního CSS**
 
@@ -1263,7 +1277,7 @@ Po HRA-P0-01 až HRA-P0-05:
 
 ## P3-01 – postupný úklid CSS (aktivní)
 
-1. Ověřit úspěch obou CI workflow na novém HEAD `main`.
+1. Ověřit úspěch obou CI workflow po druhé malé CSS deduplikaci na novém HEAD `main`.
 2. Po zeleném CI pokračovat další úzkou deduplikací `reference-true.css` / `reference-lock.css` při zachování stávajícího vzhledu a DOM.
 3. Při změně skutečných rozměrů/navigace vyžadovat vizuální ověření na PC i iPhonu.
 
