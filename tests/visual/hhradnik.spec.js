@@ -526,6 +526,26 @@ test('marker refresh stops when the Leaflet map is removed', async ({ page }) =>
   expect(pageErrors).toEqual([])
 })
 
+test('pending zoom animation cannot run after map removal', async ({ page }) => {
+  const pageErrors = []
+  page.on('pageerror', error => pageErrors.push(error.message))
+  const nav = await openApp(page)
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => !!window.__hradnikMap)).toBe(true)
+
+  // Schedule zoom and navigate away in the same browser task, before CSS transitionend.
+  await page.evaluate(() => {
+    const map = window.__hradnikMap
+    if (!map) throw new Error('Map was not initialized')
+    map.setZoom(map.getZoom() + 2, { animate: true })
+    document.querySelectorAll('.redesign-sidebar .redesign-nav > button')[1].click()
+  })
+  await expect(page.locator('#list')).toBeVisible()
+  await page.waitForTimeout(650)
+  expect(pageErrors).toEqual([])
+})
+
 test('core navigation stays free of application runtime errors', async ({ page }) => {
   const consoleErrors = []
   const pageErrors = []
