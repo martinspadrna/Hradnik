@@ -54,21 +54,20 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P3-01  
-**Název:** Postupné odstranění duplicitních CSS pravidel a dalšího technického dluhu  
+**Název:** Postupná deduplikace CSS bez změny desktopového ani mobilního vzhledu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 10 %
+**Dokončeno:** 15 %
 
-### Druhý bezpečný krok (2026-10-16)
-- Výchozí HEAD `93617c114e7e9e55046e8eea1462815e816eaf2c` s **Build Hradník PASS a Hradník visual regression PASS**.
-- Odstraněny další dvě přesně shodné mobilní deklarace v `src/reference-lock.css`:
-  - `.mobileHeaderMenu span`
-  - `.mobileHeaderSearch img`
-- Obě pravidla zůstávají beze změny v dříve načítaném `src/reference-true.css` ve stejném breakpointu `max-width:850px`; očekávaná vizuální změna je nulová.
-- **HEAD po změně:** commit větve `main` obsahující tento zápis (SHA zjistit z GitHubu).
-- **Automatické ověření:** `Build Hradník` a `Hradník visual regression` automaticky po pushi; po commitu zkontrolovat jejich výsledek.
-- **Ruční ověření:** na iPhonu zkontrolovat hamburger menu a mobilní vyhledávání, na PC rychlé přepnutí hlavních sekcí.
-- **Další krok:** pokračovat pouze po zeleném CI, další skutečné duplicity odstranit izolovaně. Žádný plošný přepis.
-- **HRA-P2-10:** nadále BLOCKED, 10 %, žádné vytváření placené Supabase branch bez souhlasu.
+### Třetí bezpečný krok (2026-10-16)
+- Výchozí HEAD `916632f75fb32d10c8bc1825863d2ca4484b4718`: **Build Hradník PASS**, **Hradník visual regression PASS**.
+- Tři uživatelem zaslané desktopové screenshoty zobrazují Mapu, Seznam a Kategorie ve funkčně vypadajícím rozložení bez zjevného překrývání. Neprokazují ale funkčnost interakcí ani stav na iPhonu.
+- Odstraněny přesně identické desktopové deklarace `header .top>div:first-child .sub` a `.redesign-brand,.redesign-side-footer` z později načítaného `reference-lock.css`.
+- Obě zůstávají beze změny v dříve načítaném `reference-true.css` pod stejným `@media(min-width:851px)`; očekávaná vizuální změna je nulová. Nezměněný DOM ani backend.
+- **HEAD:** commit `main` s touto změnou a tímto handoffem; přesnou SHA zjistit z historie GitHubu.
+- **Automatické ověření:** `Build Hradník` a `Hradník visual regression` se spouštějí pushnutím commitu. Výsledek zkontrolovat před dalším zásahem.
+- **Ruční ověření:** PC hlavička, sidebar, Mapa, Seznam, Kategorie; iPhone navigace a detaily stále čekají na fyzickou kontrolu.
+- **Další krok:** po CI PASS pokračovat dalším malým čištěním přesných duplicit, případně revidovat vlastníky jednotlivých CSS vrstev.
+- **HRA-P2-10:** BLOCKED, 10 %, žádná Supabase branch bez explicitního schválení ceny.
 
 ---
 
@@ -571,7 +570,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 10 %
+- **Dokončeno:** 15 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -678,6 +677,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-16 – P3-01: screenshoty PC a třetí izolované CSS čištění**
+
+- Po druhé deduplikaci `916632f75fb32d10c8bc1825863d2ca4484b4718` prošly oba CI workflow (Build + visual regression PASS).
+- Screenshoty PC zobrazují použitelnou Mapu, Seznam a Kategorie; bez doložení iPhone chování a bez ověření klikacích interakcí.
+- Odstraněny dvě identické desktopové deklarace z `reference-lock.css`; dříve načítané shodné deklarace `reference-true.css` zachovány.
+- **HEAD:** tento commit na `main`, výchozí HEAD `916632f75fb32d10c8bc1825863d2ca4484b4718`.
+- **Ověření:** CI nového commitu po pushnutí, do výsledku ponechat IN PROGRESS.
+- **Další krok:** vyhodnotit oba workflow a až poté další izolovaná úprava.
+- Supabase a produkční data beze změn.
+
+**Předchozí krok:**
 
 **2026-10-16 – P3-01 druhá malá CSS deduplikace**
 
@@ -1277,7 +1288,7 @@ Po HRA-P0-01 až HRA-P0-05:
 
 ## P3-01 – postupný úklid CSS (aktivní)
 
-1. Ověřit úspěch obou CI workflow po druhé malé CSS deduplikaci na novém HEAD `main`.
+1. Ověřit výsledek obou CI workflow po třetí izolované CSS úpravě na aktuálním HEAD `main`.
 2. Po zeleném CI pokračovat další úzkou deduplikací `reference-true.css` / `reference-lock.css` při zachování stávajícího vzhledu a DOM.
 3. Při změně skutečných rozměrů/navigace vyžadovat vizuální ověření na PC i iPhonu.
 
