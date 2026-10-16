@@ -56,19 +56,17 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **ID:** HRA-P3-01  
 **Název:** Postupný technický úklid CSS a JS bez změny vzhledu aplikace  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 25 %
+**Dokončeno:** 30 %
 
-### Ověření regresní opravy (2026-10-16)
-- Commit `16e482db75e6c51787b8956f21a28ed7f295d8fe`: **Build Hradník PASS** a **Hradník visual regression PASS**.
-- Odložený Leaflet callback `_onZoomTransitionEnd` je bezpečně zrušen před `map.remove()` v obou relevantních cestách. Předchozí release stale `mapRef` zůstává.
-- Nový test `pending zoom animation cannot run after map removal` i `marker refresh stops when the Leaflet map is removed` prošly.
-- HRA-P2-05 se vrací na **DONE – 100 %**.
-- P3-01 zatím na **25 %**; poslední změna CSS v `reference-lock.css` má ověřené testy až na následujícím opravě mapy v HEAD `16e482db75e6c51787b8956f21a28ed7f295d8fe`.
-- **HEAD:** tento dokumentační commit na `main`, rodič `16e482db75e6c51787b8956f21a28ed7f295d8fe`. Kód aplikace zůstává beze změny.
-- **Automatické ověření:** při tomto handoff-only pushi se znovu spustí Build Hradník a Hradník visual regression; vyhodnotit je před další úpravou.
-- **Ruční ověření:** na PC/iPhone lze ověřit rychlé Mapa → Seznam → Mapa, zoom a markery.
-- **Další doporučený krok:** po zeleném CI pokračovat izolovanou CSS deduplikací P3-01.
-- **HRA-P2-10:** BLOCKED 10 %, žádná Supabase development branch bez výslovného schválení případného nákladu.
+### Šestý bezpečný krok (2026-10-16)
+- Výchozí HEAD `ef385c78f120c900a5e6583a5672022e7370da54`, oba CI workflow **Build Hradník** a **Hradník visual regression** PASS.
+- Z `src/reference-lock.css` odstraněny pouze dvě identické mobilní deklarace `.reference-recent{display:none!important}` a `.hradnik-map-toggle{display:none!important}`. Stejné deklarace ve stejném breakpointu `max-width:850px` zůstaly v dříve načteném `reference-true.css`.
+- Očekávaná vizuální změna je nulová. Žádná změna JS, DOM, databáze, mapových vrstev ani chování navigace.
+- **HEAD:** aktuální commit větve `main` obsahující tento handoff, rodič `ef385c78f120c900a5e6583a5672022e7370da54`. Přesné SHA lze ověřit v historii GitHubu.
+- **Automatické ověření:** na novém commitu se spouští oba CI workflow. Dokud oba neskončí PASS, nezačínat další úpravu.
+- **Ruční ověření:** na PC i iPhonu Mapa, Seznam, Kategorie, nepřekrývající obsah, přepínač Mapa/Satelit a rychlý návrat na Mapu.
+- **Další doporučený krok:** po PASS pokračovat malou přesnou CSS deduplikací; zachovat dosavadní funkční layout.
+- HRA-P2-05 zůstává **DONE 100 %** a HRA-P2-10 **BLOCKED 10 %**; starého Supabase projektu se nedotýkat.
 
 ---
 
@@ -571,7 +569,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 25 %
+- **Dokončeno:** 30 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -678,6 +676,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-16 – HRA-P3-01: šestý krok CSS deduplikace**
+
+- Výchozí commit `ef385c78f120c900a5e6583a5672022e7370da54`: Build Hradník PASS a Hradník visual regression PASS, Leaflet regresní opravy zachovány.
+- Mobilní duplicity `.reference-recent` a `.hradnik-map-toggle` odebrány z `reference-lock.css`. Stejná pravidla se shodným `max-width:850px` zůstávají v `reference-true.css`.
+- **Stav:** P3-01 IN PROGRESS 30 %; ostatní úkoly bez změny.
+- **HEAD:** commit `main` s tímto handoffem; rodič `ef385c78f120c900a5e6583a5672022e7370da54`.
+- **Ověření:** Build + visual regression po commitu; do jejich dokončení další kód neměnit.
+- **Ruční ověření:** PC/iPhone hlavní navigace, Mapa, Seznam, Kategorie, Mapa/Satelit.
+- **Další krok:** po obou CI PASS pokračovat izolovaným CSS úklidem.
+- Oba Supabase projekty beze změny.
+
+**Předchozí krok:**
 
 **2026-10-16 – P2-05 DONE po přesné opravě Leaflet zoom teardown**
 
@@ -1354,7 +1365,7 @@ Po HRA-P0-01 až HRA-P0-05:
 
 ## HRA-P3-01 – pokračování bezpečného CSS úklidu
 
-1. Ověřit výsledky obou CI workflow na posledním dokumentačním commitu `main`.
+1. Ověřit oba CI workflow nového commitu po šesté CSS deduplikaci na `main`.
 2. Po CI PASS pokračovat další úzkou deduplikací skutečně shodných CSS deklarací; žádný plošný přepis.
 3. Při další regresi nejdřív analyzovat trace a zdroj chyby.
 4. Fyzické ověření PC/iPhone: navigace, zoom mapy, markery, detail, Seznam a Kategorie.

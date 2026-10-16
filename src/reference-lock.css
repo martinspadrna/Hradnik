@@ -45,7 +45,5 @@
   .map-layout{display:block!important;margin:0!important;height:auto!important}
   .map-layout #map{height:calc(100dvh - 390px)!important;min-height:388px!important;border:0!important;border-radius:0!important}
   .map-layout .map-focus-card{display:flex!important;margin:0!important;min-height:225px!important;border:1px solid #293238!important;border-radius:10px!important;background:#10161a!important;padding:10px!important}
-  .reference-recent{display:none!important}
-  .hradnik-map-toggle{display:none!important}
 }
 @media(max-width:520px){.map-layout #map{height:calc(100dvh - 360px)!important;min-height:350px!important}.map-layout .map-focus-card{min-height:205px!important}}
