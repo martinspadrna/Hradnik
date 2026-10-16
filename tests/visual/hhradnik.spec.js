@@ -507,6 +507,25 @@ test('catalog filters and map viewport survive navigation changes', async ({ pag
   await expect(page.locator('#mineList .place')).toContainText('Hrad Test')
 })
 
+test('marker refresh stops when the Leaflet map is removed', async ({ page }) => {
+  const pageErrors = []
+  page.on('pageerror', error => pageErrors.push(error.message))
+
+  let nav = await openApp(page)
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => !!window.__hradnikMap)).toBe(true)
+
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(1).click()
+  await expect(page.locator('#list')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => !window.__hradnikMap)).toBe(true)
+
+  // Longer than the old 900ms marker refresh timer.
+  await page.waitForTimeout(1250)
+  expect(pageErrors).toEqual([])
+})
+
 test('core navigation stays free of application runtime errors', async ({ page }) => {
   const consoleErrors = []
   const pageErrors = []

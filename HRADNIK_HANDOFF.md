@@ -53,20 +53,20 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P3-01  
-**Název:** Postupná deduplikace CSS bez změny desktopového ani mobilního vzhledu  
+**ID:** HRA-P2-05 (regresní oprava po HRA-P3-01)  
+**Název:** Leaflet runtime chyba po odpojení mapy  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 20 %
+**Dokončeno:** 95 %
 
-### Čtvrtý bezpečný krok (2026-10-16)
-- **Výchozí HEAD:** `2e73a6ee04f7e03c243ab247c4a1bb9b53bd6ca7`; předchozí Build Hradník i Hradník visual regression **PASS**.
-- Ve `src/reference-lock.css` odstraněny přesně shodné deklarace `.hero{display:none!important}` pro desktop `min-width:851px` a mobil `max-width:850px`.
-- Obě deklarace jsou již v předcházejícím `src/reference-true.css` ve stejných breakpointech; DOM, data, mapa ani vzhled navigace se tím nemění.
-- **Aktuální HEAD:** commit `main`, který obsahuje tento handoff (viz historie GitHubu).
-- **Automatické ověření:** po pushnutí spouští GitHub Actions `Build Hradník` a `Hradník visual regression`; výsledek ověřit před další změnou.
-- **Ruční ověření:** při příští kontrole PC/iPhonu se ujistit, že starý hero blok zůstává skrytý a hlavička, mapa, seznam a kategorie mají stabilní rozložení.
-- **Další krok:** pokračovat výhradně po PASS obou workflow další izolovanou deduplikací bez plošných změn.
-- **HRA-P2-10:** nadále BLOCKED, 10 %; bez souhlasu nevytvářet žádnou případně placenou Supabase branch.
+### Izolovaná oprava (2026-10-16)
+- Při ověřování P3-01 na commitu `c46f54872d922dd7621cc3b38e92e72c3cdeeb5d` byl `Build Hradník` **PASS**, `Hradník visual regression` **FAIL** v 1 desktopovém console-gate scénáři (33 PASS, 4 skipped), error: `Cannot read properties of undefined (reading '_leaflet_pos')`.
+- Zdrojem rizika je `reference-map-markers.js`: po `map.remove()` zůstával `mapRef` nastavený a opakované volání `render()` po 900 ms mohlo pracovat s odstraněnou mapou. Oprava nulování `mapRef`, zrušení čekajícího rAF a kontrola `_loaded` / připojení DOM při renderu.
+- Doplněn test `marker refresh stops when the Leaflet map is removed` na desktop a iPhone; čeká po přechodu Mapa → Seznam déle než 900 ms, ověřuje vyčištění odkazu a nulový počet page errors.
+- **HEAD:** commit `main` s tímto handoffem, rodič `c46f54872d922dd7621cc3b38e92e72c3cdeeb5d`.
+- **Automatické ověření:** Build Hradník + Hradník visual regression se spustí pushnutím této opravy; status do jejich dokončení IN PROGRESS.
+- **Ruční ověření:** rychlé přepínání Mapa ↔ Seznam ↔ Kategorie na PC/iPhonu, kontrola mapy, markerů a konzole.
+- **Další krok:** ověřit oba workflow. Po PASS vrátit HRA-P2-05 na DONE a pokračovat v P3-01, které zůstává IN PROGRESS 20 %. Při FAIL nejdřív dohledat konkrétní runtime trace.
+- **HRA-P2-10:** zůstává BLOCKED, 10 %, bez odsouhlasení žádná placená branch.
 
 ---
 
@@ -468,8 +468,8 @@ Breakpointy mají měnit layout, ne datovou strukturu / logiku komponenty.
 ---
 
 ### HRA-P2-05 – Prověřit stabilitu markerů a clusterů mapy
-- **Stav:** DONE
-- **Dokončeno:** 100 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 95 %
 
 **Prověřit:**
 - změna filtru,
@@ -676,6 +676,20 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-16 – zjištěná Leaflet regresní chyba a oprava cleanup mapových markerů**
+
+- `c46f54872d922dd7621cc3b38e92e72c3cdeeb5d`: Build PASS, visual regression FAIL 1/38 scénářů (desktop console-gate), `_leaflet_pos` undefined po navigaci; 33 PASS / 4 skipped.
+- Rerun CI z původního commitu byl spuštěn (attempt 2), ale v době této opravy běžel dlouho na instalaci Playwright prohlížečů; nerozhodovat podle jeho neznámého výsledku.
+- V `src/reference-map-markers.js` se po `unload` mapy uvolní `mapRef`, rAF a marker arrays; všechny plánované rendery kontrolují platnost mapy. Tento kód dříve držel mapu přes 900ms interval i po odstranění.
+- Nový regresní Playwright test simuluje Mapa → Seznam a čeká 1250 ms.
+- HRA-P2-05 dočasně opět IN PROGRESS 95 % do zeleného CI, HRA-P3-01 zůstává na 20 %.
+- **HEAD:** tento commit na `main`, **rodič:** `c46f54872d922dd7621cc3b38e92e72c3cdeeb5d`.
+- **Ověření:** čeká na Build Hradník a Hradník visual regression tohoto commitu.
+- **Další krok:** po PASS uzavřít regresi a pokračovat P3; při FAIL analyzovat trace.
+- Starý i nový Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-16 – P3-01 čtvrtá izolovaná CSS deduplikace**
 
@@ -1297,11 +1311,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## P3-01 – postupný úklid CSS (aktivní)
+## HRA-P2-05 – ověřit opravu Leaflet cleanup po regresním FAIL
 
-1. Zkontrolovat, že `Build Hradník` i `Hradník visual regression` na čtvrtém commitu doběhly s PASS.
-2. Teprve poté navázat další malou deduplikací CSS, ideálně výhradně přesně identických pravidel se shodným breakpointem.
-3. Při změnách ovlivňujících viditelné zobrazení vyžadovat fyzické potvrzení na PC a iPhonu.
+1. Ověřit `Build Hradník` a `Hradník visual regression` pro tento commit.
+2. Při PASS vrátit P2-05 na DONE 100 % a pokračovat další malou CSS deduplikací P3-01 (zatím 20 %).
+3. Při FAIL nestřílet další záplaty naslepo: analyzovat screenshot/trace daného selhání.
 
 ## P2-10 – fresh Supabase drill (stále BLOCKED)
 

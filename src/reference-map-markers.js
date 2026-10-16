@@ -41,7 +41,8 @@ function collect(){
 function clearRendered(){rendered.forEach(m=>m.remove());rendered=[]}
 
 function render(){
-  if(!mapRef)return
+  // The interval and rAF may outlive a map removed during navigation.
+  if(!mapRef?._loaded || !mapRef._container?.isConnected)return
   collect()
   clearRendered()
   const zoom=mapRef.getZoom()
@@ -87,14 +88,29 @@ function render(){
   })
 }
 
-function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(render)}
+function schedule(){
+  cancelAnimationFrame(raf)
+  if(!mapRef?._loaded || !mapRef._container?.isConnected)return
+  raf=requestAnimationFrame(render)
+}
 
 L.Map.addInitHook(function(){
   if(this._container?.id!=='map')return
-  mapRef=this
-  window.__hradnikMap=this
-  this.on('zoomend moveend',schedule)
-  setTimeout(schedule,80)
+  const map=this
+  mapRef=map
+  window.__hradnikMap=map
+  map.on('zoomend moveend',schedule)
+  map.on('unload',()=>{
+    // Leaflet map.remove() must also release the module's render loop.
+    if(mapRef!==map)return
+    cancelAnimationFrame(raf)
+    raf=0
+    mapRef=null
+    originalLayers=[]
+    rendered=[]
+    if(window.__hradnikMap===map)window.__hradnikMap=null
+  })
+  setTimeout(()=>{if(mapRef===map)schedule()},80)
 })
 
 setInterval(()=>{if(mapRef)render()},900)
