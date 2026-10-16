@@ -18,7 +18,6 @@
   .redesign-sidebar .nav button.active{background:#37301f!important;color:var(--ref-gold)!important}
     main.wrap{margin:85px 0 0 194px!important;width:calc(100% - 194px)!important;max-width:none!important;padding:0!important}
   #content>section{max-width:none!important;margin:0!important;padding:0!important}
-  .hero{display:none!important}
   .map-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 307px!important;gap:0!important;margin:0!important;height:512px!important}
   .map-layout #map{height:512px!important;min-height:512px!important;border:0!important;border-radius:0!important;box-shadow:none!important}
   .map-layout .map-focus-card{display:flex!important;height:512px!important;box-sizing:border-box!important;border:0!important;border-left:1px solid #2a3338!important;border-radius:0!important;background:linear-gradient(180deg,#11171b,#0c1114)!important;padding:16px!important;box-shadow:none!important}
@@ -44,7 +43,6 @@
   .redesign-sidebar .nav button:nth-child(5) span{display:none!important}
   .redesign-sidebar .nav button:nth-child(5)::after{content:'Více';font-size:10px!important;color:inherit!important}
   
-  .hero{display:none!important}
   .map-layout{display:block!important;margin:0!important;height:auto!important}
   .map-layout #map{height:calc(100dvh - 390px)!important;min-height:388px!important;border:0!important;border-radius:0!important}
   .map-layout .map-focus-card{display:flex!important;margin:0!important;min-height:225px!important;border:1px solid #293238!important;border-radius:10px!important;background:#10161a!important;padding:10px!important}

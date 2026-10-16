@@ -56,18 +56,17 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **ID:** HRA-P3-01  
 **Název:** Postupná deduplikace CSS bez změny desktopového ani mobilního vzhledu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 15 %
+**Dokončeno:** 20 %
 
-### Třetí bezpečný krok (2026-10-16)
-- Výchozí HEAD `916632f75fb32d10c8bc1825863d2ca4484b4718`: **Build Hradník PASS**, **Hradník visual regression PASS**.
-- Tři uživatelem zaslané desktopové screenshoty zobrazují Mapu, Seznam a Kategorie ve funkčně vypadajícím rozložení bez zjevného překrývání. Neprokazují ale funkčnost interakcí ani stav na iPhonu.
-- Odstraněny přesně identické desktopové deklarace `header .top>div:first-child .sub` a `.redesign-brand,.redesign-side-footer` z později načítaného `reference-lock.css`.
-- Obě zůstávají beze změny v dříve načítaném `reference-true.css` pod stejným `@media(min-width:851px)`; očekávaná vizuální změna je nulová. Nezměněný DOM ani backend.
-- **HEAD:** commit `main` s touto změnou a tímto handoffem; přesnou SHA zjistit z historie GitHubu.
-- **Automatické ověření:** `Build Hradník` a `Hradník visual regression` se spouštějí pushnutím commitu. Výsledek zkontrolovat před dalším zásahem.
-- **Ruční ověření:** PC hlavička, sidebar, Mapa, Seznam, Kategorie; iPhone navigace a detaily stále čekají na fyzickou kontrolu.
-- **Další krok:** po CI PASS pokračovat dalším malým čištěním přesných duplicit, případně revidovat vlastníky jednotlivých CSS vrstev.
-- **HRA-P2-10:** BLOCKED, 10 %, žádná Supabase branch bez explicitního schválení ceny.
+### Čtvrtý bezpečný krok (2026-10-16)
+- **Výchozí HEAD:** `2e73a6ee04f7e03c243ab247c4a1bb9b53bd6ca7`; předchozí Build Hradník i Hradník visual regression **PASS**.
+- Ve `src/reference-lock.css` odstraněny přesně shodné deklarace `.hero{display:none!important}` pro desktop `min-width:851px` a mobil `max-width:850px`.
+- Obě deklarace jsou již v předcházejícím `src/reference-true.css` ve stejných breakpointech; DOM, data, mapa ani vzhled navigace se tím nemění.
+- **Aktuální HEAD:** commit `main`, který obsahuje tento handoff (viz historie GitHubu).
+- **Automatické ověření:** po pushnutí spouští GitHub Actions `Build Hradník` a `Hradník visual regression`; výsledek ověřit před další změnou.
+- **Ruční ověření:** při příští kontrole PC/iPhonu se ujistit, že starý hero blok zůstává skrytý a hlavička, mapa, seznam a kategorie mají stabilní rozložení.
+- **Další krok:** pokračovat výhradně po PASS obou workflow další izolovanou deduplikací bez plošných změn.
+- **HRA-P2-10:** nadále BLOCKED, 10 %; bez souhlasu nevytvářet žádnou případně placenou Supabase branch.
 
 ---
 
@@ -570,7 +569,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 15 %
+- **Dokončeno:** 20 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -677,6 +676,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-16 – P3-01 čtvrtá izolovaná CSS deduplikace**
+
+- Výchozí commit `2e73a6ee04f7e03c243ab247c4a1bb9b53bd6ca7` prošel workflow `Build Hradník` i `Hradník visual regression` (PASS).
+- Ve `src/reference-lock.css` jsou odstraněny dva přesné opisy `.hero{display:none!important}` z desktopového i mobilního breakpointu. Pravidla zůstala v `reference-true.css` ve stejných media queries.
+- Rozsah změny je pouze CSS + tento handoff. Nedotčeno Supabase, navigační routování ani DOM.
+- **HEAD:** tento commit na `main`; **rodič:** `2e73a6ee04f7e03c243ab247c4a1bb9b53bd6ca7`.
+- **Automatické ověření:** oba GitHub Actions workflow po pushnutí; výsledek nejprve zkontrolovat.
+- **Ruční ověření:** desktopové a mobilní zobrazení aplikace, hero stále skryté.
+- **Další krok:** pokračovat až po zeleném CI.
+
+**Předchozí krok:**
 
 **2026-10-16 – P3-01: screenshoty PC a třetí izolované CSS čištění**
 
@@ -1288,13 +1299,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 ## P3-01 – postupný úklid CSS (aktivní)
 
-1. Ověřit výsledek obou CI workflow po třetí izolované CSS úpravě na aktuálním HEAD `main`.
-2. Po zeleném CI pokračovat další úzkou deduplikací `reference-true.css` / `reference-lock.css` při zachování stávajícího vzhledu a DOM.
-3. Při změně skutečných rozměrů/navigace vyžadovat vizuální ověření na PC i iPhonu.
+1. Zkontrolovat, že `Build Hradník` i `Hradník visual regression` na čtvrtém commitu doběhly s PASS.
+2. Teprve poté navázat další malou deduplikací CSS, ideálně výhradně přesně identických pravidel se shodným breakpointem.
+3. Při změnách ovlivňujících viditelné zobrazení vyžadovat fyzické potvrzení na PC a iPhonu.
 
 ## P2-10 – fresh Supabase drill (stále BLOCKED)
 
-Test nové čisté instalace zůstává odložen do odsouhlasení nákladu a organizace pro případnou dočasnou branch v projektu `abqiprdggptuxebhpfyi`. Starý projekt `cgshssdjgzzuprlwnabl` se nesmí mazat ani upravovat.
+Čistá instalace vyžaduje schválení možné ceny a organizace pro dočasnou testovací branch v `abqiprdggptuxebhpfyi`. Nedotýkat se starého projektu `cgshssdjgzzuprlwnabl`.
 
 ---
 
