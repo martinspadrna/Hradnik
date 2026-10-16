@@ -545,6 +545,8 @@ test('pending map size refresh cannot run after removal', async ({ page }) => {
       }
       return invalidate.apply(this, args)
     }
+    window.__hradnikRemovedCanvas = map._renderer
+    if (!window.__hradnikRemovedCanvas) throw new Error('Expected canvas renderer is unavailable')
     map.setZoom(map.getZoom() + 2, { animate: true })
     // Guarantee the hover layer queues its own next-frame resize before teardown.
     map.fire('moveend')
@@ -552,6 +554,13 @@ test('pending map size refresh cannot run after removal', async ({ page }) => {
   })
   await expect(page.locator('#list')).toBeVisible()
   await expect.poll(() => page.evaluate(() => !window.__hradnikMap)).toBe(true)
+  // A queued Leaflet canvas frame must be harmless once _destroyContainer deletes _ctx.
+  await page.evaluate(() => {
+    const renderer = window.__hradnikRemovedCanvas
+    if (renderer._ctx) throw new Error('Canvas renderer was not disposed')
+    renderer._redraw()
+    delete window.__hradnikRemovedCanvas
+  })
   // Wait longer than the original delayed 250ms refresh and zoom callback.
   await page.waitForTimeout(700)
   expect(pageErrors).toEqual([])
