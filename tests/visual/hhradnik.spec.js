@@ -262,6 +262,36 @@ test('mobile header uses one compact safe-area height', async ({ page }) => {
   expect(Math.abs(drawerBox.y - headerBottom)).toBeLessThanOrEqual(2)
 })
 
+test('iphone map filters and attribution stay above bottom navigation', async ({ page }) => {
+  test.skip(test.info().project.name !== 'iphone')
+  const nav = await openApp(page)
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+
+  const filter = page.locator('.reference-map-dashboard .reference-filter-button')
+  const attribution = page.locator('.reference-map-dashboard .leaflet-control-attribution')
+  const styleControl = page.locator('.hradnik-map-style')
+  const bottomNav = page.locator('.redesign-sidebar')
+  await expect(filter).toBeVisible()
+  await expect(attribution).toBeVisible()
+  await expect(styleControl).toBeVisible()
+  const [f, a, s, n] = await Promise.all([
+    filter.boundingBox(), attribution.boundingBox(),
+    styleControl.boundingBox(), bottomNav.boundingBox()
+  ])
+  expect(f && a && s && n).toBeTruthy()
+  expect(f.y).toBeGreaterThanOrEqual(s.y + s.height + 6)
+  expect(f.y + f.height).toBeLessThanOrEqual(n.y - 6)
+  expect(a.y + a.height).toBeLessThanOrEqual(n.y - 6)
+
+  await filter.click()
+  const panel = page.locator('.reference-map-dashboard > .mapFilters.reference-filter-open')
+  await expect(panel).toBeVisible()
+  const box = await panel.boundingBox()
+  expect(box).toBeTruthy()
+  expect(box.y + box.height).toBeLessThanOrEqual(n.y - 6)
+})
+
 test('catalog uses the same card DOM and data contract on desktop and iphone', async ({ page }) => {
   const nav = await openApp(page)
   await nav.nth(1).click()

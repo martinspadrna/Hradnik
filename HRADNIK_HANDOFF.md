@@ -53,20 +53,22 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-05 – zbytková chyba při odstranění Leaflet Canvas, souběžně HRA-P2-11  
+**ID:** HRA-P2-11  
+**Název:** Čitelnost a použitelnost mobilní mapy dle skutečného screenshotu iPhonu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 98 % (P2-05), 40 % (P2-11)
+**Dokončeno:** 85 %
 
-### Leaflet Canvas lifecycle a screenshot iPhonu (2026-10-17)
-- HEAD `2a38e99f0b20f168cdabed13b9220811435b0a40`: Build Hradník PASS, visual regression FAIL 1× iPhone ve scénáři rychlého odchodu z mapy, chyba `this._ctx.clearRect`. 37 PASS a 4 skipped.
-- Playwright trace: `Leaflet.Canvas._redraw → _clear` po `Canvas._destroyContainer()`, kdy již byl odstraněn kreslicí kontext `_ctx`.
-- `src/map-fixes.js` obsahuje úzkou ochranu `L.Canvas.prototype._redraw`: je-li renderer odstraněný (nemá kontext, kontejner nebo mapu), zruší zbývající redraw metadata a nepokračuje do původní kreslicí funkce. Živý renderer používá beze změny originální `_redraw`.
-- `tests/visual/hhradnik.spec.js` nově po odchodu z mapy deterministicky zavolá `_redraw()` na již odstraněném rendereru a vyžaduje žádnou runtime chybu.
-- Nové HRA-P2-11: skutečný screenshot iPhonu odhalil černé mapové ikony, příliš tmavý satelit a skryté Filtry + atribuci. V předchozím commitu byly cíleně zlatě obarveny jen mapové SVG ikony a zesvětlen pouze mobilní satelit.
-- **HEAD:** tento commit na `main`, rodič `2a38e99f0b20f168cdabed13b9220811435b0a40`. Ověření Build + visual regression po pushi je povinné.
-- **Ruční ověření:** PC/iPhone mapa, rychlé přechody, srozumitelné zlaté značky na satelitu; Filtry a atribuce stále čekají na opravu.
-- **Další krok:** až po CI PASS uzavřít P2-05 a opravit umístění Filtrů a atribuce v P2-11; pak ověřit iPhone screenshot.
-- **P3-01:** IN PROGRESS 35 %, pozastaveno. **P2-10:** BLOCKED 10 %. Supabase beze změn.
+### Krok 2 – oprava spodního překrytí (2026-10-17)
+- Výchozí HEAD `b0e012a7d63c3ba30d0e4c65975c3aa399ae3a6c`: **Build Hradník PASS**, **Hradník visual regression PASS**; ochrana stale Leaflet Canvas rAF ověřena. HRA-P2-05 označeno **DONE 100 %**.
+- `src/reference-dashboard-final.css`: na mobilu přesunuté tlačítko Filtry z dolního okraje mapové sekce na `top:90px;right:14px` pod Mapa/Satelit. Otevřený panel filtrů se umisťuje pod tlačítkem, s výškovým limitem a možností posouvání.
+- Leaflet atribuce zůstává součástí mapy, ale má nyní dostatečný spodní odsazení od pevné navigace.
+- `tests/visual/hhradnik.spec.js`: nový iPhone test měří bounding box Filtrů, atribuce, přepínače Mapa/Satelit, panelu filtrů a spodní navigace.
+- V prvním kroku P2-11 upraven kontrast zlatých mapových ikon a jas mobilního satelitu; bez změny desktopu.
+- **HEAD:** commit s tímto handoffem na `main`, rodič `b0e012a7d63c3ba30d0e4c65975c3aa399ae3a6c`.
+- **Automatické ověření:** Build + visual regression po pushi, teprve po PASS požadovat screenshot fyzického iPhonu.
+- **Ruční ověření:** Mapa/Satelit, Filtry (otevřít, měnit, zavřít), atribuce nezasahuje do spodní lišty, čitelný text ikon a mapy.
+- **Další krok:** po obou CI PASS převést P2-11 do VERIFY (čeká na fyzické potvrzení), potom pokračovat P3-01 (35 %).
+- **HRA-P2-10:** BLOCKED 10 %, oba Supabase projekty beze změny.
 
 ---
 
@@ -468,8 +470,8 @@ Breakpointy mají měnit layout, ne datovou strukturu / logiku komponenty.
 ---
 
 ### HRA-P2-05 – Prověřit stabilitu markerů a clusterů mapy
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 98 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Prověřit:**
 - změna filtru,
@@ -567,7 +569,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P2-11 – Opravit čitelnost satelitní mapy a překrytí mobilní lištou
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 40 %
+- **Dokončeno:** 85 %
 
 **Zdroj:** fyzický screenshot iPhonu 2026-10-17.
 
@@ -686,6 +688,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-17 – mobilní Filtry a atribuce mimo spodní navigaci**
+
+- Výchozí `b0e012a7d63c3ba30d0e4c65975c3aa399ae3a6c`: Build Hradník PASS, visual regression PASS včetně nového stale Canvas redraw testu; P2-05 DONE 100 %.
+- `reference-dashboard-final.css` přesouvá na mobilu Filtry pod Mapa/Satelit a jejich rozbalovací panel také nad mapu, s omezenou výškou. Leaflet atribuce je posunutá nad spodní navigaci.
+- Nový Playwright test na iPhonu přesně měří nepřekrytí Filtrů, atribuce, přepínače a dolní lišty, včetně rozbaleného panelu.
+- **HEAD:** tento commit na `main`, rodič `b0e012a7d63c3ba30d0e4c65975c3aa399ae3a6c`. P2-11 IN PROGRESS 85 %.
+- **Automatické ověření:** Build + visual regression po pushi; fyzický screenshot pak potřeba pro VERIFY.
+- **Další krok:** po zeleném CI přejít do VERIFY a vyžádat iPhone potvrzení.
+- Obě Supabase beze změny.
+
+**Předchozí krok:**
 
 **2026-10-17 – zbytková chyba Leaflet Canvas redraw po zrušení mapy**
 
@@ -1454,13 +1468,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## Leaflet Canvas + HRA-P2-11 – mobilní mapa
-1. Ověřit oba CI workflow, zejména deterministický `Canvas._redraw` test po `map.remove()`.
-2. Po PASS označit P2-05 DONE a pokračovat P2-11: ukotvit Filtry pod přepínačem Mapa/Satelit, posunout Leaflet atribuci mimo spodní navigaci a ověřit bounds v Playwright.
-3. Poté fyzicky ověřit na iPhonu satelit a ovládání, následně pokračovat P3-01.
+## HRA-P2-11 – kontrola skutečného iPhonu
+1. Vyhodnotit oba CI workflow commitu s mobilním umístěním Filtrů a atribuce.
+2. Při PASS nastavit P2-11 na VERIFY (95 %) a požádat o screenshot: Mapa/Satelit, otevřené Filtry, spodní navigace, zlaté značky a atribuce.
+3. Při potvrzení DONE 100 % a pak pokračovat HRA-P3-01 na 35 %.
 
 ## P2-10 – fresh Supabase drill (stále BLOCKED)
-Bez schválení případných nákladů nic nevytvářet. Starý projekt `cgshssdjgzzuprlwnabl` neměnit.
+Bez schválení ceny neměnit Supabase branch, starý `cgshssdjgzzuprlwnabl` zachovat.
 
 ---
 
