@@ -1,6 +1,5 @@
 /* Hradník — hard lock to the supplied reference mockup. */
-:root{--ref-bg:#080b0e;--ref-panel:#0d1216;--ref-line:#293238;--ref-gold:#f0c44a;--ref-text:#f3f1eb}
-html,body,#app{background:var(--ref-bg)!important;color:var(--ref-text)!important}
+/* Základní paleta a pozadí jsou již definované v bezprostředně předcházejícím reference-true.css. */
 @media(min-width:851px){
   header{position:fixed!important;inset:0 0 auto 0!important;height:85px!important;padding:0 24px!important;background:#080b0e!important;border-bottom:1px solid #252e33!important;z-index:910!important}
   header .top{height:85px!important;min-height:85px!important;margin:0!important;display:flex!important;align-items:center!important;gap:18px!important}

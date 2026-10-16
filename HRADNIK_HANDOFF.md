@@ -53,21 +53,21 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-10  
-**Název:** Ověřit instalaci na čistém novém Supabase projektu  
-**Stav:** BLOCKED  
-**Dokončeno:** 10 %
+**ID:** HRA-P3-01  
+**Název:** Postupné odstranění duplicitních CSS pravidel a dalšího technického dluhu  
+**Stav:** IN PROGRESS  
+**Dokončeno:** 5 %
 
-### Cíl
-Mobilní hlavička má mít jednu sdílenou výšku, zachovat iOS safe-area a všechny navázané prvky (mapa, detail overlay, mobilní drawer) musí používat stejný offset.
+### První bezpečný krok (2026-10-16)
+- Odstranit dvě totožné globální CSS deklarace (`:root` a `html,body,#app`) ze `src/reference-lock.css`, které už bezprostředně před ním obsahuje `src/reference-true.css`.
+- Žádný breakpoint, layout ani JS se nemění; očekávaný vizuální rozdíl je nulový.
+- **Původní HEAD:** `fe3544efb7e65972bb731c24e9028cb76219eebf`; **nový HEAD:** commit na `main` obsahující tento handoff (přesná SHA je na GitHubu).
+- **Automatické ověření:** workflow `Build Hradník` a `Hradník visual regression` se spouští pushnutím změny; výsledky je nutné zkontrolovat před dalším refaktorem.
+- **Ruční ověření:** desktop a iPhone: hlavička, boční/spodní navigace, mapa a detail.
+- **Další krok:** po zeleném CI analyzovat další přesné překryvy CSS, nikoliv plošně mazat hardlock pravidla.
 
-### Implementace
-Zavedeno:
-- `--hr-mobile-header-content: 56px`
-- `--hr-mobile-header-height: 56px + env(safe-area-inset-top)`
-- `--hr-mobile-nav-height: 76px`
+**HRA-P2-10** zůstává **BLOCKED (10 %)**. Fresh Supabase branch nevytvářet bez výslovného schválení případného nákladu.
 
-Aktivní konfliktní hodnoty 58 / 60 / 104 px byly sjednoceny přes tyto proměnné.
 ---
 
 # 5. Kompletní plán
@@ -568,8 +568,8 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 ## P3 – Technický úklid po stabilizaci
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
-- **Stav:** TODO
-- **Dokončeno:** 0 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 5 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -676,6 +676,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-16 – zahájen P3-01, odstraněna přesná duplicita globálního CSS**
+
+- `src/reference-lock.css` již znovu nedefinuje stejnou `:root` paletu a pozadí `html,body,#app`, které bezprostředně předtím deklaruje `src/reference-true.css`.
+- Před změnou kontrolována přesná shoda obou CSS pravidel i pořadí načítání v `index.html`.
+- Neproběhla žádná změna dat ani Supabase; HRA-P2-10 zůstává BLOCKED.
+- **Výchozí HEAD:** `fe3544efb7e65972bb731c24e9028cb76219eebf`; **HEAD změny:** tento commit na `main`.
+- **Ověření:** Build Hradník + Hradník visual regression po pushi, v okamžiku zápisu výsledek ještě není znám.
+- **Další krok:** po ověření CI další bezpečná deduplikace CSS.
+
+**Předchozí krok:**
 
 **2026-10-07 – P2-09 kompletní regresní sada PASS; P2-10 čeká na čisté Supabase prostředí**
 
@@ -1250,16 +1261,16 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## P2-10 – fresh Supabase drill (čeká na souhlas)
+## P3-01 – postupný úklid CSS (aktivní)
 
-Pro úplné ověření standalone instalace vytvořit dočasnou Supabase development branch z projektu `abqiprdggptuxebhpfyi`, na čisté databázi ověřit baseline migrace, Edge Functions a start aplikace bez ručních skrytých kroků a po testu branch zrušit.
+1. Ověřit úspěch obou CI workflow na novém HEAD `main`.
+2. Po zeleném CI pokračovat další úzkou deduplikací `reference-true.css` / `reference-lock.css` při zachování stávajícího vzhledu a DOM.
+3. Při změně skutečných rozměrů/navigace vyžadovat vizuální ověření na PC i iPhonu.
 
-**Blokace:** vytvoření branch může mít náklad. Před vytvořením je nutné:
-1. zvolit Supabase organizaci,
-2. zjistit aktuální cenu branch,
-3. uživatel musí cenu výslovně potvrdit.
+## P2-10 – fresh Supabase drill (stále BLOCKED)
 
-Do té doby nic nevytvářet a nic nemazat.
+Test nové čisté instalace zůstává odložen do odsouhlasení nákladu a organizace pro případnou dočasnou branch v projektu `abqiprdggptuxebhpfyi`. Starý projekt `cgshssdjgzzuprlwnabl` se nesmí mazat ani upravovat.
+
 ---
 
 # 14. Šablona aktualizace po každém kroku
