@@ -53,22 +53,21 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-05 – regresní oprava mapového lifecycle  
-**Název:** Zrušit callback `invalidateSize()` z `map-click-fix.js` při odchodu z mapy  
+**ID:** HRA-P2-11  
+**Název:** Čitelnost a použitelnost mobilní satelitní mapy (iPhone screenshot 2026-10-17)  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 98 %
+**Dokončeno:** 40 %
 
-### Oprava přesného zdroje (2026-10-16)
-- Výchozí HEAD `6835ac775d290dc8c4f8001eaa0b43a694c17b1b`: Build PASS, visual regression FAIL 1× na desktopu, `_leaflet_pos` po odchodu z mapy.
-- Stažený Playwright trace obsahuje přesnou stack trasu `Leaflet._rawPanBy → invalidateSize → assets/index-*.js:7:1516`. V sestaveném JS na této pozici je `map-click-fix.js`, který na `zoomend moveend` plánoval `requestAnimationFrame(() => map.invalidateSize())` bez ohledu na teardown.
-- `src/map-click-fix.js`: rAF se nyní ukládá, přepisuje pouze při živé mapě, zruší při `unload` a v samotném callbacku kontroluje `disposed`, map pane a připojení kontejneru k DOM.
-- Existující regresní test `pending map size refresh cannot run after removal` nově synchronně vyvolá `moveend` před odchodem do Seznamu, aby spolehlivě vyvolal právě tento rAF závod.
-- Oprava `src/main.legacy.js` z předchozího kroku zůstává: vlastní rAF/timeout pro `invalidateSize` má také zrušení při `disposeMap`. Neobnovují se provizorní monkeypatche Leafletu.
-- **HEAD:** commit větve `main` s tímto zápisem; rodič `6835ac775d290dc8c4f8001eaa0b43a694c17b1b`.
-- **Ověření:** Build Hradník a Hradník visual regression po pushi; do jejich PASS ponechat P2-05 IN PROGRESS 98 %.
-- **Ruční ověření:** PC a iPhone přechody Mapa ↔ Seznam, rychlý zoom, mapové markery, detail.
-- **Další krok:** pokud oba CI PASS, P2-05 DONE 100 % a pokračovat P3-01 (35 %), při FAIL znovu vyhodnotit stack.
-- **HRA-P2-10:** BLOCKED 10 %, žádné zásahy do starého ani nového Supabase.
+### Krok 1 – kontrast mapy (2026-10-17)
+- Výchozí HEAD `eebe3894cb7352c9ac34385e93129847079e1eec`; **Build Hradník PASS**, **Hradník visual regression PASS** na commitu s opravou stale mapové rAF. HRA-P2-05 vráceno na **DONE 100 %**.
+- Na skutečném screenshotu iPhonu: černé piktogramy památek zanikají na satelitních dlaždicích, satelitní podklad je velmi tmavý, tlačítko Filtry a atribuce zasahují za spodní lištu.
+- Kořenová příčina černých ikon: `chateau.svg`, `ruin.svg`, `fortress.svg`, `monastery.svg` používají `stroke="currentColor"` a jsou vloženy jako `<img>`. V `src/reference-dashboard-final.css` nyní pouze mapové piktogramy dostaly kontrastní zlatý filtr, zatímco hotový štít `home.svg` zůstává beze změny.
+- Pro mobilní satelitní mapu je zrušeno nadměrné ztmavení dlaždic; běžná mapa i desktop zůstávají beze změny.
+- **HEAD:** commit na `main` s tímto handoffem, rodič `eebe3894cb7352c9ac34385e93129847079e1eec`; přesné SHA ověřit na GitHubu.
+- **Automatické ověření:** Build Hradník a Hradník visual regression po pushi; výsledky zkontrolovat před krokem 2.
+- **Ruční ověření:** iPhone Mapa/Satelit, čitelnost zřícenin/klášterů/tvrzí, zlaté štíty, běžná Mapa.
+- **Další krok:** po CI PASS opravit umístění Filtrů a atribuce mimo spodní navigaci a doplnit bounding-box test; poté znovu fyzicky ověřit.
+- **HRA-P3-01:** IN PROGRESS 35 %, do mobilní opravy pozastaveno. **HRA-P2-10:** BLOCKED 10 %, Supabase beze změn.
 
 ---
 
@@ -470,8 +469,8 @@ Breakpointy mají měnit layout, ne datovou strukturu / logiku komponenty.
 ---
 
 ### HRA-P2-05 – Prověřit stabilitu markerů a clusterů mapy
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 98 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Prověřit:**
 - změna filtru,
@@ -564,6 +563,16 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 4. nastavit environment,
 5. spustit Hradník,
 6. bez skrytých ručních kroků vše funguje.
+
+---
+
+### HRA-P2-11 – Opravit čitelnost satelitní mapy a překrytí mobilní lištou
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 40 %
+
+**Zdroj:** fyzický screenshot iPhonu 2026-10-17.
+
+**Akceptace:** Zlaté čitelné typové značky na satelitu, dlaždice nejsou příliš tmavé, ovladatelné Filtry a nezakrytá atribuce; nedotknout se ostatních stránek a PC layoutu.
 
 ---
 
@@ -678,6 +687,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-17 – nové HRA-P2-11, kontrast mobilní satelitní mapy**
+
+- `eebe3894cb7352c9ac34385e93129847079e1eec`: Build Hradník PASS a visual regression PASS; HRA-P2-05 se uzavírá DONE 100 %.
+- Podle screenshotu skutečného iPhonu je prioritou P2-11: černé mapové ikony, silné ztmavení satelitu, Filtry a atribuce u spodní navigace.
+- V `reference-dashboard-final.css` přidán cílený zlatý filtr jen pro SVG značky mapy s výjimkou stávajícího štítu a vyšší jas mobilního satelitu.
+- **HEAD:** commit s tímto zápisem, rodič `eebe3894cb7352c9ac34385e93129847079e1eec`.
+- **Ověření:** oba CI workflow po commitu; fyzická kontrola iPhonu stále čeká.
+- **Další krok:** po obou PASS řešit překrytí Filtrů/atribuce, přidat měřitelný mobilní test.
+- P3-01 pozastaveno na 35 %, Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-16 – HRA-P2-05: zdroj stale invalidateSize v map-click-fix.js nalezen**
 
@@ -1421,15 +1442,15 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P2-05 – ověřit map-click-fix teardown
+## HRA-P2-11 – mobilní mapa iPhone
 
-1. Ověřit Build Hradník a Hradník visual regression, zvláště test synchronního `moveend` následovaného odchodem do Seznamu.
-2. Pokud PASS, označit P2-05 jako DONE 100 % a vrátit se k P3-01 (35 %).
-3. Při FAIL analyzovat konkrétní stack, nevypínat kontrolu page errors.
+1. Ověřit Build Hradník a Hradník visual regression pro commit zlatých mapových ikon.
+2. Po PASS opravit umístění `Filtry` a Leaflet atribuce tak, aby nezasahovaly do spodní navigace; přidat automatické měření jejich bounding boxů na iPhonu.
+3. Po CI PASS požádat o fyzický screenshot po obnovení aplikace. Potom obnovit HRA-P3-01 na 35 %.
 
 ## P2-10 – fresh Supabase drill (stále BLOCKED)
 
-Případnou testovací branch v `abqiprdggptuxebhpfyi` nevytvářet bez potvrzení nákladů a organizace. Starý `cgshssdjgzzuprlwnabl` neměnit.
+Bez odsouhlasení nákladů nevytvářet Supabase branch; starý `cgshssdjgzzuprlwnabl` neměnit.
 
 ---
 

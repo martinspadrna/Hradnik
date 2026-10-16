@@ -29,9 +29,14 @@ body{background:#080b0e!important}
 
 .leaflet-control-zoom{margin-left:14px!important;margin-top:14px!important}.leaflet-control-zoom a{width:36px!important;height:36px!important;line-height:36px!important;background:rgba(9,14,17,.94)!important;color:#eee!important;border-color:#3a4449!important}.hradnik-location-control{margin-left:14px!important}
 .hradnik-dark-tiles,.leaflet-tile-pane{filter:none!important}.leaflet-tile{filter:brightness(.72) saturate(.72) contrast(1.14) sepia(.08)!important}
-.hradnik-reference-marker img{filter:drop-shadow(0 3px 5px rgba(0,0,0,.7))!important}.hradnik-reference-cluster span{background:#151a16!important;border:2px solid var(--ref-gold)!important;color:var(--ref-gold)!important;box-shadow:0 4px 10px rgba(0,0,0,.45)!important}
+.hradnik-reference-marker img{filter:drop-shadow(0 3px 5px rgba(0,0,0,.7))!important}
+/* Icon SVGs using currentColor render black in <img>; tint only map glyphs, not the gold castle shield. */
+.hradnik-reference-marker .hradnik-reference-marker-type:not([src$="/home.svg"]){filter:brightness(0) saturate(100%) invert(82%) sepia(38%) saturate(1129%) hue-rotate(348deg) brightness(100%) contrast(92%) drop-shadow(0 2px 3px rgba(0,0,0,.8))!important}
+.hradnik-reference-cluster span{background:#151a16!important;border:2px solid var(--ref-gold)!important;color:var(--ref-gold)!important;box-shadow:0 4px 10px rgba(0,0,0,.45)!important}
 
 @media(max-width:850px){
+  /* Improve satellite legibility without changing the standard map appearance. */
+  .hradnik-reference-satellite .leaflet-tile{filter:brightness(.95) saturate(.95) contrast(1.04)!important}
   #content>.reference-map-dashboard{position:relative!important;margin:0!important;padding:0!important;max-width:none!important}
   .reference-map-dashboard .map-layout{display:block!important;width:100%!important;position:relative!important;border:1px solid #293238!important;border-radius:0!important;background:#0c1215!important;overflow:hidden!important}
   .reference-map-dashboard .map-layout #map{width:100%!important;height:calc(100dvh - var(--hr-mobile-header-height,56px) - var(--hr-mobile-nav-height,76px))!important;min-height:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
