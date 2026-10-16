@@ -546,6 +546,8 @@ test('pending map size refresh cannot run after removal', async ({ page }) => {
       return invalidate.apply(this, args)
     }
     map.setZoom(map.getZoom() + 2, { animate: true })
+    // Guarantee the hover layer queues its own next-frame resize before teardown.
+    map.fire('moveend')
     document.querySelectorAll('.redesign-sidebar .redesign-nav > button')[1].click()
   })
   await expect(page.locator('#list')).toBeVisible()

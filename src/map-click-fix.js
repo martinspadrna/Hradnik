@@ -18,6 +18,8 @@ function installMapUx(map) {
   let hovered = null
   let lastPoint = null
   let lastOpenAt = 0
+  let resizeRaf = 0
+  let disposed = false
 
   const markers = () => {
     const out = []
@@ -133,9 +135,23 @@ function installMapUx(map) {
   })
 
   map.on('zoomend moveend', () => {
+    if (disposed || !map._mapPane || !map._container?.isConnected) return
     if (lastPoint) setHovered(nearestMarker(lastPoint))
     else if (hovered && !hovered._map) hovered = null
-    requestAnimationFrame(() => map.invalidateSize())
+    cancelAnimationFrame(resizeRaf)
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = 0
+      if (disposed || !map._mapPane || !map._container?.isConnected) return
+      map.invalidateSize()
+    })
+  })
+
+  map.on('unload', () => {
+    disposed = true
+    cancelAnimationFrame(resizeRaf)
+    resizeRaf = 0
+    hovered = null
+    lastPoint = null
   })
 
   map.getContainer()?.addEventListener('mouseleave', () => {
