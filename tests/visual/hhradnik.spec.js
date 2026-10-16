@@ -526,7 +526,7 @@ test('marker refresh stops when the Leaflet map is removed', async ({ page }) =>
   expect(pageErrors).toEqual([])
 })
 
-test('pending zoom animation cannot run after map removal', async ({ page }) => {
+test('pending map size refresh cannot run after removal', async ({ page }) => {
   const pageErrors = []
   page.on('pageerror', error => pageErrors.push(error.message))
   const nav = await openApp(page)
@@ -534,24 +534,24 @@ test('pending zoom animation cannot run after map removal', async ({ page }) => 
   await expect(page.locator('#map')).toBeVisible()
   await expect.poll(() => page.evaluate(() => !!window.__hradnikMap)).toBe(true)
 
-  // Schedule zoom and navigate away in the same browser task, before CSS transitionend.
+  // Detect a delayed invalidateSize call against a detached map instance.
   await page.evaluate(() => {
     const map = window.__hradnikMap
     if (!map) throw new Error('Map was not initialized')
-    window.__hradnikStaleZoomMap = map
+    const invalidate = map.invalidateSize
+    map.invalidateSize = function (...args) {
+      if (!this._mapPane || !this._container?.isConnected) {
+        throw new Error('Stale map invalidateSize called after removal')
+      }
+      return invalidate.apply(this, args)
+    }
     map.setZoom(map.getZoom() + 2, { animate: true })
     document.querySelectorAll('.redesign-sidebar .redesign-nav > button')[1].click()
   })
   await expect(page.locator('#list')).toBeVisible()
-  await expect.poll(() => page.evaluate(() => !window.__hradnikStaleZoomMap?._mapPane)).toBe(true)
-  // Reproduce the late Leaflet zoom-completion callback deterministically.
-  await page.evaluate(() => {
-    const staleMap = window.__hradnikStaleZoomMap
-    staleMap._animatingZoom = true
-    staleMap._onZoomTransitionEnd()
-    delete window.__hradnikStaleZoomMap
-  })
-  await page.waitForTimeout(650)
+  await expect.poll(() => page.evaluate(() => !window.__hradnikMap)).toBe(true)
+  // Wait longer than the original delayed 250ms refresh and zoom callback.
+  await page.waitForTimeout(700)
   expect(pageErrors).toEqual([])
 })
 

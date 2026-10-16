@@ -53,21 +53,21 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-05 (intermitentní regresní chyba Leafletu)  
-**Název:** Opožděný callback zoom animace po odstranění mapy  
+**ID:** HRA-P2-05 (intermitentní runtime chyba Leafletu)  
+**Název:** Odložený `invalidateSize()` po odstranění mapy  
 **Stav:** IN PROGRESS  
 **Dokončeno:** 98 %
 
-### Cílená oprava (2026-10-16)
-- Výchozí HEAD `8faea87c01f4f0047b2fa0b0386d132a2318a2a8` (P3-01 35 %): Build Hradník PASS. Dva workflow `Hradník visual regression` na témže HEAD: první **FAIL** v iPhone `pending zoom animation cannot run after map removal`, druhý **PASS**. Intermitentní `undefined is not an object (evaluating 'e._leaflet_pos')`.
-- Zdroj Leaflet v1.9.4 (`Map.js`) potvrzuje `setTimeout(..._onZoomTransitionEnd, 250)` bez uloženého timeout ID. Starší pokus `clearTimeout(map._zoomAnimTimeout)` proto neumí tento callback odstranit.
-- V `src/map-fixes.js` je úzký guard `_onZoomTransitionEnd`: pokud mapa už nemá `_mapPane` nebo je odpojena z DOM, ukončí pending zoom bez práce s neexistujícím panelem; aktivní mapa stále volá originální implementaci Leafletu.
-- `tests/visual/hhradnik.spec.js` v existujícím zoom teardown testu navíc deterministicky zavolá opožděné dokončení animace na odstraněné mapě. Tím se ověří oprava i při úspěšném běžném načasování.
-- **HEAD:** commit na `main` s tímto handoffem, rodič `8faea87c01f4f0047b2fa0b0386d132a2318a2a8`.
-- **Ověření automaticky:** Build Hradník a Hradník visual regression po pushi, do jejich dokončení P2-05 **IN PROGRESS 98 %**.
-- **Ruční ověření:** PC/iPhone rychle Mapa → Seznam → Mapa, zoom, cluster markery, detail. Simulované testy nejsou náhradou fyzického ověření.
-- **Další krok:** po PASS obou CI označit P2-05 DONE a navázat P3-01 (nyní 35 %); při FAIL analyzovat trace.
-- **HRA-P2-10:** BLOCKED 10 %, Supabase projekty neměnit.
+### Oprava kořenové příčiny (2026-10-16)
+- Výchozí HEAD `b30bc5738178529a7d2492a21628ec9b68553099`: Build Hradník PASS, visual regression FAIL na iPhonu (`_leaflet_pos`), 37 scénářů PASS, 4 přeskočeno.
+- Stažený Playwright trace jednoznačně ukázal stack `_rawPanBy → invalidateSize → _getMapPanePos`. Předchozí domněnka o callbacku `_onZoomTransitionEnd` byla chybná; dočasný monkeypatch tohoto callbacku je nyní odstraněn.
+- `src/main.legacy.js` nyní pro plánované `requestAnimationFrame` a 250ms `setTimeout` volání `invalidateSize()` uchovává konkrétní instanci mapy, kterou při každém volání kontroluje. `disposeMap()` oba pending resize callbacky ruší ještě před `map.remove()`.
+- Test `pending map size refresh cannot run after removal` sleduje neočekávané volání `invalidateSize` na odpojené mapě při Mapa → Seznam, zoomu a čekání 700 ms. Test nesmí ignorovat page errors.
+- **HEAD:** commit na `main` obsahující tento handoff, rodič `b30bc5738178529a7d2492a21628ec9b68553099`.
+- **Automatické ověření:** GitHub Actions Build Hradník a Hradník visual regression po pushi; zatím IN PROGRESS 98 %.
+- **Ruční ověření:** PC/iPhone přechody Mapa → Seznam → Mapa, zoom, markery a detail. Test na skutečných zařízeních se stále hodí.
+- **Další krok:** teprve po obou CI PASS vrátit P2-05 na DONE a pokračovat P3-01 (35 %); při FAIL vyšetřit nový trace.
+- **HRA-P2-10:** BLOCKED 10 %, starý i nový Supabase beze změn.
 
 ---
 
@@ -677,6 +677,21 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-16 – trace identifikoval stale invalidateSize (oprava u vlastníka)**
+
+- `b30bc5738178529a7d2492a21628ec9b68553099`: Build PASS, visual regression FAIL v iPhone testu pending map animation, i přes guard `_onZoomTransitionEnd`.
+- Příčina potvrzena v Playwright trace: `invalidateSize → _rawPanBy → _getMapPanePos` na mapě bez panelu `_mapPane`.
+- Odstraněn dřívější provizorní monkeypatch `_onZoomTransitionEnd` z `map-fixes.js`.
+- `main.legacy.js`: aplikací plánovaný rAF a timeout pro `invalidateSize` jsou vázané na jednu živou mapu a zrušené při jejím odstranění.
+- Regresní test detekuje přístup k `invalidateSize` u odstraněné instance mapy.
+- **Stav:** P2-05 IN PROGRESS 98 %, P3-01 IN PROGRESS 35 %.
+- **HEAD:** tento commit na `main`, rodič `b30bc5738178529a7d2492a21628ec9b68553099`.
+- **Ověření:** Build Hradník a Hradník visual regression po pushi.
+- **Další krok:** potvrdit CI, teprve potom pokračovat P3-01.
+- Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-16 – P2-05: ošetření intermitentního Leaflet callbacku, P3-01 pozastaveno**
 
@@ -1391,15 +1406,15 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P2-05 – ověřit Leaflet teardown guard
+## HRA-P2-05 – ověřit zrušení odloženého přepočtu mapy
 
-1. Vyhodnotit Build Hradník a Hradník visual regression na aktuálním HEAD `main`; důležitý je deterministický test opožděného zoom callbacku na odstraněné mapě na PC i iPhonu.
-2. Při obou PASS označit P2-05 jako DONE 100 %; pokračovat HRA-P3-01 35 %.
-3. Při FAIL dohledat stack trace a příčinu, nedisableovat console gate.
+1. Ověřit oba CI workflow na novém HEAD, zvláště iPhone test `pending map size refresh cannot run after removal`.
+2. Při PASS uzavřít P2-05 DONE 100 % a pokračovat HRA-P3-01 (35 %).
+3. Při FAIL vyhodnotit Playwright trace; žádné skrytí runtime chyby v testu.
 
 ## P2-10 – fresh Supabase drill (stále BLOCKED)
 
-Vyžaduje schválení případné ceny a organizace pro dočasnou testovací branch v `abqiprdggptuxebhpfyi`. Starý projekt `cgshssdjgzzuprlwnabl` neměnit ani nemazat.
+Test na čisté Supabase vyžaduje schválení případné ceny a organizace pro dočasnou branch v `abqiprdggptuxebhpfyi`. Starý `cgshssdjgzzuprlwnabl` neměnit ani nemazat.
 
 ---
 
