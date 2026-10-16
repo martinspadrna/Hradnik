@@ -1,5 +1,16 @@
 import L from 'leaflet'
 
+// Leaflet 1.9.4 schedules zoom completion with an untracked 250 ms timeout.
+// A callback captured before map.remove() must not move an already detached map.
+const leafletZoomTransitionEnd = L.Map.prototype._onZoomTransitionEnd
+L.Map.prototype._onZoomTransitionEnd = function (...args) {
+  if (!this._mapPane || !this._container?.isConnected) {
+    this._animatingZoom = false
+    return
+  }
+  return leafletZoomTransitionEnd.apply(this, args)
+}
+
 const style=document.createElement('style')
 style.textContent=`.overlay{z-index:10000!important}.overlay .sheet{z-index:10001!important}.leaflet-container{background:#0d1210!important}.hradnik-map-style{display:flex!important;overflow:hidden!important;margin-top:14px!important;margin-right:14px!important;border:1px solid #3a4449!important;border-radius:9px!important;background:rgba(9,14,17,.95)!important;box-shadow:0 7px 20px rgba(0,0,0,.35)!important}.hradnik-map-style button{height:36px!important;padding:0 11px!important;border:0!important;background:transparent!important;color:#aeb7bc!important;font-size:11px!important;font-weight:900!important;cursor:pointer!important}.hradnik-map-style button+button{border-left:1px solid #303a3f!important}.hradnik-map-style button.active{background:#342d1e!important;color:#f0c44a!important}@media(max-width:520px){.leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important}.hradnik-map-style{margin-top:10px!important;margin-right:10px!important}.hradnik-map-style button{height:38px!important;padding:0 9px!important;font-size:10px!important}}`
 document.head.appendChild(style)

@@ -538,10 +538,19 @@ test('pending zoom animation cannot run after map removal', async ({ page }) => 
   await page.evaluate(() => {
     const map = window.__hradnikMap
     if (!map) throw new Error('Map was not initialized')
+    window.__hradnikStaleZoomMap = map
     map.setZoom(map.getZoom() + 2, { animate: true })
     document.querySelectorAll('.redesign-sidebar .redesign-nav > button')[1].click()
   })
   await expect(page.locator('#list')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => !window.__hradnikStaleZoomMap?._mapPane)).toBe(true)
+  // Reproduce the late Leaflet zoom-completion callback deterministically.
+  await page.evaluate(() => {
+    const staleMap = window.__hradnikStaleZoomMap
+    staleMap._animatingZoom = true
+    staleMap._onZoomTransitionEnd()
+    delete window.__hradnikStaleZoomMap
+  })
   await page.waitForTimeout(650)
   expect(pageErrors).toEqual([])
 })

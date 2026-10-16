@@ -53,20 +53,21 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P3-01  
-**Název:** Postupný technický úklid CSS a JS bez změny vzhledu aplikace  
+**ID:** HRA-P2-05 (intermitentní regresní chyba Leafletu)  
+**Název:** Opožděný callback zoom animace po odstranění mapy  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 35 %
+**Dokončeno:** 98 %
 
-### Sedmý bezpečný krok (2026-10-16)
-- Výchozí HEAD `366f9598a40847d0a7c783eba08c09874b579c7e`: oba workflow **Build Hradník PASS** a **Hradník visual regression PASS**.
-- V `src/reference-lock.css` odstraněna přesně shodná desktopová deklarace `header .account b` (barva a velikost textu účtu) a mobilní deklarace `.redesign-sidebar .nav button.active` (zvýraznění aktivní položky).
-- Obě původní deklarace jsou zachovány v bezprostředně předcházejícím `src/reference-true.css` ve stejných breakpointech. Žádný přepis logiky/DOM, žádné změny Supabase.
-- **HEAD:** commit na `main` obsahující tento zápis, rodič `366f9598a40847d0a7c783eba08c09874b579c7e`; aktuální SHA získat z historie GitHubu.
-- **Ověření automaticky:** push spouští Build Hradník a Hradník visual regression; výsledky před další úpravou zkontrolovat.
-- **Ruční ověření:** desktopová hlavička/přihlášený účet a mobilní aktivní položka hlavní navigace; prozatím bez nového ručního potvrzení.
-- **Další krok:** po PASS obou workflow další úzká deduplikace CSS, při FAIL nejdříve analyzovat konkrétní test.
-- **HRA-P2-05:** DONE 100 %. **HRA-P2-10:** BLOCKED 10 %, bez schválení žádná případně placená Supabase branch.
+### Cílená oprava (2026-10-16)
+- Výchozí HEAD `8faea87c01f4f0047b2fa0b0386d132a2318a2a8` (P3-01 35 %): Build Hradník PASS. Dva workflow `Hradník visual regression` na témže HEAD: první **FAIL** v iPhone `pending zoom animation cannot run after map removal`, druhý **PASS**. Intermitentní `undefined is not an object (evaluating 'e._leaflet_pos')`.
+- Zdroj Leaflet v1.9.4 (`Map.js`) potvrzuje `setTimeout(..._onZoomTransitionEnd, 250)` bez uloženého timeout ID. Starší pokus `clearTimeout(map._zoomAnimTimeout)` proto neumí tento callback odstranit.
+- V `src/map-fixes.js` je úzký guard `_onZoomTransitionEnd`: pokud mapa už nemá `_mapPane` nebo je odpojena z DOM, ukončí pending zoom bez práce s neexistujícím panelem; aktivní mapa stále volá originální implementaci Leafletu.
+- `tests/visual/hhradnik.spec.js` v existujícím zoom teardown testu navíc deterministicky zavolá opožděné dokončení animace na odstraněné mapě. Tím se ověří oprava i při úspěšném běžném načasování.
+- **HEAD:** commit na `main` s tímto handoffem, rodič `8faea87c01f4f0047b2fa0b0386d132a2318a2a8`.
+- **Ověření automaticky:** Build Hradník a Hradník visual regression po pushi, do jejich dokončení P2-05 **IN PROGRESS 98 %**.
+- **Ruční ověření:** PC/iPhone rychle Mapa → Seznam → Mapa, zoom, cluster markery, detail. Simulované testy nejsou náhradou fyzického ověření.
+- **Další krok:** po PASS obou CI označit P2-05 DONE a navázat P3-01 (nyní 35 %); při FAIL analyzovat trace.
+- **HRA-P2-10:** BLOCKED 10 %, Supabase projekty neměnit.
 
 ---
 
@@ -468,8 +469,8 @@ Breakpointy mají měnit layout, ne datovou strukturu / logiku komponenty.
 ---
 
 ### HRA-P2-05 – Prověřit stabilitu markerů a clusterů mapy
-- **Stav:** DONE
-- **Dokončeno:** 100 %
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 98 %
 
 **Prověřit:**
 - změna filtru,
@@ -676,6 +677,20 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-16 – P2-05: ošetření intermitentního Leaflet callbacku, P3-01 pozastaveno**
+
+- Po `8faea87c01f4f0047b2fa0b0386d132a2318a2a8` dvě sady CI se shodným HEAD: Build PASS a visual regression první FAIL (iPhone pending zoom → `_leaflet_pos`), druhá PASS. Tím je potvrzena časovací chyba, nikoli stálá CSS regrese.
+- Leaflet 1.9.4 plánuje neidentifikovatelný zoom timeout; dosavadní rušení `_zoomAnimTimeout` na něj nemá účinek.
+- `src/map-fixes.js` ošetřuje pouze dokončení zoom animace na již odstraněné mapě; živé mapě ponechává originální Leaflet chování.
+- Existující regresní test nově vynutí opožděný callback po `map.remove()`.
+- P2-05 **IN PROGRESS 98 %**, P3-01 ponecháno **IN PROGRESS 35 %**.
+- **HEAD:** tento commit na `main`; výchozí `8faea87c01f4f0047b2fa0b0386d132a2318a2a8`.
+- **Ověření:** Build Hradník a Hradník visual regression po pushi.
+- **Další krok:** dokončit CI ověření, uzavřít P2-05 a pokračovat P3-01.
+- Nový i starý Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-16 – HRA-P3-01: sedmý bezpečný krok CSS deduplikace**
 
@@ -1376,12 +1391,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P3-01 – pokračování bezpečného CSS úklidu
+## HRA-P2-05 – ověřit Leaflet teardown guard
 
-1. Ověřit oba CI workflow sedmého commitu na `main`.
-2. Pokud oba PASS, pokračovat další izolovanou deduplikací přesně shodných deklarací se stejným breakpointem.
-3. Při FAIL analyzovat konkrétní runtime trace/test; chyby konzole nemaskovat.
-4. Při fyzickém testu zkontrolovat desktopovou hlavičku a aktivní záložky mobilní navigace.
+1. Vyhodnotit Build Hradník a Hradník visual regression na aktuálním HEAD `main`; důležitý je deterministický test opožděného zoom callbacku na odstraněné mapě na PC i iPhonu.
+2. Při obou PASS označit P2-05 jako DONE 100 %; pokračovat HRA-P3-01 35 %.
+3. Při FAIL dohledat stack trace a příčinu, nedisableovat console gate.
 
 ## P2-10 – fresh Supabase drill (stále BLOCKED)
 
