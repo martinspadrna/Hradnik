@@ -54,21 +54,19 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P2-11  
-**Název:** Čitelnost a použitelnost mobilní mapy dle skutečného screenshotu iPhonu  
-**Stav:** IN PROGRESS  
-**Dokončeno:** 85 %
+**Název:** Mobilní satelitní mapa: kontrast ikon, Filtry, atribuce a spodní navigace  
+**Stav:** VERIFY  
+**Dokončeno:** 95 %
 
-### Krok 2 – oprava spodního překrytí (2026-10-17)
-- Výchozí HEAD `b0e012a7d63c3ba30d0e4c65975c3aa399ae3a6c`: **Build Hradník PASS**, **Hradník visual regression PASS**; ochrana stale Leaflet Canvas rAF ověřena. HRA-P2-05 označeno **DONE 100 %**.
-- `src/reference-dashboard-final.css`: na mobilu přesunuté tlačítko Filtry z dolního okraje mapové sekce na `top:90px;right:14px` pod Mapa/Satelit. Otevřený panel filtrů se umisťuje pod tlačítkem, s výškovým limitem a možností posouvání.
-- Leaflet atribuce zůstává součástí mapy, ale má nyní dostatečný spodní odsazení od pevné navigace.
-- `tests/visual/hhradnik.spec.js`: nový iPhone test měří bounding box Filtrů, atribuce, přepínače Mapa/Satelit, panelu filtrů a spodní navigace.
-- V prvním kroku P2-11 upraven kontrast zlatých mapových ikon a jas mobilního satelitu; bez změny desktopu.
-- **HEAD:** commit s tímto handoffem na `main`, rodič `b0e012a7d63c3ba30d0e4c65975c3aa399ae3a6c`.
-- **Automatické ověření:** Build + visual regression po pushi, teprve po PASS požadovat screenshot fyzického iPhonu.
-- **Ruční ověření:** Mapa/Satelit, Filtry (otevřít, měnit, zavřít), atribuce nezasahuje do spodní lišty, čitelný text ikon a mapy.
-- **Další krok:** po obou CI PASS převést P2-11 do VERIFY (čeká na fyzické potvrzení), potom pokračovat P3-01 (35 %).
-- **HRA-P2-10:** BLOCKED 10 %, oba Supabase projekty beze změny.
+### Automatické ověření hotové (2026-10-17)
+- Výchozí HEAD `bd949c4572326206828764c207e61829bafabc1e`: **Build Hradník PASS** a **Hradník visual regression PASS** včetně iPhone bounding-box testu `iphone map filters and attribution stay above bottom navigation`.
+- Černé typové piktogramy na satelitu byly obarveny pouze v mapě zlatým filtrem; zlaté štíty zůstaly beze změny. Mobilní satelitní dlaždice jsou světlejší.
+- Tlačítko Filtry se na mobilu zobrazuje pod Mapa/Satelit, panel je rozbalitelný a scrollovatelný. Leaflet atribuce nezasahuje do spodní navigace.
+- **HEAD:** tento dokumentační commit větve `main`, rodič `bd949c4572326206828764c207e61829bafabc1e`. Žádná další změna aplikačního kódu.
+- **Automatické ověření dokumentačního commitu:** Build Hradník a visual regression se znovu spustí po pushi; již ověřený kód v rodiči zůstává beze změny.
+- **Fyzicky ověřit na iPhonu:** aktualizovat aplikaci, přepnout Mapa/Satelit, zkontrolovat zlaté značky a čitelnost podkladu; otevřít a zavřít Filtry; ověřit, že atribuce neleží přes spodní lištu. Poslat screenshot, případně potvrdit OK.
+- **Další krok:** po fyzickém potvrzení označit P2-11 DONE 100 % a navázat HRA-P3-01 (nyní 35 %).
+- **HRA-P2-05:** DONE 100 % (Leaflet Canvas rAF ošetřen); **HRA-P2-10:** BLOCKED 10 %, bez zásahu do Supabase.
 
 ---
 
@@ -568,8 +566,8 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 ---
 
 ### HRA-P2-11 – Opravit čitelnost satelitní mapy a překrytí mobilní lištou
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 85 %
+- **Stav:** VERIFY
+- **Dokončeno:** 95 %
 
 **Zdroj:** fyzický screenshot iPhonu 2026-10-17.
 
@@ -688,6 +686,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-17 – HRA-P2-11: oba CI PASS, fyzické ověření čeká**
+
+- Commit `bd949c4572326206828764c207e61829bafabc1e` prošel Build Hradník PASS a Hradník visual regression PASS včetně iPhone testu Filtrů, atribuce a navigace.
+- Mobilní satelit i mapové piktogramy dostaly lepší kontrast, Filtry se přesunuly mimo spodní lištu, atribuce je také nad ní.
+- HRA-P2-11 změněno na VERIFY 95 % a čeká na screenshot/OK ze skutečného iPhonu.
+- **HEAD:** tento dokumentační commit na `main`, rodič `bd949c4572326206828764c207e61829bafabc1e`.
+- **Automatické ověření:** po pushi znovu oba workflow; kód beze změn.
+- **Ruční ověření:** iPhone Mapa/Satelit a otevření Filtrů, výsledek vizuálně potvrdit.
+- **Další krok:** po potvrzení DONE a pokračovat HRA-P3-01.
+- Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-17 – mobilní Filtry a atribuce mimo spodní navigaci**
 
@@ -1468,13 +1479,14 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P2-11 – kontrola skutečného iPhonu
-1. Vyhodnotit oba CI workflow commitu s mobilním umístěním Filtrů a atribuce.
-2. Při PASS nastavit P2-11 na VERIFY (95 %) a požádat o screenshot: Mapa/Satelit, otevřené Filtry, spodní navigace, zlaté značky a atribuce.
-3. Při potvrzení DONE 100 % a pak pokračovat HRA-P3-01 na 35 %.
+## HRA-P2-11 – fyzicky ověřit iPhone
+
+1. Na skutečném iPhonu ověřit po aktualizaci aplikace: Mapa/Satelit, kontrast značek, Filtry a jejich panel, spodní navigace a atribuce mapy.
+2. Po OK označit P2-11 jako DONE 100 %, potom pokračovat v HRA-P3-01 (35 %).
+3. Pokud je stále překrytí, podle screenshotu ověřit konkrétní rozlišení, safe-area a computed CSS. Nevytvářet plošný redesign.
 
 ## P2-10 – fresh Supabase drill (stále BLOCKED)
-Bez schválení ceny neměnit Supabase branch, starý `cgshssdjgzzuprlwnabl` zachovat.
+Bez souhlasu případných nákladů nevytvářet novou branch. Starý `cgshssdjgzzuprlwnabl` neměnit.
 
 ---
 
