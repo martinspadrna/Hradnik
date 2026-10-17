@@ -55,23 +55,19 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 **ID:** HRA-P2-12
 **Název:** Datum návštěvy a přepínací stavová tlačítka v detailu
-**Stav:** IN PROGRESS
-**Dokončeno:** 80 %
+**Stav:** VERIFY
+**Dokončeno:** 95 %
 
-### První implementace (2026-10-17)
-- Uživatel fyzicky potvrdil mobilní mapu HRA-P2-11 („Ok“ po screenshotech Mapa/Satelit a detail) → **DONE 100 %**.
-- Databáze již má `hradnik_user_place_state.visited_on date`, současná Edge Auth `state_upsert` a `state_list` ho podporují. Nová migrace ani změna serveru nejsou potřeba.
-- `src/main.legacy.js`: společná `savePlaceState()` vždy posílá celý aktuální stav (status, favorite, rating, note, visited_on), takže úprava oblíbených již nesmaže datum ani další údaje.
-- Označení jako navštívené nastaví místní dnešní datum, které lze na iPhonu/PC změnit nativním `input type=date`. Starší navštívené záznamy bez data zůstávají bez smyšleného data a lze je doplnit.
-- Tlačítka v detailu reagují na aktuální stav: vybraná volba je zlatě označená, opětovným kliknutím lze plán/navštívení/oblíbené odebrat. Karty navštívených s datem ho rovněž zobrazují.
-- Změna data či oblíbených neuzavírá detail; při zavření se aktualizují okolní karty. Jednotný DOM pro PC a mobil.
-- Regresní Playwright test nyní používá perzistentní mock state a ověřuje datum, obnovení detailu, oblíbené i odebrání.
-- **Předchozí HEAD:** `55930983069f35ddd765f03a3affb2250e64bd29`; **nový HEAD:** commit `main` s touto změnou/handoffem.
-- **Ověření:** po commitu povinně `Build Hradník` a `Hradník visual regression`. Do výsledků zůstává IN PROGRESS.
-- **Fyzické ověření:** iPhone/PC označit navštívené (dnešní datum), změnit datum, označit oblíbené, znovu otevřít, případně vyzkoušet další přihlášené zařízení.
-- **Další krok:** po obou CI PASS převést do VERIFY 95 %, po fyzickém OK DONE a pokračovat HRA-P3-01 (35 %).
-- **HRA-P2-10:** BLOCKED 10 %. Bez zásahu do Supabase.
-
+### Ověření CI (2026-10-17)
+- **Výchozí HEAD:** `b44aab0f9b2cb699c551b129633d81f12cbdb985` (implementace datumových stavů). **Build Hradník PASS**, **Hradník visual regression PASS**, včetně testu `visit date, favorites and toggles preserve account state` na PC a simulovaném iPhonu.
+- Datum návštěvy se při prvním označení nastavuje na dnešní lokální den, v detailu jej lze změnit. Datový model `hradnik_user_place_state.visited_on` již datum obsahuje.
+- `savePlaceState` zachovává stav, datum, oblíbené, hodnocení i poznámku během jiných aktualizací; tlačítka explicitně označují již vybraný stav a umožňují jej odebrat.
+- Fyzické ověření novinky na skutečném iPhonu a po refreshi je stále potřeba; stávající návštěvy bez data se nedoplňují uměle.
+- **HEAD:** tento dokumentační commit na `main`, rodič `b44aab0f9b2cb699c551b129633d81f12cbdb985`. Aplikační kód beze změn.
+- **Automatické ověření:** na tomto dokumentačním commitu se znovu spustí Build + visual regression; kód rodičovského commitu již úspěšně prošel.
+- **Ruční ověření:** otevřít třeba Cornštejn → Navštívili jsme → zkontrolovat datum → změnit → přidat Oblíbené → zavřít/otevřít → ověřit datum; potom zkusit odebrání jednotlivých označení. Ideálně ověřit i po obnovení stránky a na druhém zařízení.
+- **Další krok:** po fyzickém OK uzavřít HRA-P2-12 jako DONE 100 % a pokračovat HRA-P3-01 (35 %).
+- **HRA-P2-11:** DONE 100 %. **HRA-P2-10:** BLOCKED 10 %. Supabase beze změn.
 ---
 
 # 5. Kompletní plán
@@ -580,8 +576,8 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 ---
 
 ### HRA-P2-12 – Datum návštěvy a stavová tlačítka
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 80 %
+- **Stav:** VERIFY
+- **Dokončeno:** 95 %
 
 **Akceptace:** datum návštěvy se při novém označení uloží automaticky, lze jej změnit a po obnovení účtu zůstane; vybraná stavová tlačítka nabízejí odebrání označení, změny se navzájem nepřepisují.
 
@@ -698,6 +694,17 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-17 – HRA-P2-12: Build + visual regression PASS, čeká na fyzické potvrzení**
+
+- `b44aab0f9b2cb699c551b129633d81f12cbdb985`: oba CI workflow PASS, včetně testu stavu, data návštěvy, oblíbených, odebrání a znovuotevření detailu (desktop/iPhone simulace).
+- HRA-P2-12 označeno **VERIFY 95 %**; funkce dokončena technicky, ještě ověřit skutečný iPhone.
+- **HEAD:** tento handoff-only commit na `main`, rodič `b44aab0f9b2cb699c551b129633d81f12cbdb985`.
+- **Ověření nového commitu:** automatické CI po pushi; aplikační kód beze změny.
+- **Další krok:** uživatel otestuje dnešní datum / změnu / oblíbené a odebrání, po OK DONE a P3-01 35 %.
+- Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-17 – HRA-P2-12: datum návštěvy, perzistence ostatních stavů a toggly**
 
@@ -1505,13 +1512,14 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P2-12 – datum návštěvy a stavová tlačítka
-1. Ověřit `Build Hradník` i `Hradník visual regression` na novém HEAD, včetně perzistentního testu navštívených a oblíbených.
-2. Po PASS převést HRA-P2-12 na VERIFY 95 %. Ruční test: nová návštěva/dnešní datum, změna data, Oblíbené, odebrání stavu, obnovení a případně druhé zařízení.
-3. Po OK DONE 100 % a pokračovat HRA-P3-01 (35 %).
+## HRA-P2-12 – fyzická kontrola
+
+1. Na skutečném iPhonu po aktualizaci aplikace vyzkoušet datum dnešní návštěvy, změnu data, Oblíbené, odebrání stavu, obnovení detailu a stránky.
+2. Po potvrzení OK změnit HRA-P2-12 na DONE 100 % a pokračovat HRA-P3-01 (35 %).
+3. Pokud se projeví chyba, nejprve reprodukovat přes konkrétní krok; neprovádět plošný přepis.
 
 ## P2-10 – fresh Supabase drill (BLOCKED)
-Nevytvářet testovací Supabase branch bez schválení nákladů. Starý `cgshssdjgzzuprlwnabl` neměnit.
+Bez schválení ceny testovací Supabase branch nevytvářet, starý `cgshssdjgzzuprlwnabl` neměnit.
 
 ---
 
