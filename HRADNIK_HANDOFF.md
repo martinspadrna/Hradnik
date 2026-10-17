@@ -53,21 +53,22 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-12
-**Název:** Datum návštěvy a přepínací stavová tlačítka v detailu
-**Stav:** VERIFY
-**Dokončeno:** 95 %
+**ID:** HRA-P3-01  
+**Název:** Postupná deduplikace CSS bez změny vzhledu PC a mobilu  
+**Stav:** IN PROGRESS  
+**Dokončeno:** 40 %
 
-### Ověření CI (2026-10-17)
-- **Výchozí HEAD:** `b44aab0f9b2cb699c551b129633d81f12cbdb985` (implementace datumových stavů). **Build Hradník PASS**, **Hradník visual regression PASS**, včetně testu `visit date, favorites and toggles preserve account state` na PC a simulovaném iPhonu.
-- Datum návštěvy se při prvním označení nastavuje na dnešní lokální den, v detailu jej lze změnit. Datový model `hradnik_user_place_state.visited_on` již datum obsahuje.
-- `savePlaceState` zachovává stav, datum, oblíbené, hodnocení i poznámku během jiných aktualizací; tlačítka explicitně označují již vybraný stav a umožňují jej odebrat.
-- Fyzické ověření novinky na skutečném iPhonu a po refreshi je stále potřeba; stávající návštěvy bez data se nedoplňují uměle.
-- **HEAD:** tento dokumentační commit na `main`, rodič `b44aab0f9b2cb699c551b129633d81f12cbdb985`. Aplikační kód beze změn.
-- **Automatické ověření:** na tomto dokumentačním commitu se znovu spustí Build + visual regression; kód rodičovského commitu již úspěšně prošel.
-- **Ruční ověření:** otevřít třeba Cornštejn → Navštívili jsme → zkontrolovat datum → změnit → přidat Oblíbené → zavřít/otevřít → ověřit datum; potom zkusit odebrání jednotlivých označení. Ideálně ověřit i po obnovení stránky a na druhém zařízení.
-- **Další krok:** po fyzickém OK uzavřít HRA-P2-12 jako DONE 100 % a pokračovat HRA-P3-01 (35 %).
-- **HRA-P2-11:** DONE 100 %. **HRA-P2-10:** BLOCKED 10 %. Supabase beze změn.
+### Osmý bezpečný krok (2026-10-17)
+- Výchozí HEAD `a7cf4146830dd3ddb9828465a48167c9f80924e2`: **Build Hradník PASS**, **Hradník visual regression PASS**.
+- Uživatel na skutečném iPhonu potvrdil datum návštěvy a stavová tlačítka zprávou **OK**. HRA-P2-12 uzavřeno jako **DONE – 100 %**. Ověření na druhém zařízení není výslovně doloženo.
+- V `src/reference-lock.css` odstraněny tři přesně shodné mobilní deklarace skrytí šesté navigační položky a popisku `Více` u páté položky. Stejná pravidla zůstávají v předchozí vrstvě `src/reference-true.css` pod `@media(max-width:850px)`.
+- DOM, JavaScript, routování, data, mapové vrstvy a server se nemění. Očekávaná vizuální změna je nulová.
+- **HEAD:** commit na `main` obsahující tento handoff, rodič `a7cf4146830dd3ddb9828465a48167c9f80924e2`.
+- **Automatické ověření:** Build Hradník a Hradník visual regression se spouštějí po pushnutí; nepokračovat do další změny bez obou PASS.
+- **Ruční ověření:** mobilní spodní navigace, název `Více`, aktivní položky, Mapa, Seznam, Oblíbené a Kategorie; PC bez změn.
+- **Další krok:** po CI PASS další izolovaná deduplikace nebo audit CSS specifity. Žádný plošný přepis.
+- **HRA-P2-10:** BLOCKED 10 %; oba Supabase projekty beze změny.
+
 ---
 
 # 5. Kompletní plán
@@ -576,8 +577,8 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 ---
 
 ### HRA-P2-12 – Datum návštěvy a stavová tlačítka
-- **Stav:** VERIFY
-- **Dokončeno:** 95 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Akceptace:** datum návštěvy se při novém označení uloží automaticky, lze jej změnit a po obnovení účtu zůstane; vybraná stavová tlačítka nabízejí odebrání označení, změny se navzájem nepřepisují.
 
@@ -587,7 +588,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 35 %
+- **Dokončeno:** 40 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -694,6 +695,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-17 – P2-12 fyzicky potvrzeno, P3-01 osmý bezpečný CSS krok**
+
+- HRA-P2-12: datum návštěvy, možnost změny, zobrazení aktuálních stavů a jejich odebrání – uživatel napsal OK po žádosti o fyzickou kontrolu; **DONE 100 %**.
+- Výchozí `a7cf4146830dd3ddb9828465a48167c9f80924e2` má Build Hradník PASS i Hradník visual regression PASS.
+- Odebrány tři identické mobilní deklarace pro navigační `Více` z `reference-lock.css`, shodná pravidla stále ve `reference-true.css` pod stejným breakpointem.
+- **Stav:** P3-01 IN PROGRESS 40 %, P2-05 DONE 100 %, P2-11 DONE 100 %, P2-12 DONE 100 %, P2-10 BLOCKED 10 %.
+- **HEAD:** tento commit na `main`, rodič `a7cf4146830dd3ddb9828465a48167c9f80924e2`.
+- **Ověření:** po pushi Build + visual regression, výsledek zkontrolovat před dalším kódovým krokem.
+- **Další krok:** pokračovat po CI PASS bezpečným CSS úklidem.
+- Supabase `cgshssdjgzzuprlwnabl` i `abqiprdggptuxebhpfyi` beze změny.
+
+**Předchozí krok:**
 
 **2026-10-17 – HRA-P2-12: Build + visual regression PASS, čeká na fyzické potvrzení**
 
@@ -1512,14 +1526,15 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P2-12 – fyzická kontrola
+## HRA-P3-01 – pokračování bezpečného CSS úklidu
 
-1. Na skutečném iPhonu po aktualizaci aplikace vyzkoušet datum dnešní návštěvy, změnu data, Oblíbené, odebrání stavu, obnovení detailu a stránky.
-2. Po potvrzení OK změnit HRA-P2-12 na DONE 100 % a pokračovat HRA-P3-01 (35 %).
-3. Pokud se projeví chyba, nejprve reprodukovat přes konkrétní krok; neprovádět plošný přepis.
+1. Ověřit `Build Hradník` a `Hradník visual regression` po odstranění tří duplicit mobilního `Více`.
+2. Pokud oba PASS, pokračovat pouze izolovanými změnami CSS se shodným breakpointem a chováním.
+3. Při FAIL analyzovat přesný scénář a log; neodstraňovat testovací ochrany.
 
 ## P2-10 – fresh Supabase drill (BLOCKED)
-Bez schválení ceny testovací Supabase branch nevytvářet, starý `cgshssdjgzzuprlwnabl` neměnit.
+
+Nevytvářet testovací Supabase branch bez schválení možných nákladů. Projekt `cgshssdjgzzuprlwnabl` neměnit ani nemazat.
 
 ---
 

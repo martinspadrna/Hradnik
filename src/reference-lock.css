@@ -36,9 +36,6 @@
   .redesign-sidebar .nav button{height:66px!important;padding:5px 2px!important;border-radius:8px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#f0f0ed!important;font-size:10px!important;font-weight:700!important;background:transparent!important}
   .redesign-sidebar .nav button img{width:24px!important;height:24px!important;margin:0!important}
   .redesign-sidebar .nav button.active{background:#37301f!important;color:var(--ref-gold)!important}
-  .redesign-sidebar .nav button:nth-child(6){display:none!important}
-  .redesign-sidebar .nav button:nth-child(5) span{display:none!important}
-  .redesign-sidebar .nav button:nth-child(5)::after{content:'Více';font-size:10px!important;color:inherit!important}
   
   .map-layout{display:block!important;margin:0!important;height:auto!important}
   .map-layout #map{height:calc(100dvh - 390px)!important;min-height:388px!important;border:0!important;border-radius:0!important}
