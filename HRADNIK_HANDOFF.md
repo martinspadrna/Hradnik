@@ -54,19 +54,19 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P3-01  
-**Název:** Postupné odstraňování duplicit CSS bez změny PC/mobilu  
+**Název:** Postupná deduplikace CSS se zachováním vzhledu PC a mobilu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 50 %
+**Dokončeno:** 55 %
 
-### Desátý bezpečný krok (2026-10-17)
-- **Výchozí HEAD:** `09076263b3b87ad11d2efe0adc459f2985972cca`; Build Hradník **PASS**, Hradník visual regression **PASS**.
-- V `src/reference-lock.css` odebrány dvě totožné CSS deklarace, které jsou zachované v dříve načítaném `src/reference-true.css` pod stejnými media queries: `header .top` (desktop `min-width:851px`) a `.redesign-sidebar .nav button.active` (mobil `max-width:850px`).
-- Ověřeno pořadí načítání souborů a přesná shoda deklarací i media queries. Neočekává se změna vizuálu. DOM, JS, navigační logika, mapa ani Supabase nejsou měněny.
-- **HEAD:** commit `main` obsahující tento handoff (přesné SHA zjistit v GitHub historii); rodič `09076263b3b87ad11d2efe0adc459f2985972cca`.
-- **Ověření:** push spustí `Build Hradník` a `Hradník visual regression`; do jejich výsledku nepokračovat dalším commitem.
-- **Ruční ověření:** PC horní hlavička, iPhone aktivní spodní navigace. Fyzické ověření tohoto kroku zatím nebylo provedené.
-- **Další doporučený krok:** po dvou CI PASS pokračovat malou bezpečnou deduplikací nebo revizí vlastnictví CSS.
-- **HRA-P2-12:** DONE 100 %. **HRA-P2-10:** BLOCKED 10 %. Oba Supabase projekty nedotčeny.
+### Jedenáctý bezpečný krok (2026-10-17)
+- **Výchozí HEAD:** `94c4d467a2f112a7ddbc5da7fbc147f1d60fbfc5`; workflow `Build Hradník` **PASS** a `Hradník visual regression` **PASS**.
+- V později načítaném `src/reference-lock.css` odstraněny tři doslova identické deklarace: desktopové `header .top>div:first-child` a `header .account` pod `min-width:851px`; mobilní `header .top>div:first-child` pod `max-width:850px`.
+- Všechna tři pravidla zůstávají beze změny v bezprostředně dříve načítaném `src/reference-true.css`. Ověřena shoda obsahu, breakpointů a pořadí načítání souborů. Neočekává se změna vzhledu ani chování.
+- **HEAD:** tento commit na `main` společně s aktualizovaným handoffem (SHA viz GitHub), rodič `94c4d467a2f112a7ddbc5da7fbc147f1d60fbfc5`.
+- **Automatické ověření:** `Build Hradník` a `Hradník visual regression` po pushi; před další změnou vyhodnotit oba výsledky.
+- **Ruční ověření:** hlavička a rozložení loga na PC, logo a hamburger na iPhonu. Nové fyzické potvrzení tohoto úklidu zatím není k dispozici.
+- **Další doporučený krok:** pokud oba CI PASS, pokračovat dalším úzkým odstraněním identických pravidel, případně vytvořit kontrolní audit CSS vlastníků. Žádné plošné přepisování.
+- **HRA-P2-12:** DONE 100 %. **HRA-P2-10:** BLOCKED 10 %. Databáze a Supabase projekty nedotčeny.
 
 ---
 
@@ -587,7 +587,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 50 %
+- **Dokončeno:** 55 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -694,6 +694,18 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-17 – HRA-P3-01: jedenáctý izolovaný CSS úklid**
+
+- Výchozí commit `94c4d467a2f112a7ddbc5da7fbc147f1d60fbfc5` prošel workflow `Build Hradník` i `Hradník visual regression` (PASS).
+- Tři přesně shodná pravidla pro desktopovou a mobilní hlavičku jsou nyní definována jen v `reference-true.css`; redundantní kopie z `reference-lock.css` odstraněny.
+- **Stav:** P3-01 IN PROGRESS 55 %, P2-12 DONE 100 %, P2-10 BLOCKED 10 %.
+- **HEAD:** tento commit na `main`, rodič `94c4d467a2f112a7ddbc5da7fbc147f1d60fbfc5`.
+- **Ověření tohoto kroku:** po pushi Build + visual regression; čekat na PASS, neopírat se jen o předchozí zelené testy.
+- **Další krok:** teprve po PASS pokračovat bezpečným CSS úklidem.
+- Oba Supabase projekty beze změn.
+
+**Předchozí krok:**
 
 **2026-10-17 – HRA-P3-01 desátý krok, duplicity desktop/mobile CSS**
 
@@ -1549,15 +1561,15 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P3-01 – bezpečný úklid CSS
+## HRA-P3-01 – další izolovaná deduplikace CSS
 
-1. Ověřit oba CI workflow po desátém kroku (odstranění duplicit `header .top` a `.redesign-sidebar .nav button.active`).
-2. Po dvou PASS pokračovat izolovaně v odstraňování identických deklarací se stejným breakpointem, bez plošného refaktoru.
-3. Při FAIL nejprve ověřit konkrétní log/trace.
+1. Ověřit výsledky `Build Hradník` a `Hradník visual regression` na aktuálním HEAD po jedenáctém kroku (tři duplicity hlavičky).
+2. Po obou PASS pokračovat pouze přesnými duplicitami se shodným breakpointem a ověřeným pořadím načítání CSS.
+3. Při FAIL analyzovat konkrétní log/trace; nic dalšího nepřidávat, dokud není problém vyřešen.
 
 ## HRA-P2-10 – fresh Supabase drill (BLOCKED)
 
-Případně placenou testovací branch nevytvářet bez schválení nákladu. Projekt `cgshssdjgzzuprlwnabl` zachovat.
+Nevytvářet potenciálně placenou testovací branch bez schválení nákladů. Starý projekt `cgshssdjgzzuprlwnabl` zachovat a nic v něm neměnit.
 
 ---
 
