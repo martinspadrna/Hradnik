@@ -133,7 +133,7 @@ async function loadCatalog(){
 }
 async function loadMine(){const d=await authApi('state_list');ui.mine=new Map((d.state||[]).map(r=>[String(r.place_id),r]))}
 
-function card(p){const s=getState(p.id),el=document.createElement('article');el.className='place';el.innerHTML=`<button class="placeMain"><span class="placeIcon">${icon(p.kind)}</span><span class="placeCopy"><b>${esc(p.name)}${s.favorite?' <span class="favoriteMark" aria-label="Oblíbené">★</span>':''}</b><small>${esc(p.kind||'Historické místo')} · ${esc(p.district||p.region||'')}</small><small><span class="stateDot ${stateClass(s.status)}"></span>${stateLabel(s.status)} · ${esc(preservationLabel(preservationOf(p)))}</small></span></button><span class="quick"><button class="want" title="Chceme navštívit" aria-label="Chceme navštívit"><span class="quickDot want"></span></button><button class="visit" title="Navštívili jsme" aria-label="Navštívili jsme"><span class="quickDot visited"></span></button></span>`;el.querySelector('.placeMain').onclick=()=>detail(p.id);el.querySelector('.want').onclick=e=>{e.stopPropagation();setState(p.id,'want')};el.querySelector('.visit').onclick=e=>{e.stopPropagation();setState(p.id,'visited')};return el}
+function card(p){const s=getState(p.id),el=document.createElement('article');el.className='place';el.innerHTML=`<button class="placeMain"><span class="placeIcon">${icon(p.kind)}</span><span class="placeCopy"><b>${esc(p.name)}${s.favorite?' <span class="favoriteMark" aria-label="Oblíbené">★</span>':''}</b><small>${esc(p.kind||'Historické místo')} · ${esc(p.district||p.region||'')}</small><small><span class="stateDot ${stateClass(s.status)}"></span>${stateLabel(s.status)} · ${esc(preservationLabel(preservationOf(p)))}</small>${s.status==="visited"&&s.visited_on?`<small class="visitedMeta">Datum návštěvy: ${esc(visitDateLabel(s.visited_on))}</small>`:""}</span></button><span class="quick"><button class="want" aria-pressed="${s.status==="want"}" title="${s.status==="want"?"Odebrat z plánovaných":"Chceme navštívit"}" aria-label="${s.status==="want"?"Odebrat z plánovaných":"Chceme navštívit"}"><span class="quickDot want"></span></button><button class="visit" aria-pressed="${s.status==="visited"}" title="${s.status==="visited"?"Odebrat z navštívených":"Navštívili jsme"}" aria-label="${s.status==="visited"?"Odebrat z navštívených":"Navštívili jsme"}"><span class="quickDot visited"></span></button></span>`;el.querySelector('.placeMain').onclick=()=>detail(p.id);el.querySelector('.want').onclick=e=>{e.stopPropagation();setState(p.id,'want')};el.querySelector('.visit').onclick=e=>{e.stopPropagation();setState(p.id,'visited')};return el}
 
 function home(){const v=ui.places.filter(p=>getState(p.id).status==='visited').length,w=ui.places.filter(p=>getState(p.id).status==='want'),f=ui.places.filter(p=>getState(p.id).favorite).length;$('content').innerHTML=`<section class="hero"><div><p class="eyebrow">HRADNÍK</p><h1>Naše hradní výprava</h1><p class="muted">Katalog se aktualizuje na pozadí. Ty jen vybíráš místa, která chcete poznat a zapamatovat si.</p></div><div class="stats"><div><b>${v}</b><span>navštíveno</span></div><div><b>${w.length}</b><span>chceme</span></div><div><b>${f}</b><span>oblíbené</span></div><div><b>${ui.places.length.toLocaleString('cs-CZ')}</b><span>katalog</span></div></div></section><section><div class="sectionTitle"><h2><span class="stateDot want"></span>Chceme navštívit</h2><button id="allMine" class="linkish">Zobrazit vše</button></div><div id="homeList" class="list"></div></section>`;w.slice(0,8).forEach(p=>$('homeList').appendChild(card(p)));if(!w.length)$('homeList').innerHTML='<div class="empty">Zatím nic v plánu.</div>';$('allMine').onclick=()=>{ui.tab='mine';render()}}
 
@@ -152,7 +152,73 @@ function mapView(){rememberMapView();$('content').innerHTML=`<section><div class
 function renderMap(){mapView()}
 function render(){rememberMapView();const cacheTime=ui.catalogCachedAt?new Date(ui.catalogCachedAt).toLocaleString('cs-CZ'):'';const fallback=ui.catalogFallback?`<div class="notice hradnik-offline-notice" role="status">Server je teď nedostupný. Zobrazuji poslední uložený katalog${cacheTime?` z ${esc(cacheTime)}`:''}.</div>`:'';app.innerHTML=`<header><div class="wrap top"><div><div class="logo">🏰 Hradník</div><div class="sub">Hrady · zámky · zříceniny · tvrze · kláštery</div></div><div class="account"><b>${esc(ui.user?.username||'')}</b><button id="logout">Odhlásit</button></div></div></header><main class="wrap redesign-main">${fallback}<nav class="nav">${['home','catalog','mine','diary','stats'].map((id,i)=>`<button class="${ui.tab===id?'active':''}" data-tab="${id}">${['Mapa','Seznam','Oblíbené','Vyhledávání','Kategorie'][i]||'O aplikaci'}</button>`).join('')}</nav><div id="content"></div></main>`;document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{ui.tab=b.dataset.tab;render()});$('logout').onclick=async()=>{localStorage.removeItem('hradnik_session');ui.user=null;render()};({home,catalog,map:mapView,mine,diary,stats}[ui.tab]||home)()}
 
-async function setState(placeId,status){try{await authApi('state_upsert',{place_id:placeId,status});await loadMine();render()}catch(e){alert(e.message)}}
-async function detail(id){const p=ui.places.find(x=>String(x.id)===String(id));if(!p)return;const s=getState(id);const overlay=document.createElement('div');overlay.className='overlay';overlay.dataset.hradnikDetailContext=document.getElementById('map')?'map':'list';if(overlay.dataset.hradnikDetailContext==='list')ui.focusedPlaceId=id;overlay.innerHTML=`<div class="sheet"><button class="close">×</button><div class="bigIcon">${icon(p.kind)}</div><p class="eyebrow">${esc(p.kind||'Historické místo')}</p><h1>${esc(p.name)}</h1><p class="muted">${esc(p.district||p.region||'')}</p><div class="actions"><button class="primary" id="want">Chceme navštívit</button><button id="visit">Navštívili jsme</button><button id="fav">${s.favorite?'Odebrat z oblíbených':'Přidat do oblíbených'}</button></div><div class="detailGrid"><div class="card"><h3>Stav</h3><p>${stateLabel(s.status)}</p></div><div class="card"><h3>Dochování</h3><p>${preservationLabel(preservationOf(p))}</p></div><div class="card"><h3>Popis</h3><p>${esc(p.description||'Bez popisu.')}</p></div>${p.opening_hours?`<div class="card"><h3>Otevírací doba</h3><p>${esc(p.opening_hours)}</p></div>`:''}${p.ticket_prices?`<div class="card"><h3>Vstupné</h3><p>${esc(p.ticket_prices)}</p></div>`:''}${p.official_url?`<div class="card"><h3>Oficiální informace</h3><p><a href="${esc(p.official_url)}" target="_blank" rel="noreferrer">Otevřít web</a></p></div>`:''}</div></div>`;document.body.appendChild(overlay);const close=()=>{if(overlay.dataset.hradnikDetailContext==='list')ui.focusedPlaceId=null;overlay.remove()};overlay.querySelector('.close').onclick=close;overlay.addEventListener('click',e=>{if(e.target===overlay)close()});overlay.querySelector('#want').onclick=()=>setState(id,'want');overlay.querySelector('#visit').onclick=()=>setState(id,'visited');overlay.querySelector('#fav').onclick=async()=>{try{await authApi('state_upsert',{place_id:id,favorite:!s.favorite,status:s.status});await loadMine();close();render()}catch(e){alert(e.message)}}}
+
+const localVisitDate=()=>{
+  const d=new Date()
+  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')
+}
+const visitDateLabel=value=>{
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||''))
+  return m?Number(m[3])+'. '+Number(m[2])+'. '+m[1]:'Neuvedeno'
+}
+async function savePlaceState(placeId,updates={}){
+  const old=getState(placeId)
+  const status=updates.status??old.status
+  const visited_on=status==='visited'
+    ?(Object.prototype.hasOwnProperty.call(updates,'visited_on')?updates.visited_on:old.visited_on||(old.status==='visited'?null:localVisitDate()))
+    :null
+  const payload={place_id:placeId,status,favorite:updates.favorite??old.favorite??false,
+    rating:old.rating??0,note:old.note??'',visited_on}
+  const response=await authApi('state_upsert',payload)
+  ui.mine.set(String(placeId),{...payload,...(response.state||{})})
+  await loadMine()
+  return getState(placeId)
+}
+
+async function setState(placeId,status){try{await savePlaceState(placeId,{status:getState(placeId).status===status?'none':status});render()}catch(e){alert(e.message)}}
+async function detail(id){const p=ui.places.find(x=>String(x.id)===String(id));if(!p)return;const s=getState(id);const overlay=document.createElement('div');overlay.className='overlay';overlay.dataset.hradnikDetailContext=document.getElementById('map')?'map':'list';if(overlay.dataset.hradnikDetailContext==='list')ui.focusedPlaceId=id;overlay.innerHTML=`<div class="sheet"><button class="close">×</button><div class="bigIcon">${icon(p.kind)}</div><p class="eyebrow">${esc(p.kind||'Historické místo')}</p><h1>${esc(p.name)}</h1><p class="muted">${esc(p.district||p.region||'')}</p><div class="actions"><button id="want" aria-pressed="${s.status==="want"}">Chceme navštívit</button><button id="visit" aria-pressed="${s.status==="visited"}">Navštívili jsme</button><button id="fav" aria-pressed="${!!s.favorite}">Přidat do oblíbených</button></div><div class="detailGrid"><div class="card"><h3>Stav</h3><p id="detailStateLabel">${stateLabel(s.status)}</p><div class="visitDateField" ${s.status==="visited"?"":"hidden"}><label for="visitDate">Datum návštěvy</label><input id="visitDate" type="date" value="${esc(s.visited_on||"")}" max="${localVisitDate()}" aria-label="Datum návštěvy"></div></div><div class="card"><h3>Dochování</h3><p>${preservationLabel(preservationOf(p))}</p></div><div class="card"><h3>Popis</h3><p>${esc(p.description||'Bez popisu.')}</p></div>${p.opening_hours?`<div class="card"><h3>Otevírací doba</h3><p>${esc(p.opening_hours)}</p></div>`:''}${p.ticket_prices?`<div class="card"><h3>Vstupné</h3><p>${esc(p.ticket_prices)}</p></div>`:''}${p.official_url?`<div class="card"><h3>Oficiální informace</h3><p><a href="${esc(p.official_url)}" target="_blank" rel="noreferrer">Otevřít web</a></p></div>`:''}</div></div>`;document.body.appendChild(overlay);let changed=false,pending=false
+const close=()=>{
+  if(overlay.dataset.hradnikDetailContext==='list')ui.focusedPlaceId=null
+  overlay.remove()
+  if(changed)render()
+}
+const buttons=['want','visit','fav'].map(key=>overlay.querySelector('#'+key))
+const refresh=()=>{
+  const now=getState(id)
+  const [want,visit,fav]=buttons
+  want.textContent=now.status==='want'?'✓ V plánu – odebrat':'Chceme navštívit'
+  visit.textContent=now.status==='visited'?'✓ Navštíveno – odebrat':'Navštívili jsme'
+  fav.textContent=now.favorite?'✓ Oblíbené – odebrat':'Přidat do oblíbených'
+  want.setAttribute('aria-pressed',String(now.status==='want'))
+  visit.setAttribute('aria-pressed',String(now.status==='visited'))
+  fav.setAttribute('aria-pressed',String(!!now.favorite))
+  overlay.querySelector('#detailStateLabel').textContent=stateLabel(now.status)
+  overlay.querySelector('.visitDateField').hidden=now.status!=='visited'
+  overlay.querySelector('#visitDate').value=now.visited_on||''
+}
+const save=async updates=>{
+  if(pending)return
+  pending=true
+  const input=overlay.querySelector('#visitDate')
+  buttons.forEach(b=>b.disabled=true)
+  input.disabled=true
+  try{
+    await savePlaceState(id,updates)
+    changed=true
+    refresh()
+  }catch(e){alert(e.message);refresh()}
+  finally{pending=false;buttons.forEach(b=>b.disabled=false);input.disabled=false}
+}
+overlay.querySelector('.close').onclick=close
+overlay.addEventListener('click',e=>{if(e.target===overlay)close()})
+overlay.querySelector('#want').onclick=()=>save({status:getState(id).status==='want'?'none':'want'})
+overlay.querySelector('#visit').onclick=()=>save({status:getState(id).status==='visited'?'none':'visited'})
+overlay.querySelector('#fav').onclick=()=>save({favorite:!getState(id).favorite})
+overlay.querySelector('#visitDate').onchange=e=>{
+  const date=e.target.value
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date>localVisitDate()){refresh();return}
+  save({visited_on:date})
+}
+refresh()}
 
 (async()=>{try{const token=localStorage.getItem('hradnik_session');if(token){try{const d=await authApi('me');ui.user=d.user||null;await loadMine()}catch(e){if(e?.status===401||e?.status===403)localStorage.removeItem('hradnik_session');else console.warn('[Hradník] Ověření přihlášení je dočasně nedostupné; lokální relaci ponechávám.',e)}}await loadCatalog();render()}catch(e){console.error('[Hradník] Start aplikace selhal.',e);app.innerHTML=`<div class="auth"><div class="authCard"><div class="logo">🏰 Hradník</div><h1>Hradník</h1><p class="notice">Hradník se teď nepodařilo načíst. Zkontroluj připojení a zkus to znovu.</p><button class="primary wide" onclick="location.reload()">Zkusit znovu</button></div></div>`}})()

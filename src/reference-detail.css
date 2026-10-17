@@ -49,3 +49,14 @@
   .overlay .sheet .card h3{font-size:11px!important;margin:0 0 6px!important}
   .overlay .sheet .card p{font-size:11px!important;line-height:1.5!important;color:#929da2!important}
 }
+
+
+/* Visit date editor and state-aware controls: shared detail DOM on desktop and iPhone. */
+.overlay .sheet .actions button[aria-pressed="true"]{background:#342918!important;border-color:#a98534!important;color:#f4c84a!important}
+.overlay .sheet .actions button:disabled{opacity:.55!important;cursor:wait!important}
+.overlay .sheet .visitDateField{display:flex;flex-direction:column;align-items:flex-start;gap:7px;margin-top:12px}
+.overlay .sheet .visitDateField[hidden]{display:none!important}
+.overlay .sheet .visitDateField label{color:#d7bd6b;font-size:12px;font-weight:700}
+.overlay .sheet .visitDateField input{box-sizing:border-box;width:100%;max-width:230px;min-height:42px;padding:8px 11px;background:#11191d;color:#f1f3f4;border:1px solid #60532e;border-radius:8px;font-size:16px;color-scheme:dark}
+.overlay .sheet .visitDateField input:disabled{opacity:.6}
+.placeCopy .visitedMeta{color:#dfbb53!important}

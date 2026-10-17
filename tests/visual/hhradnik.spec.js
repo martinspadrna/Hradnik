@@ -49,13 +49,18 @@ async function mockBackend(page, loggedIn = true, options = {}) {
     body: JSON.stringify({ url: '/hradnik-app-icon.svg' })
   }))
 
+  const mockStates = new Map([[1, { place_id: 1, status: 'visited', favorite: true, rating: 5, visited_on: '2026-08-01', note: 'Testovací návštěva' }]])
   await page.route('**/functions/v1/hradnik-auth', route => {
     let body = {}
     try { body = route.request().postDataJSON() || {} } catch {}
     if (!loggedIn) return route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'Unauthorized' }) })
     if (body.action === 'me') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { id: 'visual-test', username: 'visual-test' } }) })
-    if (body.action === 'state_list') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state: [{ place_id: 1, status: 'visited', favorite: true, rating: 5, visited_on: '2026-08-01', note: 'Testovací návštěva' }] }) })
-    if (body.action === 'state_upsert') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state: { place_id: body.place_id, status: body.status || 'none', favorite: !!body.favorite } }) })
+    if (body.action === 'state_list') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state: [...mockStates.values()] }) })
+    if (body.action === 'state_upsert') {
+      const state = { place_id: Number(body.place_id), status: body.status ?? 'none', favorite: !!body.favorite, rating: body.rating ?? 0, note: body.note ?? '', visited_on: body.visited_on ?? null }
+      mockStates.set(state.place_id, state)
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state }) })
+    }
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
   })
 }
@@ -312,6 +317,49 @@ test('catalog uses the same card DOM and data contract on desktop and iphone', a
   await expect(detail).toBeVisible()
   await expect(detail.locator('h1')).toHaveText('Karlštejn')
   await expect(detail.locator('.detailGrid .card')).toHaveCount(3)
+})
+
+test('visit date, favorites and toggles preserve account state', async ({ page }) => {
+  const nav = await openApp(page)
+  await nav.nth(1).click()
+  await page.locator('#preservation').selectOption('all')
+  await page.locator('#list .placeMain').first().click()
+
+  const detail = page.locator('.overlay .sheet')
+  const visit = detail.locator('#visit')
+  const want = detail.locator('#want')
+  const fav = detail.locator('#fav')
+  const date = detail.locator('#visitDate')
+  await expect(date).toBeHidden()
+  await visit.click()
+  await expect(visit).toHaveAttribute('aria-pressed', 'true')
+  await expect(visit).toContainText('odebrat')
+  await expect(date).toBeVisible()
+  await expect(date).toHaveValue(/^\d{4}-\d{2}-\d{2}$/)
+
+  const dateSaved = page.waitForResponse(r => r.url().includes('/hradnik-auth') && r.request().postDataJSON()?.visited_on === '2024-05-20')
+  await date.fill('2024-05-20')
+  await dateSaved
+  await expect(fav).toBeEnabled()
+  await expect(date).toHaveValue('2024-05-20')
+  await fav.click()
+  await expect(fav).toHaveAttribute('aria-pressed', 'true')
+  await expect(date).toHaveValue('2024-05-20')
+
+  await detail.locator('.close').click()
+  await page.locator('#list .placeMain').first().click()
+  await expect(page.locator('.overlay #visitDate')).toHaveValue('2024-05-20')
+  await expect(page.locator('.overlay #fav')).toHaveAttribute('aria-pressed', 'true')
+
+  await want.click()
+  await expect(want).toHaveAttribute('aria-pressed', 'true')
+  await expect(want).toContainText('odebrat')
+  await expect(date).toBeHidden()
+  await expect(fav).toHaveAttribute('aria-pressed', 'true')
+  await want.click()
+  await expect(want).toHaveAttribute('aria-pressed', 'false')
+  await fav.click()
+  await expect(fav).toHaveAttribute('aria-pressed', 'false')
 })
 
 test('map, list detail and settings remain interactive', async ({ page }) => {

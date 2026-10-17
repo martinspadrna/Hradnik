@@ -53,20 +53,24 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-11  
-**Název:** Mobilní satelitní mapa: kontrast ikon, Filtry, atribuce a spodní navigace  
-**Stav:** VERIFY  
-**Dokončeno:** 95 %
+**ID:** HRA-P2-12
+**Název:** Datum návštěvy a přepínací stavová tlačítka v detailu
+**Stav:** IN PROGRESS
+**Dokončeno:** 80 %
 
-### Automatické ověření hotové (2026-10-17)
-- Výchozí HEAD `bd949c4572326206828764c207e61829bafabc1e`: **Build Hradník PASS** a **Hradník visual regression PASS** včetně iPhone bounding-box testu `iphone map filters and attribution stay above bottom navigation`.
-- Černé typové piktogramy na satelitu byly obarveny pouze v mapě zlatým filtrem; zlaté štíty zůstaly beze změny. Mobilní satelitní dlaždice jsou světlejší.
-- Tlačítko Filtry se na mobilu zobrazuje pod Mapa/Satelit, panel je rozbalitelný a scrollovatelný. Leaflet atribuce nezasahuje do spodní navigace.
-- **HEAD:** tento dokumentační commit větve `main`, rodič `bd949c4572326206828764c207e61829bafabc1e`. Žádná další změna aplikačního kódu.
-- **Automatické ověření dokumentačního commitu:** Build Hradník a visual regression se znovu spustí po pushi; již ověřený kód v rodiči zůstává beze změny.
-- **Fyzicky ověřit na iPhonu:** aktualizovat aplikaci, přepnout Mapa/Satelit, zkontrolovat zlaté značky a čitelnost podkladu; otevřít a zavřít Filtry; ověřit, že atribuce neleží přes spodní lištu. Poslat screenshot, případně potvrdit OK.
-- **Další krok:** po fyzickém potvrzení označit P2-11 DONE 100 % a navázat HRA-P3-01 (nyní 35 %).
-- **HRA-P2-05:** DONE 100 % (Leaflet Canvas rAF ošetřen); **HRA-P2-10:** BLOCKED 10 %, bez zásahu do Supabase.
+### První implementace (2026-10-17)
+- Uživatel fyzicky potvrdil mobilní mapu HRA-P2-11 („Ok“ po screenshotech Mapa/Satelit a detail) → **DONE 100 %**.
+- Databáze již má `hradnik_user_place_state.visited_on date`, současná Edge Auth `state_upsert` a `state_list` ho podporují. Nová migrace ani změna serveru nejsou potřeba.
+- `src/main.legacy.js`: společná `savePlaceState()` vždy posílá celý aktuální stav (status, favorite, rating, note, visited_on), takže úprava oblíbených již nesmaže datum ani další údaje.
+- Označení jako navštívené nastaví místní dnešní datum, které lze na iPhonu/PC změnit nativním `input type=date`. Starší navštívené záznamy bez data zůstávají bez smyšleného data a lze je doplnit.
+- Tlačítka v detailu reagují na aktuální stav: vybraná volba je zlatě označená, opětovným kliknutím lze plán/navštívení/oblíbené odebrat. Karty navštívených s datem ho rovněž zobrazují.
+- Změna data či oblíbených neuzavírá detail; při zavření se aktualizují okolní karty. Jednotný DOM pro PC a mobil.
+- Regresní Playwright test nyní používá perzistentní mock state a ověřuje datum, obnovení detailu, oblíbené i odebrání.
+- **Předchozí HEAD:** `55930983069f35ddd765f03a3affb2250e64bd29`; **nový HEAD:** commit `main` s touto změnou/handoffem.
+- **Ověření:** po commitu povinně `Build Hradník` a `Hradník visual regression`. Do výsledků zůstává IN PROGRESS.
+- **Fyzické ověření:** iPhone/PC označit navštívené (dnešní datum), změnit datum, označit oblíbené, znovu otevřít, případně vyzkoušet další přihlášené zařízení.
+- **Další krok:** po obou CI PASS převést do VERIFY 95 %, po fyzickém OK DONE a pokračovat HRA-P3-01 (35 %).
+- **HRA-P2-10:** BLOCKED 10 %. Bez zásahu do Supabase.
 
 ---
 
@@ -566,12 +570,20 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 ---
 
 ### HRA-P2-11 – Opravit čitelnost satelitní mapy a překrytí mobilní lištou
-- **Stav:** VERIFY
-- **Dokončeno:** 95 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 
 **Zdroj:** fyzický screenshot iPhonu 2026-10-17.
 
 **Akceptace:** Zlaté čitelné typové značky na satelitu, dlaždice nejsou příliš tmavé, ovladatelné Filtry a nezakrytá atribuce; nedotknout se ostatních stránek a PC layoutu.
+
+---
+
+### HRA-P2-12 – Datum návštěvy a stavová tlačítka
+- **Stav:** IN PROGRESS
+- **Dokončeno:** 80 %
+
+**Akceptace:** datum návštěvy se při novém označení uloží automaticky, lze jej změnit a po obnovení účtu zůstane; vybraná stavová tlačítka nabízejí odebrání označení, změny se navzájem nepřepisují.
 
 ---
 
@@ -686,6 +698,20 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-17 – HRA-P2-12: datum návštěvy, perzistence ostatních stavů a toggly**
+
+- HRA-P2-11 mobilní mapa byla fyzicky potvrzena OK → DONE 100 %.
+- Datový model již podporuje visited_on, frontend jej dosud nezapisoval a API defaulty mohly při změně jiné hodnoty mazat ostatní pole.
+- `main.legacy.js`: kompletní stav při každém `state_upsert`, nové návštěvy s lokálním dnešním datem, upravitelný datumový input, označení stavů s možností odebrání a datum na navštívených kartách.
+- `reference-detail.css`: zvýraznění aktuálních stavů a čitelný iPhone date input.
+- `tests/visual/hhradnik.spec.js`: perzistentní mock a nový UI regresní test.
+- **HEAD:** tento commit na `main`, rodič `55930983069f35ddd765f03a3affb2250e64bd29`.
+- **Ověření:** Build + visual regression po pushi; stav IN PROGRESS 80 % do zeleného CI.
+- **Další krok:** fyzický test datum/oblíbené/navštívené na iPhonu, po OK DONE, návrat k P3-01.
+- Supabase projekty nezměněny.
+
+**Předchozí krok:**
 
 **2026-10-17 – HRA-P2-11: oba CI PASS, fyzické ověření čeká**
 
@@ -1479,14 +1505,13 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P2-11 – fyzicky ověřit iPhone
+## HRA-P2-12 – datum návštěvy a stavová tlačítka
+1. Ověřit `Build Hradník` i `Hradník visual regression` na novém HEAD, včetně perzistentního testu navštívených a oblíbených.
+2. Po PASS převést HRA-P2-12 na VERIFY 95 %. Ruční test: nová návštěva/dnešní datum, změna data, Oblíbené, odebrání stavu, obnovení a případně druhé zařízení.
+3. Po OK DONE 100 % a pokračovat HRA-P3-01 (35 %).
 
-1. Na skutečném iPhonu ověřit po aktualizaci aplikace: Mapa/Satelit, kontrast značek, Filtry a jejich panel, spodní navigace a atribuce mapy.
-2. Po OK označit P2-11 jako DONE 100 %, potom pokračovat v HRA-P3-01 (35 %).
-3. Pokud je stále překrytí, podle screenshotu ověřit konkrétní rozlišení, safe-area a computed CSS. Nevytvářet plošný redesign.
-
-## P2-10 – fresh Supabase drill (stále BLOCKED)
-Bez souhlasu případných nákladů nevytvářet novou branch. Starý `cgshssdjgzzuprlwnabl` neměnit.
+## P2-10 – fresh Supabase drill (BLOCKED)
+Nevytvářet testovací Supabase branch bez schválení nákladů. Starý `cgshssdjgzzuprlwnabl` neměnit.
 
 ---
 
