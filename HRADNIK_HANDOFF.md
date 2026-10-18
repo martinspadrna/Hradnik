@@ -54,25 +54,23 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## 4. Aktuálně řešený úkol
 
 **ID:** HRA-P3-01  
-**Název:** Bezpečná konsolidace CSS a zajištění kontraktu vzhledu  
+**Název:** Konsolidace CSS vlastnictví hlavičky a navigace bez změny vzhledu  
 **Stav:** IN PROGRESS  
-**Dokončeno:** 90 %
+**Dokončeno:** 95 %
 
-### Šestnáctý krok – měřitelné CSS kontrakty + dokumentovaný audit (2026-10-18)
-- **Výchozí HEAD:** `72683862bc38cf75f651e5b0157fd1af8048bf2f`; GitHub Actions `Build Hradník` a `Hradník visual regression` oba **PASS** včetně testu životního cyklu mapového intervalu a dávkování menu observerů.
-- Byl dokončen audit skutečných překryvů CSS: statické vrstvy `reference-true.css`, `reference-lock.css`, `reference-layout-hardlock.css`, `reference-dashboard-final.css`, `search-detail-polish.css` a dynamicky vložené styly z `reference-force-shell.js` / `reference-runtime-retry.js`. Zbylé částečné přepisy a `!important` nejsou mechanicky odstranitelné bez změny kaskády.
-- Založen dokument `docs/CSS_CASCADE_AUDIT.md` s vlastnictvím oblasti hlavička/navigace/mapa/detail, známými konflikty a zásadami bezpečné konsolidace.
-- V `tests/visual/hhradnik.spec.js` doplněny **dva nové funkční testy vypočteného layoutu**: desktop 851/1280/1536 px a simulovaný iPhone 375/390/520/850 px. Kontrolují computed `position`, `display`, geometrické hranice hlavičky, lišty, mapy a pravého panelu. Při každé změně viewportu se znovu načítá stránka, aby se zachytily i dynamické styly.
-- Tento krok **nemění žádné produkční CSS, JavaScript aplikace, DOM, Supabase ani data**, ale vytváří automatický ochranný kontrakt pro další bezpečné změny. Širší rozsah než dřívější pravidla 1–3 kusy; odpovídá požadavku uživatele na větší kroky.
-- **HEAD:** commit na `main` včetně tohoto handoffu, testů a auditního dokumentu, rodič `72683862bc38cf75f651e5b0157fd1af8048bf2f`. Přesné SHA podle GitHubu.
-- **Automatické ověření:** po pushi musí projít `Build Hradník` a `Hradník visual regression`, včetně nových CSS testů; pokud něco selže, opravit konkrétní nezohledněný breakpoint/kontrakt a nepovolovat bez vysvětlení.
-- **Ruční ověření:** na iPhonu a PC se vzhled nemá změnit; při příští fyzické kontrole ověřit Mapa/Seznam, menu, Filtry a spodní lištu.
-- **Další doporučený krok:** po obou CI PASS provést větší selektivní konsolidaci jednoho vlastníka (například header + nav nebo mapový panel) s porovnáním vypočtených CSS hodnot proti těmto testům; následně rozhodnout o DONE. Neprovádět plošný redesign.
-- **HRA-P2-12:** DONE 100 %. **HRA-P2-10:** BLOCKED 10 %. Supabase `cgshssdjgzzuprlwnabl` a `abqiprdggptuxebhpfyi` beze změn.
+### Sedmnáctý větší krok – konsolidace 51 CSS deklarací (2026-10-18)
 
-- **První CI commitu `f72f64063c43900d78b7efc10a5c00f2a7176a7b`:** Build PASS, visual regression FAIL v jediném novém iPhone testu `CSS cascade preserves mobile shell…` (44 PASS, 7 skipped, 1 FAIL). `getComputedStyle` dostal null pro dosud nepřipojený nebo mobilním renderem vynechaný prvek. Ostatní stávající scénáře nezjistily chybu aplikace.
-- **Opravný krok testů:** čekat na viditelnou `.reference-map-dashboard .map-layout` před měřením a u mobilního pravého desktop panelu interpretovat jeho neexistenci stejně jako správné `display:none`. V žádném případě nevynechat kontrolu mapy, hlavičky nebo spodní navigace.
-- **HEAD:** tento nový opravný commit s handoffem, rodič `f72f64063c43900d78b7efc10a5c00f2a7176a7b`. P3-01 zatím zůstává IN PROGRESS 90 %, až po dvou PASS lze pokračovat.
+- **Výchozí HEAD:** `c1b5476e9eb9330a2c72e2ff8782ed78a5aa9305` – `Build Hradník` **PASS**, `Hradník visual regression` **PASS**, včetně nových testů 7 šířek.
+- Zvolena oblast **hlavička, boční a mobilní navigace** podle `docs/CSS_CASCADE_AUDIT.md`.
+- V `src/reference-true.css` odebráno **51 výlučně přesně shodných deklarací** ze šesti pravidel (stejný selektor, breakpoint, vlastnost, hodnota a `!important` jako v `src/reference-lock.css`). Čtyři prázdná pravidla vynechána. V pozdější vrstvě `reference-lock.css` původní pravidla zůstávají beze změny; unikátní vlastnosti `header` a `header .account button` v první vrstvě také zůstávají.
+- Upravena a rozšířena mapa vlastníků `docs/CSS_CASCADE_AUDIT.md` včetně tabulky 6 selektorů a vlastnictví konečného vzhledu navigace.
+- `tests/visual/hhradnik.spec.js` rozšířen o computed CSS kontrolu navigačních tlačítek: desktop `display`/výška; iPhone `display`/`flex-direction`/výška na **375/390/520/850/851/1280/1536 px**.
+- Nedotčeny odlišné částečné přepisy, `reference-layout-hardlock.css`, `reference-dashboard-final.css`, dynamické runtime styly, HTML, aplikační JavaScript a jakákoli databáze. Cílem je identické vykreslení.
+- **HEAD:** nový commit na `main` obsahující změny a tento handoff; rodič `c1b5476e9eb9330a2c72e2ff8782ed78a5aa9305` (přesnou SHA uvádí GitHub).
+- **Automatické ověření:** bezprostředně po pushi vyžadovat **Build Hradník PASS** i **Hradník visual regression PASS**. Při FAIL nejprve konkrétní log/trace a oprava, nepokračovat další funkcí.
+- **Ruční ověření:** skutečný iPhone – spodní navigace, hamburger, mapa/Seznam, aktivní tlačítka; PC – hlavička, boční panel a účetní tlačítka. Toto fyzické ověření ještě není potvrzeno.
+- **Další doporučený krok:** po CI PASS provést finální cílený audit zbylých překryvů podle výsledného vzhledu. P3-01 zatím **neuzavírat na DONE 100 %** bez dodatečné kontroly; P2-10 dál **BLOCKED 10 %** bez souhlasu s náklady.
+
 ---
 
 # 5. Kompletní plán
@@ -592,7 +590,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 90 %
+- **Dokončeno:** 95 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -699,6 +697,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-18 – P3-01: konsolidace 51 duplicitních CSS deklarací hlavičky a navigace**
+
+- Výchozí `c1b5476e9eb9330a2c72e2ff8782ed78a5aa9305`: Build Hradník i Hradník visual regression PASS.
+- `src/reference-true.css`: z 6 pravidel odebráno 51 přesných překryvů jednotlivých vlastností se stejnými selektory a breakpointy jako v `reference-lock.css`; 4 nyní prázdná pravidla zmizela. Unikátní vlastnosti zůstaly.
+- `docs/CSS_CASCADE_AUDIT.md`: doplněna tabulka vlastníků a seznam bezpečně odstraněných duplicit.
+- `tests/visual/hhradnik.spec.js`: doplněno měření computed CSS navigačních tlačítek na všech 7 šířkách.
+- **Stav:** HRA-P3-01 IN PROGRESS **95 %**; HRA-P2-12 DONE 100 %, HRA-P2-10 BLOCKED 10 %.
+- **HEAD:** commit obsahující tento handoff na `main`, rodič `c1b5476e9eb9330a2c72e2ff8782ed78a5aa9305`.
+- **CI:** po pushi ověřit obě workflow. **Fyzický test:** iPhone a desktop otevřené body ke kontrole.
+- Supabase `cgshssdjgzzuprlwnabl` i `abqiprdggptuxebhpfyi` beze změny.
+
+**Předchozí krok:**
 
 **2026-10-18 – synchronizace nového CSS testu na iPhonu**
 
@@ -1652,16 +1663,16 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P3-01 – bezpečná konsolidace CSS s měřením výsledného layoutu
+## HRA-P3-01 – dokončovací kontrola CSS konsolidace
 
-1. Zkontrolovat obě CI workflow na commitu obsahujícím 7 nově testovaných šířek (desktop: 851/1280/1536; mobil: 375/390/520/850). Při FAIL analyzovat skutečnou computed hodnotu a vhodně řešit konkrétní příčinu.
-2. Načíst `docs/CSS_CASCADE_AUDIT.md`. Zvolit jeden **větší, ale izolovaný tematický balík** konsolidace skutečných částečných CSS přepisů s jasným vlastníkem (navigace/hlavička nebo mapový panel). Zachovat vizuální identitu bez přepisu aplikace.
-3. Spustit stávající i nové Playwright scénáře; další rozsáhlejší úklid smí pokračovat teprve při obou PASS.
-4. Při fyzické kontrole na iPhonu ověřit stabilitu menu, mapy a spodní navigace. HRA-P3-01 zatím neuzavírat na 100 % bez prověření vlastníků posledních přepisů.
+1. Vyhodnotit oba CI workflow aktuálního HEAD po odebrání 51 shodných deklarací v `reference-true.css` a rozšíření navigačních computed-style testů na 7 šířkách.
+2. Při FAIL analyzovat konkrétní vypočtený styl, breakpoint, vizuální screenshot nebo trace; upravit cíleně, nikoli odstranit test.
+3. Po PASS ponechat P3-01 **IN PROGRESS 95 %**, prověřit zbývající částečné přepisy a provést fyzickou kontrolu hlavičky/spodní navigace na mobilu a boční navigace na PC.
+4. Do `docs/CSS_CASCADE_AUDIT.md` doplňovat další skutečné vlastníky. Bez plošného redesignu a bez odstraňování nesouhlasných deklarací.
 
 ## HRA-P2-10 – fresh Supabase drill (BLOCKED)
 
-Nevytvářet testovací branch bez souhlasu s případným poplatkem. Starý `cgshssdjgzzuprlwnabl` ani novou Supabase `abqiprdggptuxebhpfyi` neměnit.
+Nevytvářet testovací Supabase branch bez souhlasu s případnými náklady. Starý `cgshssdjgzzuprlwnabl` neměnit ani nemazat, do nové `abqiprdggptuxebhpfyi` nezasahovat.
 
 ---
 

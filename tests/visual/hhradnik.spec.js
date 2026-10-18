@@ -167,6 +167,8 @@ test('CSS cascade preserves desktop shell and map geometry at 851 1280 1536 px',
         headerHeight: rect(header).height,
         railPosition: getComputedStyle(rail).position,
         railRect: { x: rect(rail).x, y: rect(rail).y, width: rect(rail).width },
+        navButtonDisplay: getComputedStyle(document.querySelector('.redesign-sidebar .redesign-nav > button')).display,
+        navButtonHeight: rect(document.querySelector('.redesign-sidebar .redesign-nav > button')).height,
         contentX: rect(main).x,
         mapLayoutDisplay: getComputedStyle(mapLayout).display,
         mapHeight: rect(map).height,
@@ -183,6 +185,9 @@ test('CSS cascade preserves desktop shell and map geometry at 851 1280 1536 px',
     expect(layout.railRect.x).toBeLessThanOrEqual(2)
     expect(layout.railRect.width).toBeGreaterThanOrEqual(188)
     expect(layout.railRect.width).toBeLessThanOrEqual(202)
+    expect(layout.navButtonDisplay, `desktop nav at ${width}px`).toBe('flex')
+    expect(layout.navButtonHeight).toBeGreaterThan(42)
+    expect(layout.navButtonHeight).toBeLessThan(75)
     expect(layout.contentX, `content clearance at ${width}px`).toBeGreaterThanOrEqual(185)
     expect(layout.mapLayoutDisplay).toBe('grid')
     expect(layout.mapHeight).toBeGreaterThanOrEqual(480)
@@ -217,6 +222,9 @@ test('CSS cascade preserves mobile shell and map clearance at 375 390 520 850 px
         headerRect: { y: rect(header).y, bottom: rect(header).bottom, height: rect(header).height },
         railPosition: getComputedStyle(rail).position,
         railRect: { x: rect(rail).x, y: rect(rail).y, width: rect(rail).width },
+        navButtonDisplay: getComputedStyle(document.querySelector('.redesign-sidebar .redesign-nav > button')).display,
+        navButtonHeight: rect(document.querySelector('.redesign-sidebar .redesign-nav > button')).height,
+        navButtonDirection: getComputedStyle(document.querySelector('.redesign-sidebar .redesign-nav > button')).flexDirection,
         mapRect: { y: rect(map).y, bottom: rect(map).bottom, width: rect(map).width },
         mapLayoutDisplay: getComputedStyle(mapLayout).display,
         // On mobile, the desktop-only focus panel may be hidden or not mounted.
@@ -232,6 +240,10 @@ test('CSS cascade preserves mobile shell and map clearance at 375 390 520 850 px
     expect(layout.railRect.x).toBeGreaterThanOrEqual(-2)
     expect(layout.railRect.x).toBeLessThanOrEqual(2)
     expect(Math.abs(layout.railRect.width - layout.viewportWidth)).toBeLessThanOrEqual(3)
+    expect(layout.navButtonDisplay, `mobile nav at ${width}px`).toBe('flex')
+    expect(layout.navButtonDirection, `mobile nav direction at ${width}px`).toBe('column')
+    expect(layout.navButtonHeight).toBeGreaterThan(43)
+    expect(layout.navButtonHeight).toBeLessThan(90)
     expect(layout.railRect.y, `bottom rail at ${width}px`).toBeGreaterThan(layout.viewportHeight - 135)
     expect(layout.mapLayoutDisplay).toBe('block')
     expect(layout.focusDisplay).toBe('none')

@@ -31,6 +31,26 @@ Po 14. kroku mezi `reference-true.css` a `reference-lock.css` nezůstávají př
 - Test při změně šířky stránku znovu načítá, aby zahrnul také runtime styly vytvářené po startu aplikace.
 - Test doplňuje již existující scénáře přístupnosti Filtrů, atribuce mapy, navigace, karet a datumů návštěv.
 
+## Krok 17 – konsolidace odpovědnosti desktopové a mobilní navigace (18. 10. 2026)
+
+**Vlastník výsledných pravidel:** `src/reference-lock.css`. Ze staršího `src/reference-true.css` byly odstraněny jen deklarace, které měly **stejný selector, stejný breakpoint, přesně stejnou vlastnost a hodnotu včetně `!important`** jako pozdější `reference-lock.css`. Pozdější pravidla se neměnila.
+
+| Selektor | Breakpoint | Odstraněné opakované deklarace | Jedinečné zachované ve starší vrstvě |
+| --- | --- | ---: | --- |
+| `header` | ≥ 851 px | 6 | `left`, `right`, `top` |
+| `header .account button` | ≥ 851 px | 5 | `padding`, `color`, `font-size` |
+| `.redesign-sidebar` | ≥ 851 px | 10 | žádné – celé shodné podmnožinové pravidlo vynecháno |
+| `.redesign-sidebar .nav` | ≥ 851 px | 6 | žádné – celé shodné podmnožinové pravidlo vynecháno |
+| `.redesign-sidebar .nav button` | ≥ 851 px | 13 | žádné – celé shodné podmnožinové pravidlo vynecháno |
+| `.redesign-sidebar .nav button` | ≤ 850 px | 11 | žádné – celé shodné podmnožinové pravidlo vynecháno |
+| **Celkem** | | **51** | |
+
+Kaskáda zůstává stejná, protože `reference-lock.css` se načítá **po** `reference-true.css`, při stejné specificitě i důležitosti výsledné hodnoty. Rozdílné přepisy nebo selektory s vyšší specificitou zůstaly beze změny. Nezasahovalo se do `reference-layout-hardlock.css`, `reference-dashboard-final.css` ani dynamických stylů.
+
+**Testy:** doplněna kontrola vypočteného `display`, výšky navigačních tlačítek a mobilního `flex-direction` pro 7 hraničních šířek; zachovány i geometrické kontroly hlavičky, sidebaru a mapy. Playwright ověřuje konečný styl v prohlížeči, nikoli počet zdrojových CSS deklarací.
+
+**Ruční kontrola po automatickém PASS:** PC 851/1280/1536 – levá navigace, účetní tlačítko a zarovnání; iPhone – spodní navigace, aktivní položka, mapa a přepínání Seznam/Oblíbené.
+
 ## Další bezpečný postup
 
 1. Nejdříve ověřit oba CI workflow na commitu s těmito kontrakty.
