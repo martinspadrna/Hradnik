@@ -152,6 +152,7 @@ test('CSS cascade preserves desktop shell and map geometry at 851 1280 1536 px',
     await expect(nav).toHaveCount(5)
     await nav.nth(0).click()
     await expect(page.locator('#map')).toBeVisible()
+    await expect(page.locator('.reference-map-dashboard .map-layout')).toBeVisible()
 
     const layout = await page.evaluate(() => {
       const header = document.querySelector('header')
@@ -203,6 +204,7 @@ test('CSS cascade preserves mobile shell and map clearance at 375 390 520 850 px
     await expect(page.locator('.mobileHeaderSearch')).toBeVisible()
     await nav.nth(0).click()
     await expect(page.locator('#map')).toBeVisible()
+    await expect(page.locator('.reference-map-dashboard .map-layout')).toBeVisible()
 
     const layout = await page.evaluate(() => {
       const header = document.querySelector('header')
@@ -217,7 +219,8 @@ test('CSS cascade preserves mobile shell and map clearance at 375 390 520 850 px
         railRect: { x: rect(rail).x, y: rect(rail).y, width: rect(rail).width },
         mapRect: { y: rect(map).y, bottom: rect(map).bottom, width: rect(map).width },
         mapLayoutDisplay: getComputedStyle(mapLayout).display,
-        focusDisplay: getComputedStyle(focus).display,
+        // On mobile, the desktop-only focus panel may be hidden or not mounted.
+        focusDisplay: focus ? getComputedStyle(focus).display : 'none',
         viewportHeight: window.innerHeight,
         viewportWidth: window.innerWidth
       }

@@ -70,6 +70,9 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 - **Další doporučený krok:** po obou CI PASS provést větší selektivní konsolidaci jednoho vlastníka (například header + nav nebo mapový panel) s porovnáním vypočtených CSS hodnot proti těmto testům; následně rozhodnout o DONE. Neprovádět plošný redesign.
 - **HRA-P2-12:** DONE 100 %. **HRA-P2-10:** BLOCKED 10 %. Supabase `cgshssdjgzzuprlwnabl` a `abqiprdggptuxebhpfyi` beze změn.
 
+- **První CI commitu `f72f64063c43900d78b7efc10a5c00f2a7176a7b`:** Build PASS, visual regression FAIL v jediném novém iPhone testu `CSS cascade preserves mobile shell…` (44 PASS, 7 skipped, 1 FAIL). `getComputedStyle` dostal null pro dosud nepřipojený nebo mobilním renderem vynechaný prvek. Ostatní stávající scénáře nezjistily chybu aplikace.
+- **Opravný krok testů:** čekat na viditelnou `.reference-map-dashboard .map-layout` před měřením a u mobilního pravého desktop panelu interpretovat jeho neexistenci stejně jako správné `display:none`. V žádném případě nevynechat kontrolu mapy, hlavičky nebo spodní navigace.
+- **HEAD:** tento nový opravný commit s handoffem, rodič `f72f64063c43900d78b7efc10a5c00f2a7176a7b`. P3-01 zatím zůstává IN PROGRESS 90 %, až po dvou PASS lze pokračovat.
 ---
 
 # 5. Kompletní plán
@@ -696,6 +699,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-18 – synchronizace nového CSS testu na iPhonu**
+
+- `f72f64063c43900d78b7efc10a5c00f2a7176a7b`: Build PASS, vizuální regrese jeden FAIL v novém iPhone CSS testu, protože test měřil `getComputedStyle(null)` (44 PASS / 7 skipped / 1 FAIL). Pro mobil neexistující pravý desktopový panel je to očekávatelné chování, nikoliv doklad chyby aplikace.
+- Nový Playwright test před měřením ověřuje mapový layout a přijímá skrytý či nevytvořený desktopový panel.
+- **HEAD:** tento commit na `main`, rodič `f72f64063c43900d78b7efc10a5c00f2a7176a7b`. P3-01 IN PROGRESS 90 %.
+- **Ověření:** po commitu znovu oba CI workflow, další pokračování až po jejich PASS.
+- Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-18 – HRA-P3-01: audit CSS kaskády + 7 automaticky testovaných šířek**
 
