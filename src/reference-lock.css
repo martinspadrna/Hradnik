@@ -12,7 +12,6 @@
   .redesign-sidebar .nav button{display:flex!important;width:100%!important;height:53px!important;box-sizing:border-box!important;align-items:center!important;justify-content:flex-start!important;gap:15px!important;padding:0 16px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:#f0efeb!important;font-size:15px!important;font-weight:700!important}
   #content>section{max-width:none!important;margin:0!important;padding:0!important}
   .map-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 307px!important;gap:0!important;margin:0!important;height:512px!important}
-  .map-layout #map{height:512px!important;min-height:512px!important;border:0!important;border-radius:0!important;box-shadow:none!important}
   .map-layout .map-focus-card{display:flex!important;height:512px!important;box-sizing:border-box!important;border:0!important;border-left:1px solid #2a3338!important;border-radius:0!important;background:linear-gradient(180deg,#11171b,#0c1114)!important;padding:16px!important;box-shadow:none!important}
   .leaflet-control-zoom{margin-left:15px!important;margin-top:15px!important}
   .hradnik-map-toggle{margin-right:12px!important;margin-top:12px!important}
@@ -21,12 +20,9 @@
   header{height:104px!important;position:sticky!important;top:0!important;padding:0 15px!important;background:#080b0e!important;border-bottom:1px solid #242d32!important}
   header .top{height:104px!important;min-height:104px!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;position:relative!important}
   header .top>div:first-child .logo{width:135px!important;height:36px!important;font-size:0!important;background:url('/hradnik-logo.svg') center/contain no-repeat!important;color:transparent!important}
-  .redesign-sidebar{height:76px!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;padding:4px 8px calc(4px + env(safe-area-inset-bottom))!important;background:#090d10!important;border-top:1px solid #273137!important}
-  .redesign-sidebar .nav{height:68px!important;display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:1px!important}
   .redesign-sidebar .nav button{height:66px!important;padding:5px 2px!important;border-radius:8px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#f0f0ed!important;font-size:10px!important;font-weight:700!important;background:transparent!important}
   
   .map-layout{display:block!important;margin:0!important;height:auto!important}
   .map-layout #map{height:calc(100dvh - 390px)!important;min-height:388px!important;border:0!important;border-radius:0!important}
-  .map-layout .map-focus-card{display:flex!important;margin:0!important;min-height:225px!important;border:1px solid #293238!important;border-radius:10px!important;background:#10161a!important;padding:10px!important}
 }
-@media(max-width:520px){.map-layout #map{height:calc(100dvh - 360px)!important;min-height:350px!important}.map-layout .map-focus-card{min-height:205px!important}}
+@media(max-width:520px){.map-layout #map{height:calc(100dvh - 360px)!important;min-height:350px!important}}
