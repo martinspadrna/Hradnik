@@ -58,7 +58,7 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **Stav:** IN PROGRESS  
 **Dokončeno:** 75 %
 
-### Čtrnáctý krok – větší balík (2026-10-18)
+### Čtrnáctý krok – větší balík + stabilizace regresního testu (2026-10-18)
 - **Výchozí HEAD:** `6aab3e523cd1e0a74dd86dec4efac91ec008742d`, oba workflow **Build Hradník PASS** a **Hradník visual regression PASS**.
 - Uživatel požádal o větší kroky. V `src/reference-lock.css` odstraněno zbývajících **5 doslova shodných CSS pravidel**, jejichž identické znění zůstává v bezprostředně předcházejícím `src/reference-true.css` ve stejných breakpointech.
 - Pravidla: desktop `.map-layout #map`, mobil `.redesign-sidebar` a `.redesign-sidebar .nav`, mobilní `.map-layout .map-focus-card` (do 850 px i do 520 px).
@@ -69,6 +69,9 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 - **Další krok:** po CI PASS udělat větší audit **částečných CSS přepisů a JS listenerů**, ale refaktorovat jen s prokázanou bezpečností a regresními testy.
 - **HRA-P2-12:** DONE 100 %, **HRA-P2-10:** BLOCKED 10 %. Starý i nový Supabase projekt beze změny.
 
+- **CI po CSS commitu `b2dd0c4b3dd808b33d07959e25fea3c84d1cb048`:** Build PASS, Hradník visual regression FAIL: v iPhone testu `pending map size refresh cannot run after removal` došlo k `TypeError`, protože test ve stejném snímku hledal druhé navigační tlačítko, které ještě nebylo připojeno (`40 passed, 5 skipped, 1 failed`). Toto selhání neprokazuje změnu výsledného CSS.
+- **Následná oprava testu:** v `tests/visual/hhradnik.spec.js` se před animací čeká až 120 snímků na připojené tlačítko Seznam; teprve potom se v **jednom synchronním tasku** provede zoom, vyvolání `moveend` a kliknutí. Test dál vyžaduje odstranění mapy a žádnou `pageerror`.
+- **HEAD po opravě:** tento následný commit s handoffem, rodič `b2dd0c4b3dd808b33d07959e25fea3c84d1cb048`; výsledky obou CI workflow zkontrolovat před pokračováním.
 ---
 
 # 5. Kompletní plán
@@ -695,6 +698,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-18 – stabilizace iPhone testu po velkém CSS balíku**
+
+- CSS commit `b2dd0c4b3dd808b33d07959e25fea3c84d1cb048`: Build PASS, visual regression FAIL v 1 iPhone testu kvůli nenalezenému tlačítku v DOM při `page.evaluate`; 40 dalších testů PASS, 5 skipped.
+- Test mapového teardown nyní synchronizuje připojení tlačítka `Seznam` před spuštěním zoomu a okamžitým odchodem z mapy. Nepřidává se výjimka pro runtime chyby, kontrola zůstává přísná.
+- **HEAD:** tento commit na `main`, rodič `b2dd0c4b3dd808b33d07959e25fea3c84d1cb048`, pouze test + handoff.
+- **Ověření:** vyžadovat oba CI PASS po pushi. Pokud ještě FAIL, zkoumat nový log a trace.
+- **Stav:** HRA-P3-01 IN PROGRESS 75 %; Supabase beze změn.
+
+**Předchozí krok:**
 
 **2026-10-18 – HRA-P3-01: zbývajících 5 přesných duplicit CSS v jednom balíku**
 
@@ -1599,16 +1612,15 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P3-01 – audit CSS kaskády a JS technického dluhu
+## HRA-P3-01 – ověření čtrnáctého kroku
 
-1. Ověřit Build Hradník a Hradník visual regression po odstranění pěti přesných duplicit.
-2. Po obou PASS už opakovaně nehledat přesné duplicity mezi `reference-true.css` a `reference-lock.css`: zbývá 0. Místo toho připravit audit částečných přepisů, CSS specifity a posluchačů/časovačů v JS.
-3. Provést další větší, ale bezpečný tematický balík včetně cílených regresních testů, nikoliv plošný redesign.
-4. Při FAIL dohledat konkrétní příčinu a nejdříve ji opravit.
+1. Ověřit `Build Hradník` i `Hradník visual regression` na aktuálním HEAD po úpravě asynchronní iPhone navigace v regresním testu.
+2. Pokud PASS, uzavřít velký CSS balík (5 duplicit) a pokračovat auditem **částečných CSS přepisů a JS listenerů**; neprovádět mechanické rušení rozdílných pravidel.
+3. Pokud FAIL, analyzovat aktuální konkrétní log a trace. Neskrývat chyby aplikace ve vizuálních testech.
 
 ## HRA-P2-10 – fresh Supabase drill (BLOCKED)
 
-Bez schválení případných nákladů nevytvářet testovací branch. Starý projekt `cgshssdjgzzuprlwnabl` zachovat, nic v obou Supabase projektech neměnit.
+Nevytvářet bez schválení možného poplatku. Starý projekt `cgshssdjgzzuprlwnabl` neměnit ani nemazat.
 
 ---
 

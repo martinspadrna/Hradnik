@@ -612,8 +612,16 @@ test('pending map size refresh cannot run after removal', async ({ page }) => {
   await expect(page.locator('#map')).toBeVisible()
   await expect.poll(() => page.evaluate(() => !!window.__hradnikMap)).toBe(true)
 
-  // Detect a delayed invalidateSize call against a detached map instance.
-  await page.evaluate(() => {
+  // Wait for mobile navigation to settle, then trigger zoom and navigation
+  // synchronously in the same browser task to preserve the teardown race.
+  await page.evaluate(async () => {
+    let listButton
+    for (let frame = 0; frame < 120; frame++) {
+      listButton = document.querySelectorAll('.redesign-sidebar .redesign-nav > button')[1]
+      if (listButton?.isConnected) break
+      await new Promise(resolve => requestAnimationFrame(resolve))
+    }
+    if (!listButton?.isConnected) throw new Error('List navigation button did not mount')
     const map = window.__hradnikMap
     if (!map) throw new Error('Map was not initialized')
     const invalidate = map.invalidateSize
@@ -628,7 +636,7 @@ test('pending map size refresh cannot run after removal', async ({ page }) => {
     map.setZoom(map.getZoom() + 2, { animate: true })
     // Guarantee the hover layer queues its own next-frame resize before teardown.
     map.fire('moveend')
-    document.querySelectorAll('.redesign-sidebar .redesign-nav > button')[1].click()
+    listButton.click()
   })
   await expect(page.locator('#list')).toBeVisible()
   await expect.poll(() => page.evaluate(() => !window.__hradnikMap)).toBe(true)
