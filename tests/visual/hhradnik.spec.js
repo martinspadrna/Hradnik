@@ -142,6 +142,102 @@ test('desktop/mobile shell matches the reference structure', async ({ page }) =>
   }
 })
 
+test('CSS cascade preserves desktop shell and map geometry at 851 1280 1536 px', async ({ page }) => {
+  test.skip(test.info().project.name !== 'desktop')
+  test.setTimeout(60_000)
+  const nav = await openApp(page)
+  for (const width of [851, 1280, 1536]) {
+    await page.setViewportSize({ width, height: 1024 })
+    await page.reload()
+    await expect(nav).toHaveCount(5)
+    await nav.nth(0).click()
+    await expect(page.locator('#map')).toBeVisible()
+
+    const layout = await page.evaluate(() => {
+      const header = document.querySelector('header')
+      const rail = document.querySelector('.redesign-sidebar')
+      const main = document.querySelector('main.wrap')
+      const map = document.querySelector('#map')
+      const mapLayout = document.querySelector('.reference-map-dashboard .map-layout')
+      const focus = document.querySelector('.reference-map-dashboard .map-focus-card')
+      const rect = e => e.getBoundingClientRect()
+      return {
+        headerPosition: getComputedStyle(header).position,
+        headerHeight: rect(header).height,
+        railPosition: getComputedStyle(rail).position,
+        railRect: { x: rect(rail).x, y: rect(rail).y, width: rect(rail).width },
+        contentX: rect(main).x,
+        mapLayoutDisplay: getComputedStyle(mapLayout).display,
+        mapHeight: rect(map).height,
+        focusDisplay: getComputedStyle(focus).display,
+        focusWidth: rect(focus).width
+      }
+    })
+
+    expect(layout.headerPosition, `header at ${width}px`).toBe('fixed')
+    expect(layout.headerHeight, `header height at ${width}px`).toBeGreaterThanOrEqual(80)
+    expect(layout.headerHeight).toBeLessThanOrEqual(92)
+    expect(layout.railPosition, `side rail at ${width}px`).toBe('fixed')
+    expect(layout.railRect.x).toBeGreaterThanOrEqual(-2)
+    expect(layout.railRect.x).toBeLessThanOrEqual(2)
+    expect(layout.railRect.width).toBeGreaterThanOrEqual(188)
+    expect(layout.railRect.width).toBeLessThanOrEqual(202)
+    expect(layout.contentX, `content clearance at ${width}px`).toBeGreaterThanOrEqual(185)
+    expect(layout.mapLayoutDisplay).toBe('grid')
+    expect(layout.mapHeight).toBeGreaterThanOrEqual(480)
+    expect(layout.focusDisplay).not.toBe('none')
+    expect(layout.focusWidth).toBeGreaterThanOrEqual(295)
+    expect(layout.focusWidth).toBeLessThanOrEqual(320)
+  }
+})
+
+test('CSS cascade preserves mobile shell and map clearance at 375 390 520 850 px', async ({ page }) => {
+  test.skip(test.info().project.name !== 'iphone')
+  test.setTimeout(60_000)
+  const nav = await openApp(page)
+  for (const width of [375, 390, 520, 850]) {
+    await page.setViewportSize({ width, height: 844 })
+    await page.reload()
+    await expect(nav).toHaveCount(5)
+    await expect(page.locator('.mobileHeaderMenu')).toBeVisible()
+    await expect(page.locator('.mobileHeaderSearch')).toBeVisible()
+    await nav.nth(0).click()
+    await expect(page.locator('#map')).toBeVisible()
+
+    const layout = await page.evaluate(() => {
+      const header = document.querySelector('header')
+      const rail = document.querySelector('.redesign-sidebar')
+      const map = document.querySelector('#map')
+      const mapLayout = document.querySelector('.reference-map-dashboard .map-layout')
+      const focus = document.querySelector('.reference-map-dashboard .map-focus-card')
+      const rect = e => e.getBoundingClientRect()
+      return {
+        headerRect: { y: rect(header).y, bottom: rect(header).bottom, height: rect(header).height },
+        railPosition: getComputedStyle(rail).position,
+        railRect: { x: rect(rail).x, y: rect(rail).y, width: rect(rail).width },
+        mapRect: { y: rect(map).y, bottom: rect(map).bottom, width: rect(map).width },
+        mapLayoutDisplay: getComputedStyle(mapLayout).display,
+        focusDisplay: getComputedStyle(focus).display,
+        viewportHeight: window.innerHeight,
+        viewportWidth: window.innerWidth
+      }
+    })
+
+    expect(layout.headerRect.height, `mobile header at ${width}px`).toBeGreaterThan(38)
+    expect(layout.headerRect.height).toBeLessThanOrEqual(84)
+    expect(layout.railPosition).toBe('fixed')
+    expect(layout.railRect.x).toBeGreaterThanOrEqual(-2)
+    expect(layout.railRect.x).toBeLessThanOrEqual(2)
+    expect(Math.abs(layout.railRect.width - layout.viewportWidth)).toBeLessThanOrEqual(3)
+    expect(layout.railRect.y, `bottom rail at ${width}px`).toBeGreaterThan(layout.viewportHeight - 135)
+    expect(layout.mapLayoutDisplay).toBe('block')
+    expect(layout.focusDisplay).toBe('none')
+    expect(layout.mapRect.y, `map below header at ${width}px`).toBeGreaterThanOrEqual(layout.headerRect.bottom - 3)
+    expect(layout.mapRect.bottom, `map above bottom rail at ${width}px`).toBeLessThanOrEqual(layout.railRect.y + 3)
+    expect(layout.mapRect.width).toBeGreaterThan(width - 20)
+  }
+})
+
 test('list search, categories and favorites route to useful screens', async ({ page }) => {
   const nav = await openApp(page)
   await nav.nth(1).click()
