@@ -154,28 +154,34 @@ test('CSS cascade preserves desktop shell and map geometry at 851 1280 1536 px',
     await expect(page.locator('#map')).toBeVisible()
     await expect(page.locator('.reference-map-dashboard .map-layout')).toBeVisible()
 
-    const layout = await page.evaluate(() => {
+    let layout
+    await expect.poll(async () => {
+      layout = await page.evaluate(() => {
       const header = document.querySelector('header')
       const rail = document.querySelector('.redesign-sidebar')
       const main = document.querySelector('main.wrap')
       const map = document.querySelector('#map')
       const mapLayout = document.querySelector('.reference-map-dashboard .map-layout')
       const focus = document.querySelector('.reference-map-dashboard .map-focus-card')
+      const navButton = document.querySelector('.redesign-sidebar .redesign-nav > button')
+      if (!header || !rail || !map || !mapLayout || !navButton || !main || !focus) return null
       const rect = e => e.getBoundingClientRect()
       return {
         headerPosition: getComputedStyle(header).position,
         headerHeight: rect(header).height,
         railPosition: getComputedStyle(rail).position,
         railRect: { x: rect(rail).x, y: rect(rail).y, width: rect(rail).width },
-        navButtonDisplay: getComputedStyle(document.querySelector('.redesign-sidebar .redesign-nav > button')).display,
-        navButtonHeight: rect(document.querySelector('.redesign-sidebar .redesign-nav > button')).height,
+        navButtonDisplay: getComputedStyle(navButton).display,
+        navButtonHeight: rect(navButton).height,
         contentX: rect(main).x,
         mapLayoutDisplay: getComputedStyle(mapLayout).display,
         mapHeight: rect(map).height,
         focusDisplay: getComputedStyle(focus).display,
         focusWidth: rect(focus).width
       }
-    })
+      })
+      return layout !== null
+    }, { timeout: 10_000, message: `Wait for stable shell at ${width}px` }).toBe(true)
 
     expect(layout.headerPosition, `header at ${width}px`).toBe('fixed')
     expect(layout.headerHeight, `header height at ${width}px`).toBeGreaterThanOrEqual(80)
@@ -211,20 +217,24 @@ test('CSS cascade preserves mobile shell and map clearance at 375 390 520 850 px
     await expect(page.locator('#map')).toBeVisible()
     await expect(page.locator('.reference-map-dashboard .map-layout')).toBeVisible()
 
-    const layout = await page.evaluate(() => {
+    let layout
+    await expect.poll(async () => {
+      layout = await page.evaluate(() => {
       const header = document.querySelector('header')
       const rail = document.querySelector('.redesign-sidebar')
       const map = document.querySelector('#map')
       const mapLayout = document.querySelector('.reference-map-dashboard .map-layout')
       const focus = document.querySelector('.reference-map-dashboard .map-focus-card')
+      const navButton = document.querySelector('.redesign-sidebar .redesign-nav > button')
+      if (!header || !rail || !map || !mapLayout || !navButton) return null
       const rect = e => e.getBoundingClientRect()
       return {
         headerRect: { y: rect(header).y, bottom: rect(header).bottom, height: rect(header).height },
         railPosition: getComputedStyle(rail).position,
         railRect: { x: rect(rail).x, y: rect(rail).y, width: rect(rail).width },
-        navButtonDisplay: getComputedStyle(document.querySelector('.redesign-sidebar .redesign-nav > button')).display,
-        navButtonHeight: rect(document.querySelector('.redesign-sidebar .redesign-nav > button')).height,
-        navButtonDirection: getComputedStyle(document.querySelector('.redesign-sidebar .redesign-nav > button')).flexDirection,
+        navButtonDisplay: getComputedStyle(navButton).display,
+        navButtonHeight: rect(navButton).height,
+        navButtonDirection: getComputedStyle(navButton).flexDirection,
         mapRect: { y: rect(map).y, bottom: rect(map).bottom, width: rect(map).width },
         mapLayoutDisplay: getComputedStyle(mapLayout).display,
         // On mobile, the desktop-only focus panel may be hidden or not mounted.
@@ -232,7 +242,9 @@ test('CSS cascade preserves mobile shell and map clearance at 375 390 520 850 px
         viewportHeight: window.innerHeight,
         viewportWidth: window.innerWidth
       }
-    })
+      })
+      return layout !== null
+    }, { timeout: 10_000, message: `Wait for stable shell at ${width}px` }).toBe(true)
 
     expect(layout.headerRect.height, `mobile header at ${width}px`).toBeGreaterThan(38)
     expect(layout.headerRect.height).toBeLessThanOrEqual(84)

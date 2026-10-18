@@ -71,6 +71,10 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 - **Ruční ověření:** skutečný iPhone – spodní navigace, hamburger, mapa/Seznam, aktivní tlačítka; PC – hlavička, boční panel a účetní tlačítka. Toto fyzické ověření ještě není potvrzeno.
 - **Další doporučený krok:** po CI PASS provést finální cílený audit zbylých překryvů podle výsledného vzhledu. P3-01 zatím **neuzavírat na DONE 100 %** bez dodatečné kontroly; P2-10 dál **BLOCKED 10 %** bez souhlasu s náklady.
 
+- **První CI commitu `50f4d3db8edb7418f408d41b96f72ab84524c012`:** `Build Hradník` PASS; `Hradník visual regression` FAIL – jeden nový iPhone CSS test selhal při `getComputedStyle(null)`, protože přechodně chybělo navigační tlačítko v okamžiku měření. **44 testů PASS, 7 skipped, 1 FAIL**. Dosavadní ostatní scénáře včetně mapových testů prošly.
+- **Oprava testů:** desktopový i mobilní CSS kontrakt nyní pomocí `expect.poll` čekají na současné připojení hlavičky, lišty, mapy a navigačního tlačítka. Navštívený breakpoint a výsledné computed CSS hodnoty (včetně mobilního `flex-direction`) se kontrolují stejně přísně; trvale chybějící tlačítko povede k FAIL po timeoutu, nikoliv k potlačenému výsledku.
+- **HEAD po opravě:** tento navazující commit na `main` s upraveným testem a handoffem, rodič `50f4d3db8edb7418f408d41b96f72ab84524c012`. P3-01 zůstává IN PROGRESS 95 % do ověření nového CI a ruční kontroly.
+
 ---
 
 # 5. Kompletní plán
@@ -697,6 +701,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-18 – oprava časování navigačního CSS regresního testu**
+
+- `50f4d3db8edb7418f408d41b96f72ab84524c012`: Build PASS, visual regression FAIL v jednom novém iPhone CSS testu při přechodně nepřipojeném navigačním tlačítku (`getComputedStyle(null)`; 44 PASS, 7 skipped).
+- `tests/visual/hhradnik.spec.js`: vyčkání stabilní přítomnosti měřených DOM prvků před computed-style kontrolou na každém breakpointu. Testy všech 7 šířek a všechna tvrzení o výsledném CSS zůstávají.
+- Žádná další změna aplikace, CSS, Supabase ani auditu. **P3-01 IN PROGRESS 95 %**.
+- **HEAD:** tento commit na `main`, rodič `50f4d3db8edb7418f408d41b96f72ab84524c012`.
+- **Ověření:** po pushi znovu oba CI workflow, bez dalšího zásahu před výsledkem.
+
+**Předchozí krok:**
 
 **2026-10-18 – P3-01: konsolidace 51 duplicitních CSS deklarací hlavičky a navigace**
 
@@ -1663,16 +1677,15 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P3-01 – dokončovací kontrola CSS konsolidace
+## HRA-P3-01 – ověření stabilního CSS kontraktu
 
-1. Vyhodnotit oba CI workflow aktuálního HEAD po odebrání 51 shodných deklarací v `reference-true.css` a rozšíření navigačních computed-style testů na 7 šířkách.
-2. Při FAIL analyzovat konkrétní vypočtený styl, breakpoint, vizuální screenshot nebo trace; upravit cíleně, nikoli odstranit test.
-3. Po PASS ponechat P3-01 **IN PROGRESS 95 %**, prověřit zbývající částečné přepisy a provést fyzickou kontrolu hlavičky/spodní navigace na mobilu a boční navigace na PC.
-4. Do `docs/CSS_CASCADE_AUDIT.md` doplňovat další skutečné vlastníky. Bez plošného redesignu a bez odstraňování nesouhlasných deklarací.
+1. Vyhodnotit oba CI workflow po opravě asynchronního měření `getComputedStyle` v testech navigace. Kdyby iPhone test znovu FAIL, zjistit přesný viewport a který prvek není připojen, ověřit dynamický nav-render a upravit měření bez oslabení kontrol.
+2. Po obou PASS je v `reference-true.css` bezpečně odstraněno 51 přesně shodných deklarací, které zůstávají v `reference-lock.css`; pokračovat finálním auditem konkrétních částečných přepisů.
+3. Uživatel má při ruční kontrole na mobilu/PC ověřit hlavičku, navigaci, Mapu, Seznam a aktivní položku. P3-01 zůstává 95 % do závěrečného ověření.
 
 ## HRA-P2-10 – fresh Supabase drill (BLOCKED)
 
-Nevytvářet testovací Supabase branch bez souhlasu s případnými náklady. Starý `cgshssdjgzzuprlwnabl` neměnit ani nemazat, do nové `abqiprdggptuxebhpfyi` nezasahovat.
+Neprovádět změny v obou Supabase projektech bez výslovného souhlasu; případně placenou branch nevytvářet.
 
 ---
 
