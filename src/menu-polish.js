@@ -19,6 +19,15 @@ const polishMenu=()=>{
     if(icon&&MENU_ICON[key]&&!icon.dataset.polished){icon.dataset.polished='1';icon.innerHTML=`<img src="${MENU_ICON[key]}" alt="">`}
   })
 }
-const observer=new MutationObserver(polishMenu)
+// Coalesce bursts of DOM mutations into one menu refresh per animation frame.
+let menuRefreshFrame=0
+const scheduleMenuPolish=()=>{
+  if(menuRefreshFrame)return
+  menuRefreshFrame=requestAnimationFrame(()=>{
+    menuRefreshFrame=0
+    polishMenu()
+  })
+}
+const observer=new MutationObserver(scheduleMenuPolish)
 const start=()=>{observer.observe(document.body,{childList:true,subtree:true});polishMenu()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start()

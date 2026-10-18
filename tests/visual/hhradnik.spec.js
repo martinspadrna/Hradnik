@@ -604,6 +604,40 @@ test('marker refresh stops when the Leaflet map is removed', async ({ page }) =>
   expect(pageErrors).toEqual([])
 })
 
+test('marker refresh polling runs only while map exists', async ({ page }) => {
+  await page.addInitScript(() => {
+    const nativeSetInterval = window.setInterval.bind(window)
+    const nativeClearInterval = window.clearInterval.bind(window)
+    const active900msIntervals = new Set()
+    window.__hradnikTestActiveMarkerTimers = () => active900msIntervals.size
+    window.setInterval = (fn, delay, ...args) => {
+      const id = nativeSetInterval(fn, delay, ...args)
+      if (delay === 900) active900msIntervals.add(id)
+      return id
+    }
+    window.clearInterval = id => {
+      active900msIntervals.delete(id)
+      return nativeClearInterval(id)
+    }
+  })
+
+  let nav = await openApp(page)
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => window.__hradnikTestActiveMarkerTimers())).toBe(1)
+
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(1).click()
+  await expect(page.locator('#list')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => !window.__hradnikMap)).toBe(true)
+  await expect.poll(() => page.evaluate(() => window.__hradnikTestActiveMarkerTimers())).toBe(0)
+
+  nav = page.locator('.redesign-sidebar .redesign-nav > button')
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => window.__hradnikTestActiveMarkerTimers())).toBe(1)
+})
+
 test('pending map size refresh cannot run after removal', async ({ page }) => {
   const pageErrors = []
   page.on('pageerror', error => pageErrors.push(error.message))

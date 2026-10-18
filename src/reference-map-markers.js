@@ -23,6 +23,7 @@ let mapRef=null
 let originalLayers=[]
 let rendered=[]
 let raf=0
+let refreshInterval=0
 
 function collect(){
   if(!mapRef)return
@@ -97,7 +98,9 @@ function schedule(){
 L.Map.addInitHook(function(){
   if(this._container?.id!=='map')return
   const map=this
+  clearInterval(refreshInterval)
   mapRef=map
+  refreshInterval=setInterval(()=>{if(mapRef===map)render()},900)
   window.__hradnikMap=map
   map.on('zoomend moveend',schedule)
   map.on('unload',()=>{
@@ -105,6 +108,8 @@ L.Map.addInitHook(function(){
     if(mapRef!==map)return
     cancelAnimationFrame(raf)
     raf=0
+    clearInterval(refreshInterval)
+    refreshInterval=0
     mapRef=null
     originalLayers=[]
     rendered=[]
@@ -113,4 +118,3 @@ L.Map.addInitHook(function(){
   setTimeout(()=>{if(mapRef===map)schedule()},80)
 })
 
-setInterval(()=>{if(mapRef)render()},900)

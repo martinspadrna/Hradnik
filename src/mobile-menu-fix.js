@@ -18,7 +18,16 @@ const installMobileMenuStyles=()=>{
   style.textContent='@media(max-width:700px){.redesign-menu-trigger.mobile-menu-trigger-proxy{display:none!important}}'
   document.head.appendChild(style)
 }
-const observer=new MutationObserver(bindMobileMenuFix)
+// One binding pass per frame is enough even if other modules redraw the shell.
+let mobileBindingFrame=0
+const scheduleMobileMenuBind=()=>{
+  if(mobileBindingFrame)return
+  mobileBindingFrame=requestAnimationFrame(()=>{
+    mobileBindingFrame=0
+    bindMobileMenuFix()
+  })
+}
+const observer=new MutationObserver(scheduleMobileMenuBind)
 const start=()=>{
   installMobileMenuStyles()
   observer.observe(document.body,{childList:true,subtree:true})
