@@ -54,6 +54,7 @@ async function mockBackend(page, loggedIn = true, options = {}) {
     let body = {}
     try { body = route.request().postDataJSON() || {} } catch {}
     if (!loggedIn) return route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'Unauthorized' }) })
+    if (body.action === 'session' && options.sessionErrorStatus) return route.fulfill({ status: options.sessionErrorStatus, contentType: 'application/json', body: JSON.stringify({ error: 'Temporary session check failure' }) })
     if (body.action === 'me') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { id: 'visual-test', username: 'visual-test' } }) })
     if (body.action === 'state_list') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state: [...mockStates.values()] }) })
     if (body.action === 'state_upsert') {
@@ -939,6 +940,51 @@ test('core navigation stays free of application runtime errors', async ({ page }
     /cgshssdjgzzuprlwnabl|multiple gotrueclient|multiple.*auth.*client|uncaught|unhandled|typeerror|referenceerror|syntaxerror|404.*supabase/i.test(text)
   )
   expect(appErrors).toEqual([])
+})
+
+test('all Supabase requests use the dedicated Hradník project', async ({ page }) => {
+  const supabaseRequests = []
+  page.on('request', request => {
+    const url = new URL(request.url())
+    if (url.hostname.endsWith('.supabase.co')) supabaseRequests.push(url)
+  })
+  const nav = await openApp(page)
+  await nav.nth(1).click()
+  await expect(page.locator('#list .place')).toHaveCount(4)
+  await page.locator('#list .placeMain').first().click()
+  await expect(page.locator('.overlay .sheet')).toBeVisible()
+  await page.locator('.overlay #fav').click()
+  await expect(page.locator('.overlay #fav')).toHaveAttribute('aria-pressed', 'true')
+
+  expect(supabaseRequests.some(url => url.pathname.includes('/rest/v1/hradnik_places'))).toBe(true)
+  expect(supabaseRequests.some(url => url.pathname.includes('/functions/v1/hradnik-auth'))).toBe(true)
+  expect(supabaseRequests.length).toBeGreaterThan(0)
+  expect([...new Set(supabaseRequests.map(url => url.hostname))]).toEqual(['abqiprdggptuxebhpfyi.supabase.co'])
+})
+
+test('temporary profile verification outage preserves session and recovers on reload', async ({ page }) => {
+  const options = { sessionErrorStatus: 503 }
+  const sessionResponse = page.waitForResponse(response => {
+    if (!response.url().includes('/functions/v1/hradnik-auth')) return false
+    return response.request().postDataJSON()?.action === 'session'
+  })
+  await openApp(page, true, options)
+  expect((await sessionResponse).status()).toBe(503)
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('hradnik_session'))).toBe('visual-regression-session')
+  options.sessionErrorStatus = 0
+  await page.reload()
+  await expect(page.locator('.reference-profile-button')).toHaveClass(/logged-in/)
+  expect(await page.evaluate(() => localStorage.getItem('hradnik_session'))).toBe('visual-regression-session')
+})
+
+test('explicitly rejected profile session is cleared', async ({ page }) => {
+  const sessionResponse = page.waitForResponse(response => {
+    if (!response.url().includes('/functions/v1/hradnik-auth')) return false
+    return response.request().postDataJSON()?.action === 'session'
+  })
+  await openApp(page, true, { sessionErrorStatus: 401 })
+  expect((await sessionResponse).status()).toBe(401)
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('hradnik_session'))).toBeNull()
 })
 
 test('clean visitor gets a friendly Czech fallback when catalog backend is down', async ({ page }) => {

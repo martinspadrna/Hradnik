@@ -12,14 +12,30 @@ async function api(action,body={},auth=token()){
   if(auth)headers.Authorization=`Bearer ${auth}`
   const r=await fetch(AUTH_URL,{method:'POST',headers,body:JSON.stringify({action,...body})})
   const d=await r.json().catch(()=>({}))
-  if(!r.ok)throw new Error(d.error||'Požadavek se nepodařilo dokončit.')
+  if(!r.ok){const error=new Error(d.error||'Požadavek se nepodařilo dokončit.');error.status=r.status;throw error}
   return d
 }
 function addStyle(){if(document.getElementById('hradnik-account-style'))return;const s=document.createElement('style');s.id='hradnik-account-style';s.textContent=`
 .reference-profile-button{display:grid!important;place-items:center!important}.reference-profile-button img{width:22px!important;height:22px!important}.reference-profile-button.logged-in{border-color:#6b5724!important;background:#2d281c!important}
 .hradnik-profile-overlay{position:fixed;inset:0;z-index:14000;display:grid;place-items:center;padding:18px;background:rgba(0,0,0,.74)}.hradnik-profile-card{width:min(440px,100%);box-sizing:border-box;border:1px solid #303a3f;border-radius:16px;background:#10161a;color:#f3f1eb;padding:22px;box-shadow:0 28px 80px rgba(0,0,0,.55)}.hradnik-profile-head{display:flex;align-items:center;gap:13px;margin-bottom:18px}.hradnik-profile-head img{width:42px;height:42px}.hradnik-profile-head h2{margin:0;font-size:22px}.hradnik-profile-close{margin-left:auto;width:36px;height:36px;border:1px solid #303a3f;border-radius:9px;background:#171d20;color:#eee;font-size:22px}.hradnik-auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px}.hradnik-auth-tabs button{height:40px;border:1px solid #303a3f;border-radius:8px;background:#141b1f;color:#abb4b8;font-weight:800}.hradnik-auth-tabs button.active{border-color:#6d5825;background:#312a1c;color:#f0c44a}.hradnik-profile-form label{display:block;margin:12px 0 0;font-size:12px;font-weight:800}.hradnik-profile-form input{width:100%;height:44px;box-sizing:border-box;margin-top:6px;padding:0 12px;border:1px solid #303a3f;border-radius:9px;background:#0b1114;color:#f3f1eb}.hradnik-profile-submit,.hradnik-profile-logout{width:100%;height:44px;margin-top:16px;border:1px solid #6d5825;border-radius:9px;background:#312a1c;color:#f0c44a;font-weight:900}.hradnik-profile-error{min-height:18px;margin-top:10px;color:#e98585;font-size:12px}.hradnik-profile-user{padding:14px;border:1px solid #293238;border-radius:10px;background:#0d1418}.hradnik-profile-user b,.hradnik-profile-user small{display:block}.hradnik-profile-user small{margin-top:4px;color:#97a2a7}.reference-mobile-drawer [data-ref-mobile="profile"]{display:flex!important;align-items:center!important;gap:10px}.reference-mobile-drawer [data-ref-mobile="profile"] img{width:22px;height:22px}
 `;document.head.appendChild(s)}
-async function refreshUser(){if(!token()){user=null;syncButtons();return}try{const d=await api('session');user=d.user||null}catch{user=null;localStorage.removeItem('hradnik_session')}syncButtons()}
+async function refreshUser(){
+  if(!token()){user=null;syncButtons();return}
+  try{
+    const d=await api('session')
+    user=d.user||null
+  }catch(error){
+    if(error?.status===401||error?.status===403){
+      // Remove a session only when the server explicitly rejects it.
+      user=null
+      localStorage.removeItem('hradnik_session')
+    }else{
+      // A timeout/503/offline response must not silently sign the visitor out.
+      console.warn('[Hradník] Ověření profilu je dočasně nedostupné; relaci ponechávám.',error)
+    }
+  }
+  syncButtons()
+}
 function syncButtons(){
   document.querySelectorAll('.reference-profile-button').forEach(b=>{b.classList.toggle('logged-in',!!user);b.title=user?`Profil: ${user.display_name||user.username}`:'Přihlásit se'})
   const label=user?`Profil · ${user.display_name||user.username}`:'Přihlásit se'

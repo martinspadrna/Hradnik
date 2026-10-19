@@ -53,10 +53,19 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-14  
-**Název:** Uložení stavů po rychlém střídání detailů  
+**ID:** HRA-P0-06  
+**Název:** Relace při dočasném výpadku ověření profilu  
 **Stav:** VERIFY  
 **Dokončeno:** 95 %
+
+### Navazující technické ověření (2026-10-19)
+
+- **Výchozí commit:** `dcfbd585c61c4daaf12172770eb431eddb332683` má `Build Hradník` PASS (run `39273152862`), `Hradník visual regression` PASS (run `39273152795`) a Vercel READY.
+- **Zjištění:** `src/account-ui.js` při jakékoli chybě odpovědi `session` odstraňoval `hradnik_session`; při dočasném 503/offline tak návštěvník mohl být odhlášen, i když měl platnou relaci.
+- **Oprava:** zachytit HTTP status, token odstranit pouze při výslovném 401/403. Dočasné chyby pouze zalogovat a token ponechat; přihlášený profil se po obnovení spojení načte bez nového loginu.
+- **Regrese:** test 503 → obnovení relace po reloadu, test 401 → smazání tokenu, test skutečných request hostnames katalogu a uživatelských stavů. Oba profily desktop/iPhone. Nový commit ještě musí projít CI, nepovažovat jej za PASS před dokončením.
+- **Ruční ověření:** viz `docs/HRADNIK_MANUAL_QA.md`. Nemanipulovat se Supabase databází ani s existujícími relacemi serverově.
+- **P2-14:** technicky ověřený PASS (53 Playwright PASS, 7 skipped), čeká na fyzické potvrzení změn stavů. P0-01 až P0-05 zůstávají VERIFY, P2-10 BLOCKED.
 
 ### Zpětná vazba z PC a oprava vrstvících se detailů (2026-10-19)
 
@@ -205,6 +214,18 @@ Chybová obrazovka ukazuje syrovou anglickou databázovou chybu.
 
 **Akceptace:**
 Při nedostupném backendu aplikace nespadne do syrové DB hlášky.
+
+---
+
+### HRA-P0-06 – Zachování přihlášení při dočasném výpadku
+- **Stav:** VERIFY
+- **Dokončeno:** 95 %
+
+**Závada:** Profilový modul při neúspěšném volání `session` bez rozlišení HTTP odpovědi odstraňoval token z `localStorage`, a to i při dočasné nedostupnosti backendu.
+
+**Oprava:** Zůstat přihlášený při síťové chybě / 5xx; odhlásit pouze po 401/403. Po návratu serveru musí být možné znovu načíst profil bez opětovného přihlášení.
+
+**Akceptace:** Automatické testy pro 503, 401 a URL nového backendu; uživatel na PC/iPhonu ověří, že přihlášení běžně přetrvá po restartu a fungují jeho seznamy. Žádné změny schématu databáze.
 
 ---
 
@@ -730,6 +751,15 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-19 – P0-06: odolnost profilu proti dočasné nedostupnosti serveru**
+
+- Oprava `src/account-ui.js`: pouze 401/403 smí odstranit přihlašovací token. Síťová chyba, 503 ani 500 již relaci nesmaže.
+- Tři nové testy v `tests/visual/hhradnik.spec.js`: URL samostatného Hradníku, 503 → zotavení relace, 401 → vymazání chybného tokenu, na PC a iPhone.
+- Připraven stručný kontrolní protokol `docs/HRADNIK_MANUAL_QA.md`, podle něhož lze po potvrzení uzavřít P2-14 a vyhodnotit P0-01/02/04/05/06. P0-03 vyžaduje samostatný prázdný DB drill, P2-10 zůstává BLOCKED.
+- **HRA-P0-06 VERIFY 95 %** do obou CI PASS a fyzického potvrzení. Supabase DB se neměnila.
+
+**Předchozí krok:**
 
 **2026-10-19 – P2-14: bezpečné dokončení asynchronního uložení stavu detailu**
 
@@ -1759,6 +1789,12 @@ Po HRA-P0-01 až HRA-P0-05:
 ---
 
 # 13. Další doporučený krok
+
+## HRA-P0-06 – ověření změny relace a manuální přejímka
+
+1. Ověřit CI nového commitu: Build Hradník a vizuální regresi, včetně tří nových P0 testů na desktop/iPhone profilu. Při FAIL opravit příčinu před uzavřením.
+2. Pro uživatele je jediný aktuální kontrolní protokol `docs/HRADNIK_MANUAL_QA.md`. Obsahuje přesné kroky pro přihlášení, vyhledání památek, datum návštěvy, stav, synchronizaci PC/mobil, offline zobrazení a správu.
+3. Po reportu uživatele uzavřít jen skutečně potvrzené P0 a P2-14 body. P0-03 a P2-10 neuzavírat bez skutečného testu na čisté Supabase.
 
 ## HRA-P2-14 – asynchronní ukládání stavů
 
