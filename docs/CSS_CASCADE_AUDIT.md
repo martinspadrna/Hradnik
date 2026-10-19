@@ -68,7 +68,7 @@ Po ověření commitu `ab0b8941318ea5598636fd882af0e0de54469445` (Build Hradník
 
 V `reference-true.css` zůstává unikátní `min-height` desktopové mapy, její vlastní mobilní výška a styly prvků, které v pozdějších souborech nemají stejný kontrakt. V `reference-lock.css` zůstává jedinečné `box-sizing`, `padding`, `background`, `border-right`, `z-index` a `box-shadow` levé lišty. Odlišný pozdější `z-index:950` v hardlocku zůstává beze změny.
 
-**Ověření:** stávající Playwright desktop/iPhone regresní testy včetně geometrie sedmi breakpointů; status nového commitu ověřit po pushi. Reálná kontrola iPhonu i desktopu je stále nutná a HRA-P3-01 zatím není DONE.
+**Ověření:** commit `b21663a35c38e8a9b7ff3eb2de3b1a365cf7f240`: `Build Hradník` **PASS** (GitHub Actions run `39242283665`), `Hradník visual regression` **PASS** (run `39242283769`, desktop+iPhone včetně sedmi breakpointů), Vercel produkce **READY**. Reálná kontrola iPhonu i desktopu je stále nutná a HRA-P3-01 zatím není DONE.
 
 ## Další bezpečný postup
 
