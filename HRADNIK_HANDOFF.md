@@ -762,6 +762,7 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 - Poznámka ke stavu před v0.1.1: výchozí `d33ebb0c` měl Build PASS, Playwright FAIL (57 PASS, 7 skipped, 2 FAIL), protože testovací `session` mock úspěšně vracel prázdný objekt místo uživatele; opraven **pouze testovací mock**, bez změny běhu aplikace.
 - Uživatel již potvrdil všech šest ručních kontrol PC/mobil/synchronizace/offline/foto jako OK; předchozí P0 přehled zůstává v handoffu, současný releasový krok se jich funkčně nedotýká.
 - **Ověření:** GitHub Actions Build + Visual regression po commitu, `postbuild` PNG/SW, produkční Vercel READY se stejnou SHA. Reálná iOS a Android vrstva může navzdory alfa kanálu doplnit vlastní podklad; zejména starý nainstalovaný zástupce může držet starou ikonu a potřebovat nové vytvoření.
+- **První CI v0.1.1:** Build a všechna kontrolní kritéria PNG/ICO/manifest/SW precache **PASS** (run `39289760205`), generování PNG do repozitáře **PASS** (run `39289760214`, následný bot commit `c77057a0`), Vercel READY. Visual regression `39289760451` měla 59 PASS, 7 skipped, 2 FAIL **výhradně v novém testu faviconu**, kvůli chybně zapsanému regexu na `?v=0.1.1` (reálný HTML atribut je správně `/favicon.svg?v=0.1.1`). Opraven test na přesné porovnání řetězce; opakovat CI. Žádný runtime soubor ani grafika se touto opravou nemění.
 
 **Předchozí krok:**
 

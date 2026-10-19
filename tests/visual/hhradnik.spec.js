@@ -1048,7 +1048,7 @@ test('installed PWA uses transparent versioned Hradnik icons', async ({ page }) 
     { src: '/icon-512-v011.png', sizes: '512x512', type: 'image/png', purpose: 'any' }
   ])
   await expect(page.locator('link[rel="apple-touch-icon"][sizes="180x180"]')).toHaveAttribute('href', '/apple-touch-icon-v011.png')
-  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', /favicon.svg\\?v=0\\.1\\.1/)
+  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', '/favicon.svg?v=0.1.1')
   for (const icon of [...manifest.icons, { src:'/apple-touch-icon-v011.png' }]) {
     const file = await page.request.get(icon.src)
     expect(file.status()).toBe(200)
