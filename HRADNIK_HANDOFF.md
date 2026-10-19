@@ -737,9 +737,10 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 - Uživatel výslovně potvrdil „je to ok“; tím byly uzavřeny P2-13 a cílená konsolidace P3-01 na DONE 100 %. Zařízení však nejmenoval, takže konkrétní fyzický iPhone test netvrdit.
 - `src/main.legacy.js`: odstraněno riziko zastaralých seznamů při dokončení zápisu po zavření či výměně detailu, aniž by bylo shozeno právě otevřené nové okno.
 - `tests/visual/hhradnik.spec.js`: tři nové testy – pozdní zápis a střídání detailů; zavření před koncem zápisu; tři různé Leaflet markery po sobě. Testuje se v profilech PC a iPhone.
-- **HRA-P2-14 VERIFY 95 %** do skutečných obou CI PASS, P2-10 zůstává BLOCKED 10 %, Supabase i účty zcela beze změny.
+- **HRA-P2-14 VERIFY 95 %**: automatické ověření skutečně dokončeno na opravném commitu `66e0455` (Build i visual regression PASS, 53 testů prošlo, 7 přeskočeno); zbývá pouze ruční ověření nového scénáře. P2-10 stále BLOCKED 10 %, Supabase i účty beze změny.
 - **CI první verze `aa59debfa394c6e248e141d59956c771555dd3d8`:** Build Hradník PASS, visual regression FAIL při parsování nového testu (řádek 60: `await` uvnitř neasynchronního Playwright route callbacku). Nešlo o regresi produkčního JS ani výsledek průchodu testů, ty se nespustily. Callback změněn na `async route =>`; nové CI ověřit před DONE.
 - **CI `7bc49502739769628975560df3997696a0e880e3`:** Build PASS, visual regression 49 PASS, 7 skipped, 4 FAIL pouze kvůli testovacímu selektoru `locator('.want')` (odpovídal tlačítku i dvěma grafickým `span`). Log dokládá správný atribut na cílovém tlačítku. Dva nové testy používají přesný selektor `.quick > button.want`; ostatní scénáře se nemění. Vše znovu ověřit CI.
+- **Konečné CI po opravě testu:** commit `66e0455de362eb08a02e67386c19fe950e9cc72c` – **Build Hradník PASS** (run `39272421301`), **Hradník visual regression PASS** (run `39272421553`, **53 passed, 7 skipped**); všechny tři nové scénáře prošly zvlášť na PC i iPhone profilu. Vercel produkce **READY** se stejnou SHA. Produkční změna stavu při pozdním uložení je automaticky ověřena. **HRA-P2-14 zůstává VERIFY 95 %** do uživatelského potvrzení chování; nevyžadovat další změnu Supabase.
 
 **Předchozí krok:**
 
@@ -1761,7 +1762,7 @@ Po HRA-P0-01 až HRA-P0-05:
 
 ## HRA-P2-14 – asynchronní ukládání stavů
 
-1. Ověřit oba CI workflow nového commitu se třemi regresními testy a ověřit Vercel SHA. Při FAIL zjistit přesný scénář a opravit před uzavřením.
+1. **Hotovo:** commit `66e0455de362eb08a02e67386c19fe950e9cc72c` má oba GitHub Actions workflow PASS a produkční Vercel READY, všechny nové desktop/iPhone scénáře prošly.
 2. V aplikaci vyzkoušet označení „Chceme“ a rychlé přepnutí na další památku, zavření druhého detailu a správnost stavu původní karty. Ruční kontrola na skutečném mobilu je vítaná, ale nelze ji předpokládat z automatické emulace.
 3. Poté P2-14 převést na DONE. Další práce má zůstat u nesplněného P0 ověřování; P2-10 stále BLOCKED bez souhlasu se Supabase testovací instancí.
 
