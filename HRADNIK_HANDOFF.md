@@ -72,6 +72,10 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 - **Další krok:** počkat na mobilní screenshoty a potvrzení chování okna; poté HRA-P2-13 DONE 100 % a dokončit HRA-P3-01 (zatím **IN PROGRESS 95 %**) podle CSS auditu.
 - **HRA-P2-10:** BLOCKED 10 %; starý ani nový Supabase projekt nepozměňovat.
 
+- **CI po prvním commitu `c1fb7b32e1e95b9f9326e12e9b74294b4d5e0c7c`:** Build Hradník PASS, visual regression FAIL výhradně v novém testu střídání detailů: v seznamu měla oblíbená památka `Hrad Test ★`, ale správný název modalu je `Hrad Test`. Celkem 45 testů PASS, 7 skipped, 2 FAIL (desktop+iPhone stejného testu).
+- **Oprava testu:** z očekávaného názvu karty se odstraní pouze prezentační hvězdička `★`; nadpis detailu musí dál přesně odpovídat názvu památky. Kontroly maximálně jednoho overlay, zavření a perzistence jsou nezměněné.
+- **Aktuální HEAD:** tento opravný commit s testem a handoffem (rodič `c1fb7b32e1e95b9f9326e12e9b74294b4d5e0c7c`); znovu vyžadovat oba CI PASS.
+
 ---
 
 # 5. Kompletní plán
@@ -708,6 +712,15 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-19 – oprava názvu v testu výměny detailů**
+
+- První commit `c1fb7b32e1e95b9f9326e12e9b74294b4d5e0c7c`: Build PASS, visual regression FAIL v novém regresním testu – seznam zobrazuje u oblíbené památky hvězdičku, detail správně ne; 45 PASS, 7 skipped, 2 FAIL (PC+iPhone).
+- Test nyní očekává skutečný název bez vizuální značky `★`. Žádné produkční CSS, JS ani databáze se tímto commitem nemění.
+- **HEAD:** tento opravný commit, rodič `c1fb7b32e1e95b9f9326e12e9b74294b4d5e0c7c`.
+- **Ověření:** po pushi oba CI workflow; HRA-P2-13 VERIFY 95 % do fyzického potvrzení.
+
+**Předchozí krok:**
 
 **2026-10-19 – Oprava vrstvících se detailů památek (HRA-P2-13)**
 

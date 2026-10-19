@@ -449,7 +449,7 @@ test('opening another monument replaces the existing detail rather than stacking
   await expect(page.locator('#list .placeMain')).toHaveCount(samplePlaces.length)
 
   const cards = page.locator('#list .place')
-  const titles = await cards.locator('.placeCopy > b').allTextContents()
+  const titles = (await cards.locator('.placeCopy > b').allTextContents()).map(name => name.replace(/★/g, '').trim())
   await cards.first().locator('.placeMain').click()
   await expect(page.locator('.overlay')).toHaveCount(1)
   await expect(page.locator('.overlay .sheet h1')).toHaveText(titles[0])
