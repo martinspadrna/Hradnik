@@ -58,7 +58,10 @@ async function mockBackend(page, loggedIn = true, options = {}) {
     let body = {}
     try { body = route.request().postDataJSON() || {} } catch {}
     if (!loggedIn) return route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'Unauthorized' }) })
-    if (body.action === 'session' && options.sessionErrorStatus) return route.fulfill({ status: options.sessionErrorStatus, contentType: 'application/json', body: JSON.stringify({ error: 'Temporary session check failure' }) })
+    if (body.action === 'session') {
+      if (options.sessionErrorStatus) return route.fulfill({ status: options.sessionErrorStatus, contentType: 'application/json', body: JSON.stringify({ error: 'Temporary session check failure' }) })
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { id: 'visual-test', username: 'visual-test' } }) })
+    }
     if (body.action === 'me') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { id: 'visual-test', username: 'visual-test' } }) })
     if (body.action === 'state_list') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state: [...mockStates.values()] }) })
     if (body.action === 'state_upsert') {
@@ -1032,6 +1035,25 @@ test('cached catalog stays usable when backend becomes unavailable', async ({ pa
   await expect(page.locator('.redesign-sidebar .redesign-nav > button')).toHaveCount(5)
   await page.locator('.redesign-sidebar .redesign-nav > button').nth(1).click()
   await expect(page.locator('#list .place')).toHaveCount(4)
+})
+
+test('installed PWA uses transparent versioned Hradnik icons', async ({ page }) => {
+  await openApp(page, false)
+  const manifestHref = await page.locator('link[rel="manifest"]').first().getAttribute('href')
+  const response = await page.request.get(manifestHref)
+  expect(response.ok()).toBe(true)
+  const manifest = await response.json()
+  expect(manifest.icons).toEqual([
+    { src: '/icon-192-v011.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+    { src: '/icon-512-v011.png', sizes: '512x512', type: 'image/png', purpose: 'any' }
+  ])
+  await expect(page.locator('link[rel="apple-touch-icon"][sizes="180x180"]')).toHaveAttribute('href', '/apple-touch-icon-v011.png')
+  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', /favicon.svg\\?v=0\\.1\\.1/)
+  for (const icon of [...manifest.icons, { src:'/apple-touch-icon-v011.png' }]) {
+    const file = await page.request.get(icon.src)
+    expect(file.status()).toBe(200)
+    expect(file.headers()['content-type']).toContain('image/png')
+  }
 })
 
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {

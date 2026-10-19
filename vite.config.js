@@ -6,8 +6,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       injectRegister: false,
-      includeAssets: ['favicon.svg', 'pwa-192.svg', 'pwa-512.svg', 'hradnik-app-icon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.ico', 'favicon.svg', 'favicon-16.png', 'favicon-32.png', 'pwa-192.svg', 'pwa-512.svg', 'hradnik-app-icon.svg', 'apple-touch-icon.png', 'apple-touch-icon-v011.png', 'icon-192-v011.png', 'icon-512-v011.png'],
       manifest: {
+        id: '/',
         name: 'Hradník',
         short_name: 'Hradník',
         description: 'Osobní katalog a deník českých hradů, zámků, zřícenin a dalších historických míst.',
@@ -18,8 +19,8 @@ export default defineConfig({
         scope: '/',
         lang: 'cs',
         icons: [
-          { src: '/pwa-192.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
-          { src: '/pwa-512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+          { src: '/icon-192-v011.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512-v011.png', sizes: '512x512', type: 'image/png', purpose: 'any' }
         ]
       },
       workbox: {

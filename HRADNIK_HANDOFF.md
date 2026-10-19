@@ -752,6 +752,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 # 11. Poslední dokončený krok
 
+**2026-10-19 – v0.1.1: sjednocené transparentní ikony Windows/Android/iPhone**
+
+- Výchozí stabilní stav pro návrat: `d33ebb0c044c8785e07aa84fa836ec0f0d677b88` na main. Uživatel výslovně požaduje pouze ikony, version bump, build, instalaci; **žádné funkce ani design** neměnit.
+- Z jediného stávajícího zlatého loga štítu/hradu `public/hradnik-app-icon.svg` odstraněn pouze vnější černý čtverec. Tmavá plocha uvnitř štítu je původní součástí motivu a zůstává beze změny. Alternativní SVG (`hradnik-icon.svg`, `pwa-192.svg`, `pwa-512.svg`, `favicon.svg`) nyní používají identický transparentní zdroj.
+- `npm run build` generuje přes `sharp` RGBA PNG 16–1024 px, `favicon.ico` (16/32/48), `apple-touch-icon.png`, verzovaný `apple-touch-icon-v011.png` a Android PNG `icon-192-v011.png`/`icon-512-v011.png`. **Zdrojové historické binární PNG v repozitáři jsou nahrazovány při build procesu**; finální `dist` musí obsahovat průhledné PNG, nikoli staré soubory.
+- `index.html`, `public/manifest.webmanifest` a `vite.config.js` používají stejné logo, manifest `purpose: any` (bez maskable), stabilní `id: /`. PWA cache využije nové jmenné cesty a Workbox revize; `cleanupOutdatedCaches` zůstává aktivní. Verze balíčku a stránky `0.1.1`.
+- `postbuild` ověřuje průhledné alfa pixely ve všech cílových PNG, správné rozměry a ICO, obě manifestová schémata i to, že SW precache obsahuje nové iOS/Android cesty. Playwright test ověřuje také HTTP dostupnost verzovaných PNG pro desktop a iPhone.
+- Poznámka ke stavu před v0.1.1: výchozí `d33ebb0c` měl Build PASS, Playwright FAIL (57 PASS, 7 skipped, 2 FAIL), protože testovací `session` mock úspěšně vracel prázdný objekt místo uživatele; opraven **pouze testovací mock**, bez změny běhu aplikace.
+- Uživatel již potvrdil všech šest ručních kontrol PC/mobil/synchronizace/offline/foto jako OK; předchozí P0 přehled zůstává v handoffu, současný releasový krok se jich funkčně nedotýká.
+- **Ověření:** GitHub Actions Build + Visual regression po commitu, `postbuild` PNG/SW, produkční Vercel READY se stejnou SHA. Reálná iOS a Android vrstva může navzdory alfa kanálu doplnit vlastní podklad; zejména starý nainstalovaný zástupce může držet starou ikonu a potřebovat nové vytvoření.
+
+**Předchozí krok:**
+
 **2026-10-19 – P0-06: odolnost profilu proti dočasné nedostupnosti serveru**
 
 - Oprava `src/account-ui.js`: pouze 401/403 smí odstranit přihlašovací token. Síťová chyba, 503 ani 500 již relaci nesmaže.
