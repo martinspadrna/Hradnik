@@ -74,7 +74,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 - **CI po prvním commitu `c1fb7b32e1e95b9f9326e12e9b74294b4d5e0c7c`:** Build Hradník PASS, visual regression FAIL výhradně v novém testu střídání detailů: v seznamu měla oblíbená památka `Hrad Test ★`, ale správný název modalu je `Hrad Test`. Celkem 45 testů PASS, 7 skipped, 2 FAIL (desktop+iPhone stejného testu).
 - **Oprava testu:** z očekávaného názvu karty se odstraní pouze prezentační hvězdička `★`; nadpis detailu musí dál přesně odpovídat názvu památky. Kontroly maximálně jednoho overlay, zavření a perzistence jsou nezměněné.
-- **Aktuální HEAD:** tento opravný commit s testem a handoffem (rodič `c1fb7b32e1e95b9f9326e12e9b74294b4d5e0c7c`); znovu vyžadovat oba CI PASS.
+- **Aktuální HEAD opravy detailů:** `ab0b8941318ea5598636fd882af0e0de54469445` – oba CI workflow ověřeny **PASS** (Build run `39226337951`, Visual run `39226337994`), Vercel produkce **READY** pro stejnou SHA.
+- **Navazující krok P3 CSS:** odstraněno 27 přesně shodných deklarací napříč `reference-true.css` a `reference-lock.css`, ponechány pozdější vlastníci. Tento nový commit vyžaduje **vlastní** CI ověření. Detail zůstává VERIFY 95 % do fyzického testu.
 
 ---
 
@@ -605,7 +606,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 95 %
+- **Dokončeno:** 97 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -712,6 +713,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-19 – konsolidace 27 identických CSS deklarací (P3 krok 18)**
+
+- Ověřen výchozí commit `ab0b8941318ea5598636fd882af0e0de54469445`: oba GitHub Actions workflow PASS, Vercel produkce READY.
+- V `reference-true.css` odstraněno 21 překrytých deklarací; v `reference-lock.css` dalších 6. Zachována unikátní pravidla a pozdější vlastníci, bez změny záměrného layoutu.
+- `docs/CSS_CASCADE_AUDIT.md` uvádí přesné selektory/breakpointy/vlastníky v tabulce a ověřovací požadavky.
+- **HRA-P3-01:** IN PROGRESS 97 %, čeká na CI výsledky nového commitu a fyzickou kontrolu PC/iPhonu. **HRA-P2-13:** VERIFY 95 %, dosavadní oprava nasazena a CI zelené. **HRA-P2-10:** BLOCKED 10 %.
+- Tento commit neobsahuje databázové, auth ani JS změny. Nové automatické kontroly se spustí po pushi.
+
+**Předchozí krok:**
 
 **2026-10-19 – oprava názvu v testu výměny detailů**
 
@@ -1717,6 +1728,11 @@ Po HRA-P0-01 až HRA-P0-05:
 3. Při ručním testu na PC a iPhonu ověřit tři postupně otevřené památky – žádné vrstvení, jediný křížek a zachování změněných stavů. Po potvrzení HRA-P2-13 DONE 100 %.
 
 ## HRA-P3-01 – závěrečná kontrola CSS
+
+- Po commitu P3 krok 18 nejprve ověřit oba CI workflow a Vercel SHA. Při regresi vrátit přesně dotčené CSS, nikoli měnit celý design.
+- Následně zkontrolovat na reálném mobilu header, spodní navigaci, mapu, detail a screenshoty. Bez fyzického schválení nepřevádět VERIFY/IN PROGRESS na DONE.
+
+
 
 Zatím **IN PROGRESS 95 %**. Sedm CSS breakpointů a desktopové snímky jsou dostupné; až po mobilních snímcích a závěrečném fyzickém ověření případně dokončit na 100 %. CSS neodstraňovat mechanicky bez stejné specificity, hodnot a testů.
 

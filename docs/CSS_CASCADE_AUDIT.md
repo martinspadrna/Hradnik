@@ -51,6 +51,25 @@ Kaskáda zůstává stejná, protože `reference-lock.css` se načítá **po** `
 
 **Ruční kontrola po automatickém PASS:** PC 851/1280/1536 – levá navigace, účetní tlačítko a zarovnání; iPhone – spodní navigace, aktivní položka, mapa a přepínání Seznam/Oblíbené.
 
+## Krok 18 – přesné dílčí duplicity mapy a rozložení (19. 10. 2026)
+
+Po ověření commitu `ab0b8941318ea5598636fd882af0e0de54469445` (Build Hradník i visual regression **PASS**, Vercel produkce **READY**) bylo vybráno dalších **27 přesně shodných deklarací**. Neměnila se žádná rozdílná hodnota, selector, priorita `!important` ani pořadí souborů.
+
+| Původní vrstva | Selektor / breakpoint | Odstraněno | Pozdější vlastník stejné hodnoty |
+| --- | --- | ---: | --- |
+| `reference-true.css` | `header`, desktop | 3 | `reference-layout-hardlock.css` (`left/right/top`) |
+| `reference-true.css` | `#content>section`, desktop | 2 | `reference-lock.css` (`max-width/margin`) |
+| `reference-true.css` | `.map-layout`, desktop | 4 | `reference-lock.css` (`display/columns/gap/margin`) |
+| `reference-true.css` | `.map-layout .map-focus-card`, desktop | 8 | `reference-lock.css` (stejné rozměry, rámečky a výplň) |
+| `reference-true.css` | `.map-layout`, mobil | 2 | `reference-lock.css` (`display/margin`) |
+| `reference-true.css` | `.map-layout #map`, mobil | 2 | `reference-lock.css` (`border/border-radius`) |
+| `reference-lock.css` | `.redesign-sidebar`, desktop | 6 | `reference-layout-hardlock.css` (`display/position/left/top/bottom/width`) |
+| **Celkem** | | **27** | |
+
+V `reference-true.css` zůstává unikátní `min-height` desktopové mapy, její vlastní mobilní výška a styly prvků, které v pozdějších souborech nemají stejný kontrakt. V `reference-lock.css` zůstává jedinečné `box-sizing`, `padding`, `background`, `border-right`, `z-index` a `box-shadow` levé lišty. Odlišný pozdější `z-index:950` v hardlocku zůstává beze změny.
+
+**Ověření:** stávající Playwright desktop/iPhone regresní testy včetně geometrie sedmi breakpointů; status nového commitu ověřit po pushi. Reálná kontrola iPhonu i desktopu je stále nutná a HRA-P3-01 zatím není DONE.
+
 ## Další bezpečný postup
 
 1. Nejdříve ověřit oba CI workflow na commitu s těmito kontrakty.

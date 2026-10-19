@@ -7,7 +7,7 @@
     .globalSearchWrap{flex:0 0 410px!important;width:410px!important;max-width:410px!important}
   .globalSearch{width:410px!important;height:45px!important;box-sizing:border-box!important;border-radius:8px!important;background:#11171b!important;border:1px solid #30383d!important;color:#f3f1eb!important}
   header .account button{width:46px!important;height:46px!important;border-radius:10px!important;background:#11171b!important;border:1px solid #30383d!important}
-  .redesign-sidebar{display:flex!important;position:fixed!important;left:0!important;top:85px!important;bottom:0!important;width:194px!important;box-sizing:border-box!important;padding:25px 15px 20px!important;background:linear-gradient(180deg,#0d1317,#0a0e11)!important;border-right:1px solid #252e33!important;z-index:900!important;box-shadow:none!important}
+  .redesign-sidebar{box-sizing:border-box!important;padding:25px 15px 20px!important;background:linear-gradient(180deg,#0d1317,#0a0e11)!important;border-right:1px solid #252e33!important;z-index:900!important;box-shadow:none!important}
   .redesign-sidebar .nav{display:flex!important;flex-direction:column!important;gap:5px!important;width:100%!important;margin:0!important;padding:0!important}
   .redesign-sidebar .nav button{display:flex!important;width:100%!important;height:53px!important;box-sizing:border-box!important;align-items:center!important;justify-content:flex-start!important;gap:15px!important;padding:0 16px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:#f0efeb!important;font-size:15px!important;font-weight:700!important}
   #content>section{max-width:none!important;margin:0!important;padding:0!important}
