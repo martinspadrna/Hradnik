@@ -50,7 +50,7 @@ async function mockBackend(page, loggedIn = true, options = {}) {
   }))
 
   const mockStates = new Map([[1, { place_id: 1, status: 'visited', favorite: true, rating: 5, visited_on: '2026-08-01', note: 'Testovací návštěva' }]])
-  await page.route('**/functions/v1/hradnik-auth', route => {
+  await page.route('**/functions/v1/hradnik-auth', async route => {
     let body = {}
     try { body = route.request().postDataJSON() || {} } catch {}
     if (!loggedIn) return route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'Unauthorized' }) })

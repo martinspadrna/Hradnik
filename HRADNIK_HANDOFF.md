@@ -738,6 +738,7 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 - `src/main.legacy.js`: odstraněno riziko zastaralých seznamů při dokončení zápisu po zavření či výměně detailu, aniž by bylo shozeno právě otevřené nové okno.
 - `tests/visual/hhradnik.spec.js`: tři nové testy – pozdní zápis a střídání detailů; zavření před koncem zápisu; tři různé Leaflet markery po sobě. Testuje se v profilech PC a iPhone.
 - **HRA-P2-14 VERIFY 95 %** do skutečných obou CI PASS, P2-10 zůstává BLOCKED 10 %, Supabase i účty zcela beze změny.
+- **CI první verze `aa59debfa394c6e248e141d59956c771555dd3d8`:** Build Hradník PASS, visual regression FAIL při parsování nového testu (řádek 60: `await` uvnitř neasynchronního Playwright route callbacku). Nešlo o regresi produkčního JS ani výsledek průchodu testů, ty se nespustily. Callback změněn na `async route =>`; nové CI ověřit před DONE.
 
 **Předchozí krok:**
 
