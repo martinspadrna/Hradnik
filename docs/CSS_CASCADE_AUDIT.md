@@ -70,6 +70,22 @@ V `reference-true.css` zůstává unikátní `min-height` desktopové mapy, jej�
 
 **Ověření:** commit `b21663a35c38e8a9b7ff3eb2de3b1a365cf7f240`: `Build Hradník` **PASS** (GitHub Actions run `39242283665`), `Hradník visual regression` **PASS** (run `39242283769`, desktop+iPhone včetně sedmi breakpointů), Vercel produkce **READY**. Reálná kontrola iPhonu i desktopu je stále nutná a HRA-P3-01 zatím není DONE.
 
+## Krok 19 – 22 dalších duplicitních deklarací (19. 10. 2026)
+
+Výchozí commit `a7aa7b889415db43c130b8e4dd2190a736b8d7d1` má **Build Hradník PASS**, **visual regression PASS** a produkční Vercel **READY**. Pokračování pouze v `src/reference-true.css` odstranilo přesně **22 jednotlivých deklarací**, které mají stejného vlastníka s přesně shodnou hodnotou a prioritou v pozdějším CSS, při stejném selektoru a breakpointu.
+
+| Selektor | Breakpoint | Odstraněno | Zachovaný vlastník |
+| --- | --- | ---: | --- |
+| `header` | ≤ 850 px | 4 | `reference-lock.css` |
+| `header .top` | ≤ 850 px | 5 | `reference-lock.css` |
+| `.redesign-sidebar` | ≤ 850 px | 5 | `reference-layout-hardlock.css` |
+| `.reference-recent-head` | ≥ 851 px | 3 | `reference-dashboard-final.css` |
+| `.reference-recent-card` | ≥ 851 px | 3 | `reference-dashboard-final.css` |
+| `.reference-recent`, `.hradnik-map-toggle` | ≤ 850 px | 2 | `reference-dashboard-final.css` |
+| **Celkem** | | **22** | |
+
+Odstraněná prázdná pravidla se již nevykreslují, ostatní unikátní deklarace zůstávají. Nebyl upraven žádný JS, HTML, backend ani databázový soubor. Testy musí potvrdit přinejmenším předchozí desktop/iPhone kontrakty v sedmi breakpointech. **Reálná kontrola zařízení stále není dokončena.**
+
 ## Další bezpečný postup
 
 1. Nejdříve ověřit oba CI workflow na commitu s těmito kontrakty.

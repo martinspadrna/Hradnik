@@ -76,6 +76,7 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 - **Oprava testu:** z očekávaného názvu karty se odstraní pouze prezentační hvězdička `★`; nadpis detailu musí dál přesně odpovídat názvu památky. Kontroly maximálně jednoho overlay, zavření a perzistence jsou nezměněné.
 - **Aktuální HEAD opravy detailů:** `ab0b8941318ea5598636fd882af0e0de54469445` – oba CI workflow ověřeny **PASS** (Build run `39226337951`, Visual run `39226337994`), Vercel produkce **READY** pro stejnou SHA.
 - **Navazující krok P3 CSS:** `b21663a35c38e8a9b7ff3eb2de3b1a365cf7f240` odstranil 27 shodných deklarací. Build Hradník **PASS** (run `39242283665`), visual regression **PASS** (run `39242283769`), Vercel produkce **READY** pro tento commit. HRA-P3-01 **IN PROGRESS 97 %** do ručního testu; detail HRA-P2-13 **VERIFY 95 %**.
+- **2026-10-19 – navazující P3 krok 19:** výchozí commit `a7aa7b889415db43c130b8e4dd2190a736b8d7d1` ověřen: Build `39242745317` PASS, visual regression `39242745329` PASS, Vercel READY. Odstraněno dalších **22** přesných duplicit ve starší `reference-true.css`, pozdější deklarace beze změn. Stav P3 IN PROGRESS 98 %, tento nový commit vyžaduje vlastní obě CI PASS. Nic v Supabase neměněno.
 
 ---
 
@@ -606,7 +607,7 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
 - **Stav:** IN PROGRESS
-- **Dokončeno:** 97 %
+- **Dokončeno:** 98 %
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -713,6 +714,15 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-19 – P3 krok 19: 22 přesných CSS duplicit**
+
+- Na výchozím commitu `a7aa7b889415db43c130b8e4dd2190a736b8d7d1` ověřeny oba CI workflow PASS a Vercel READY.
+- V `src/reference-true.css` odstraněno 22 přesných deklarací, které beze změny hodnoty a priority zůstávají v pozdějších stylech. Výčet a vlastníci: `docs/CSS_CASCADE_AUDIT.md`.
+- **HRA-P3-01 IN PROGRESS 98 %**; automatické testy nového commitu teprve ověřit, fyzické PC+iPhone zatím nebyly zkontrolovány. **HRA-P2-13 VERIFY 95 %**, **HRA-P2-10 BLOCKED 10 %**.
+- Žádný zásah do Supabase, účtů, fotografií ani uživatelských dat.
+
+**Předchozí krok:**
 
 **2026-10-19 – konsolidace 27 identických CSS deklarací (P3 krok 18)**
 
@@ -1732,7 +1742,7 @@ Po HRA-P0-01 až HRA-P0-05:
 - Po commitu P3 krok 18 nejprve ověřit oba CI workflow a Vercel SHA. Při regresi vrátit přesně dotčené CSS, nikoli měnit celý design.
 - Následně zkontrolovat na reálném mobilu header, spodní navigaci, mapu, detail a screenshoty. Bez fyzického schválení nepřevádět VERIFY/IN PROGRESS na DONE.
 
-Zatím **IN PROGRESS 97 %**. Poslední CSS úklid 27 deklarací má Build i visual regression **PASS** (commit `b21663a`), Vercel **READY**. Sedm CSS breakpointů a desktopové snímky jsou dostupné; až po mobilních snímcích a závěrečném fyzickém ověření případně dokončit na 100 %. CSS neodstraňovat mechanicky bez stejné specificity, hodnot a testů.
+Zatím **IN PROGRESS 98 %**. Poslední CSS úklid 27 deklarací má Build i visual regression **PASS** (commit `b21663a`), Vercel **READY**. Sedm CSS breakpointů a desktopové snímky jsou dostupné; až po mobilních snímcích a závěrečném fyzickém ověření případně dokončit na 100 %. CSS neodstraňovat mechanicky bez stejné specificity, hodnot a testů.
 
 ## HRA-P2-10 – fresh Supabase drill (BLOCKED)
 
