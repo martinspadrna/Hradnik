@@ -176,6 +176,9 @@ async function savePlaceState(placeId,updates={}){
 }
 
 async function setState(placeId,status){try{await savePlaceState(placeId,{status:getState(placeId).status===status?'none':status});render()}catch(e){alert(e.message)}}
+// A write can finish after its originating detail has been replaced/closed.
+// Defer the related card refresh until there is no newer detail to disrupt.
+let detailStateRefreshQueued=false
 async function detail(id){const p=ui.places.find(x=>String(x.id)===String(id));if(!p)return;
   // A monument detail is a single-instance dialog. Replace the previous
   // monument (also when another map marker fires while a detail is open).
@@ -188,7 +191,10 @@ async function detail(id){const p=ui.places.find(x=>String(x.id)===String(id));i
 const close=()=>{
   if(overlay.dataset.hradnikDetailContext==='list')ui.focusedPlaceId=null
   overlay.remove()
-  if(changed)render()
+  if(changed||detailStateRefreshQueued){
+    detailStateRefreshQueued=false
+    render()
+  }
 }
 const buttons=['want','visit','fav'].map(key=>overlay.querySelector('#'+key))
 const refresh=()=>{
@@ -213,8 +219,15 @@ const save=async updates=>{
   try{
     await savePlaceState(id,updates)
     changed=true
-    refresh()
-  }catch(e){alert(e.message);refresh()}
+    detailStateRefreshQueued=true
+    if(overlay.isConnected)refresh()
+    else if(!document.querySelector('.overlay[data-hradnik-detail-context]')){
+      // The old sheet disappeared while the request was in flight. Update the
+      // visible list now; never tear down a newer active monument dialog.
+      detailStateRefreshQueued=false
+      render()
+    }
+  }catch(e){alert(e.message);if(overlay.isConnected)refresh()}
   finally{pending=false;buttons.forEach(b=>b.disabled=false);input.disabled=false}
 }
 overlay.querySelector('.close').onclick=close

@@ -53,8 +53,8 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P2-13  
-**Název:** Detail památky – vždy jen jedno otevřené okno  
+**ID:** HRA-P2-14  
+**Název:** Uložení stavů po rychlém střídání detailů  
 **Stav:** VERIFY  
 **Dokončeno:** 95 %
 
@@ -594,8 +594,10 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 ---
 
 ### HRA-P2-13 – Jedno otevřené detailní okno památky
-- **Stav:** VERIFY
-- **Dokončeno:** 95 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
+
+**Potvrzení:** Uživatel 19. 10. 2026 potvrdil „je to ok“ po aktualizaci na `8ce326b`. Nespecifikoval zařízení; nepředstírat samostatně doloženou kontrolu reálného iPhonu.
 
 **Zdroj:** reálné PC screenshoty 2026-10-19 a nahlášené vrstvení detailů několika hradů nad sebou.
 
@@ -603,11 +605,25 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ---
 
+### HRA-P2-14 – Asynchronní změna stavu při střídání detailů
+- **Stav:** VERIFY
+- **Dokončeno:** 95 %
+
+**Problém:** Uložení `Chceme/Navštívili jsme/Oblíbené` může doběhnout až po zavření původního detailu. Před opravou se nově uložený stav nemusel promítnout do již zobrazeného seznamu až do další ruční navigace.
+
+**Řešení:** Centrální `detailStateRefreshQueued` drží informaci o dokončeném zápisu. Pokud mezitím uživatel otevřel jinou památku, aktivní detail se neshodí a seznam se aktualizuje při jeho zavření; pokud detail už neexistuje, seznam se aktualizuje ihned. Tři nové Playwright regresní scénáře (včetně mapových markerů) v desktop/iPhone profilech.
+
+**Akceptace:** právě jedno aktivní okno; žádné zavření nového detailu pozdní odpovědí; po úspěšném uložení správný stav karet i při rychlém střídání či zavření. Výsledky CI tohoto commitu nutno ověřit před DONE.
+
+---
+
 ## P3 – Technický úklid po stabilizaci
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
-- **Stav:** IN PROGRESS
-- **Dokončeno:** 98 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
+
+**Potvrzení:** Bezpečný cílený úklid byl automaticky ověřen (včetně 7 breakpointů), uživatel vzhled odsouhlasil 19. 10. 2026. Historické rozdílné CSS přepisy a `!important` ponechány záměrně; tento DONE neznamená celoplošný přepis CSS.
 
 **Až po P0–P2:**
 - sloučit zbytečné skripty,
@@ -714,6 +730,16 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-19 – P2-14: bezpečné dokončení asynchronního uložení stavu detailu**
+
+- Výchozí HEAD `8ce326b468cfd89d01797371ba9a21a4699995a2`: Build Hradník i visual regression **PASS**, Vercel produkce **READY**.
+- Uživatel výslovně potvrdil „je to ok“; tím byly uzavřeny P2-13 a cílená konsolidace P3-01 na DONE 100 %. Zařízení však nejmenoval, takže konkrétní fyzický iPhone test netvrdit.
+- `src/main.legacy.js`: odstraněno riziko zastaralých seznamů při dokončení zápisu po zavření či výměně detailu, aniž by bylo shozeno právě otevřené nové okno.
+- `tests/visual/hhradnik.spec.js`: tři nové testy – pozdní zápis a střídání detailů; zavření před koncem zápisu; tři různé Leaflet markery po sobě. Testuje se v profilech PC a iPhone.
+- **HRA-P2-14 VERIFY 95 %** do skutečných obou CI PASS, P2-10 zůstává BLOCKED 10 %, Supabase i účty zcela beze změny.
+
+**Předchozí krok:**
 
 **2026-10-19 – P3 krok 19: 22 přesných CSS duplicit**
 
@@ -1731,6 +1757,12 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
+## HRA-P2-14 – asynchronní ukládání stavů
+
+1. Ověřit oba CI workflow nového commitu se třemi regresními testy a ověřit Vercel SHA. Při FAIL zjistit přesný scénář a opravit před uzavřením.
+2. V aplikaci vyzkoušet označení „Chceme“ a rychlé přepnutí na další památku, zavření druhého detailu a správnost stavu původní karty. Ruční kontrola na skutečném mobilu je vítaná, ale nelze ji předpokládat z automatické emulace.
+3. Poté P2-14 převést na DONE. Další práce má zůstat u nesplněného P0 ověřování; P2-10 stále BLOCKED bez souhlasu se Supabase testovací instancí.
+
 ## HRA-P2-13 – záměna detailního okna místo vrstvení
 
 1. Nejprve ověřit obě CI workflow commitu s úpravou `detail(id)` a testem opakovaného otevírání památek. Při FAIL analyzovat konkrétní log a opravit.
@@ -1742,7 +1774,7 @@ Po HRA-P0-01 až HRA-P0-05:
 - Po commitu P3 krok 18 nejprve ověřit oba CI workflow a Vercel SHA. Při regresi vrátit přesně dotčené CSS, nikoli měnit celý design.
 - Následně zkontrolovat na reálném mobilu header, spodní navigaci, mapu, detail a screenshoty. Bez fyzického schválení nepřevádět VERIFY/IN PROGRESS na DONE.
 
-Zatím **IN PROGRESS 98 %**. Následující CSS úklid dalších 22 deklarací má Build i visual regression **PASS** (commit `93cfa28`), Vercel **READY**; v pěti prověřovaných CSS souborech už nejsou přesné duplicity mezi vrstvami. Sedm CSS breakpointů a desktopové snímky jsou dostupné; až po mobilních snímcích a závěrečném fyzickém ověření případně dokončit na 100 %. CSS neodstraňovat mechanicky bez stejné specificity, hodnot a testů.
+**DONE 100 % (19. 10. 2026):** cílená konsolidace CSS má Build i visual regression **PASS** (commit `93cfa28`), Vercel READY. Uživatel výsledek odsouhlasil. Reálná kontrola konkrétních zařízení nebyla v potvrzení výslovně rozlišena. Sedm CSS breakpointů a desktopové snímky jsou dostupné; až po mobilních snímcích a závěrečném fyzickém ověření případně dokončit na 100 %. CSS neodstraňovat mechanicky bez stejné specificity, hodnot a testů.
 
 ## HRA-P2-10 – fresh Supabase drill (BLOCKED)
 

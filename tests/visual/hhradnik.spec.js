@@ -57,6 +57,7 @@ async function mockBackend(page, loggedIn = true, options = {}) {
     if (body.action === 'me') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { id: 'visual-test', username: 'visual-test' } }) })
     if (body.action === 'state_list') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state: [...mockStates.values()] }) })
     if (body.action === 'state_upsert') {
+      if (options.stateWriteDelayMs) await new Promise(resolve => setTimeout(resolve, options.stateWriteDelayMs))
       const state = { place_id: Number(body.place_id), status: body.status ?? 'none', favorite: !!body.favorite, rating: body.rating ?? 0, note: body.note ?? '', visited_on: body.visited_on ?? null }
       mockStates.set(state.place_id, state)
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ state }) })
@@ -472,6 +473,74 @@ test('opening another monument replaces the existing detail rather than stacking
 
   await page.locator('#list .placeMain').first().click()
   await expect(page.locator('.overlay #want')).toHaveAttribute('aria-pressed', 'true')
+  await page.locator('.overlay .close').click()
+  await expect(page.locator('.overlay')).toHaveCount(0)
+})
+
+test('switching details during an in-flight save keeps the latest sheet and refreshes cards', async ({ page }) => {
+  const nav = await openApp(page, true, { stateWriteDelayMs: 320 })
+  await nav.nth(1).click()
+  await page.locator('#preservation').selectOption('all')
+  await expect(page.locator('#list .place')).toHaveCount(samplePlaces.length)
+
+  await page.locator('#list .placeMain').first().click()
+  const saved = page.waitForResponse(response => {
+    if (!response.url().includes('/functions/v1/hradnik-auth')) return false
+    return response.request().postDataJSON()?.action === 'state_upsert'
+  })
+  await page.locator('.overlay #want').click()
+  await page.evaluate(() => document.querySelectorAll('#list .placeMain')[1].click())
+  await expect(page.locator('.overlay[data-hradnik-detail-context]')).toHaveCount(1)
+  await expect(page.locator('.overlay .sheet h1')).toHaveText('Hrad Test')
+  await saved
+  await expect(page.locator('.overlay .sheet h1')).toHaveText('Hrad Test')
+  await page.locator('.overlay .close').click()
+  await expect(page.locator('.overlay')).toHaveCount(0)
+  await expect(page.locator('#list .place').first().locator('.want')).toHaveAttribute('aria-pressed', 'true')
+
+  await page.locator('#list .placeMain').first().click()
+  await expect(page.locator('.overlay #want')).toHaveAttribute('aria-pressed', 'true')
+  await page.locator('.overlay .close').click()
+})
+
+test('closing a sheet before its save finishes still updates visible place state', async ({ page }) => {
+  const nav = await openApp(page, true, { stateWriteDelayMs: 320 })
+  await nav.nth(1).click()
+  await page.locator('#preservation').selectOption('all')
+  await page.locator('#list .placeMain').first().click()
+  const saved = page.waitForResponse(response =>
+    response.url().includes('/functions/v1/hradnik-auth') &&
+    response.request().postDataJSON()?.action === 'state_upsert'
+  )
+  await page.locator('.overlay #want').click()
+  await page.locator('.overlay .close').click()
+  await expect(page.locator('.overlay')).toHaveCount(0)
+  await saved
+  await expect(page.locator('#list .place').first().locator('.want')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.overlay')).toHaveCount(0)
+})
+
+test('consecutive Leaflet marker selections keep a single monument detail', async ({ page }) => {
+  const nav = await openApp(page)
+  await nav.nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await expect.poll(() => page.evaluate(() =>
+    (window.__hradnikMap?._hradnikReferenceOriginals || []).filter(layer => layer._map && layer.getTooltip?.()).length
+  )).toBeGreaterThanOrEqual(3)
+
+  const names = await page.evaluate(() => {
+    const layers = (window.__hradnikMap?._hradnikReferenceOriginals || []).filter(layer => layer._map && layer.getTooltip?.()).slice(0, 3)
+    const titles = []
+    for (const layer of layers) {
+      titles.push(layer.getTooltip().getContent())
+      layer.fire('click', { latlng: layer.getLatLng(), layer })
+      if (document.querySelectorAll('.overlay[data-hradnik-detail-context]').length !== 1) throw new Error('Stacked detail overlays')
+    }
+    return titles
+  })
+  expect(names).toHaveLength(3)
+  await expect(page.locator('.overlay[data-hradnik-detail-context]')).toHaveCount(1)
+  await expect(page.locator('.overlay .sheet h1')).toHaveText(names[2])
   await page.locator('.overlay .close').click()
   await expect(page.locator('.overlay')).toHaveCount(0)
 })
