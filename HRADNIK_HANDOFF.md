@@ -53,27 +53,24 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P3-01  
-**Název:** Konsolidace CSS vlastnictví hlavičky a navigace bez změny vzhledu  
-**Stav:** IN PROGRESS  
+**ID:** HRA-P2-13  
+**Název:** Detail památky – vždy jen jedno otevřené okno  
+**Stav:** VERIFY  
 **Dokončeno:** 95 %
 
-### Sedmnáctý větší krok – konsolidace 51 CSS deklarací (2026-10-18)
+### Zpětná vazba z PC a oprava vrstvících se detailů (2026-10-19)
 
-- **Výchozí HEAD:** `c1b5476e9eb9330a2c72e2ff8782ed78a5aa9305` – `Build Hradník` **PASS**, `Hradník visual regression` **PASS**, včetně nových testů 7 šířek.
-- Zvolena oblast **hlavička, boční a mobilní navigace** podle `docs/CSS_CASCADE_AUDIT.md`.
-- V `src/reference-true.css` odebráno **51 výlučně přesně shodných deklarací** ze šesti pravidel (stejný selektor, breakpoint, vlastnost, hodnota a `!important` jako v `src/reference-lock.css`). Čtyři prázdná pravidla vynechána. V pozdější vrstvě `reference-lock.css` původní pravidla zůstávají beze změny; unikátní vlastnosti `header` a `header .account button` v první vrstvě také zůstávají.
-- Upravena a rozšířena mapa vlastníků `docs/CSS_CASCADE_AUDIT.md` včetně tabulky 6 selektorů a vlastnictví konečného vzhledu navigace.
-- `tests/visual/hhradnik.spec.js` rozšířen o computed CSS kontrolu navigačních tlačítek: desktop `display`/výška; iPhone `display`/`flex-direction`/výška na **375/390/520/850/851/1280/1536 px**.
-- Nedotčeny odlišné částečné přepisy, `reference-layout-hardlock.css`, `reference-dashboard-final.css`, dynamické runtime styly, HTML, aplikační JavaScript a jakákoli databáze. Cílem je identické vykreslení.
-- **HEAD:** nový commit na `main` obsahující změny a tento handoff; rodič `c1b5476e9eb9330a2c72e2ff8782ed78a5aa9305` (přesnou SHA uvádí GitHub).
-- **Automatické ověření:** bezprostředně po pushi vyžadovat **Build Hradník PASS** i **Hradník visual regression PASS**. Při FAIL nejprve konkrétní log/trace a oprava, nepokračovat další funkcí.
-- **Ruční ověření:** skutečný iPhone – spodní navigace, hamburger, mapa/Seznam, aktivní tlačítka; PC – hlavička, boční panel a účetní tlačítka. Toto fyzické ověření ještě není potvrzeno.
-- **Další doporučený krok:** po CI PASS provést finální cílený audit zbylých překryvů podle výsledného vzhledu. P3-01 zatím **neuzavírat na DONE 100 %** bez dodatečné kontroly; P2-10 dál **BLOCKED 10 %** bez souhlasu s náklady.
-
-- **První CI commitu `50f4d3db8edb7418f408d41b96f72ab84524c012`:** `Build Hradník` PASS; `Hradník visual regression` FAIL – jeden nový iPhone CSS test selhal při `getComputedStyle(null)`, protože přechodně chybělo navigační tlačítko v okamžiku měření. **44 testů PASS, 7 skipped, 1 FAIL**. Dosavadní ostatní scénáře včetně mapových testů prošly.
-- **Oprava testů:** desktopový i mobilní CSS kontrakt nyní pomocí `expect.poll` čekají na současné připojení hlavičky, lišty, mapy a navigačního tlačítka. Navštívený breakpoint a výsledné computed CSS hodnoty (včetně mobilního `flex-direction`) se kontrolují stejně přísně; trvale chybějící tlačítko povede k FAIL po timeoutu, nikoliv k potlačenému výsledku.
-- **HEAD po opravě:** tento navazující commit na `main` s upraveným testem a handoffem, rodič `50f4d3db8edb7418f408d41b96f72ab84524c012`. P3-01 zůstává IN PROGRESS 95 % do ověření nového CI a ruční kontroly.
+- **Výchozí HEAD:** `1cb6c2fedb5bdd8f094131b29cef48c730daa21c`; `Build Hradník` **PASS** a `Hradník visual regression` **PASS** (včetně 7 CSS breakpointů).
+- Uživatel doložil **5 reálných PC screenshotů** Mapa / Seznam / Oblíbené / Kategorie / O aplikaci; vzhled navigace a základních panelů působí konzistentně. **Čeká se na další screenshoty z mobilu**; nejde ještě o konečné fyzické schválení iPhonu.
+- Uživatel ohlásil, že při otevření více různých památek zůstávají překrytá stará detailní okna a musí je postupně zavírat.
+- **Příčina:** `src/main.legacy.js` vytvářel pro každé `detail(id)` nové `.overlay` a bez kontroly je přidával do `document.body`.
+- **Oprava:** před otevřením dalšího detailu zavřít všechna dřívější okna `.overlay[data-hradnik-detail-context]` přes jejich stávající zavírací handler a odebrat je z DOM. Zachováno případné překreslení po změně oblíbených / navštívených / plánovaných památek, datum návštěvy ani ukládání účtu se nemění. Ostatních overlayů se to netýká.
+- **Regresní test:** `tests/visual/hhradnik.spec.js` ověřuje tři postupné výběry jiných památek bez ručního zavření předchozích detailů, vždy maximálně **1** aktivní overlay, jediné závěrečné zavření a zachování změněného stavu první památky po znovuotevření; oba profily desktop/iPhone.
+- **HEAD:** tento commit na `main` spolu s handoffem, rodič `1cb6c2fedb5bdd8f094131b29cef48c730daa21c`. Aktuální SHA lze zjistit na GitHubu.
+- **Automatické ověření:** po pushi `Build Hradník` a `Hradník visual regression`; nehlásit PASS před skutečným výsledkem, případný FAIL vyřešit v rámci tohoto úkolu.
+- **Ruční ověření:** PC + iPhone: otevřít první hrad, druhý a třetí; objeví se **vždy pouze poslední detail** a stačí jediný křížek. Ověřit i stav Chceme/Navštívili jsme/Oblíbené, když je před výměnou změněný.
+- **Další krok:** počkat na mobilní screenshoty a potvrzení chování okna; poté HRA-P2-13 DONE 100 % a dokončit HRA-P3-01 (zatím **IN PROGRESS 95 %**) podle CSS auditu.
+- **HRA-P2-10:** BLOCKED 10 %; starý ani nový Supabase projekt nepozměňovat.
 
 ---
 
@@ -590,6 +587,16 @@ Zachytit chyby typu „obsah zmizel a zůstala jen spodní lišta“.
 
 ---
 
+### HRA-P2-13 – Jedno otevřené detailní okno památky
+- **Stav:** VERIFY
+- **Dokončeno:** 95 %
+
+**Zdroj:** reálné PC screenshoty 2026-10-19 a nahlášené vrstvení detailů několika hradů nad sebou.
+
+**Akceptace:** otevření další památky nahradí předchozí detail, počet `.overlay[data-hradnik-detail-context]` je nejvýše 1, k zavření stačí jeden křížek a změny uživatelských stavů zůstanou zachované.
+
+---
+
 ## P3 – Technický úklid po stabilizaci
 
 ### HRA-P3-01 – Odstranit zbytečný technický dluh
@@ -701,6 +708,19 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 ---
 
 # 11. Poslední dokončený krok
+
+**2026-10-19 – Oprava vrstvících se detailů památek (HRA-P2-13)**
+
+- Uživatel doložil PC obrázky všech hlavních sekcí; současně nahlásil několik detailních oken nad sebou při rychlém výběru dalšího hradu nebo zámku. Další mobilní screenshoty slíbil doposlat.
+- **Výchozí HEAD `1cb6c2fedb5bdd8f094131b29cef48c730daa21c`:** oba CI workflow PASS.
+- `src/main.legacy.js`: nové `detail(id)` zavře případné předchozí památkové overlaye přes existující `.close` handler a odstraní jejich zbytky, teprve potom vykreslí nový detail.
+- `tests/visual/hhradnik.spec.js`: nový test tří postupných detailů, jediného overlaye, jednoho zavření a zachovaného označení `Chceme` po výměně okna.
+- **Stav:** HRA-P2-13 VERIFY 95 %, HRA-P3-01 IN PROGRESS 95 %, HRA-P2-12 DONE 100 %, HRA-P2-10 BLOCKED 10 %.
+- **HEAD:** tento commit na `main`, rodič `1cb6c2fedb5bdd8f094131b29cef48c730daa21c`; kontrolovat výsledky obou CI před dalšími úpravami.
+- **Ruční test:** desktop a reálný iPhone, tři různá místa za sebou, jediné okno. Mobilní obrázky zatím nedorazily.
+- **Supabase:** obě databáze beze změny.
+
+**Předchozí krok:**
 
 **2026-10-18 – oprava časování navigačního CSS regresního testu**
 
@@ -1677,15 +1697,19 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-## HRA-P3-01 – ověření stabilního CSS kontraktu
+## HRA-P2-13 – záměna detailního okna místo vrstvení
 
-1. Vyhodnotit oba CI workflow po opravě asynchronního měření `getComputedStyle` v testech navigace. Kdyby iPhone test znovu FAIL, zjistit přesný viewport a který prvek není připojen, ověřit dynamický nav-render a upravit měření bez oslabení kontrol.
-2. Po obou PASS je v `reference-true.css` bezpečně odstraněno 51 přesně shodných deklarací, které zůstávají v `reference-lock.css`; pokračovat finálním auditem konkrétních částečných přepisů.
-3. Uživatel má při ruční kontrole na mobilu/PC ověřit hlavičku, navigaci, Mapu, Seznam a aktivní položku. P3-01 zůstává 95 % do závěrečného ověření.
+1. Nejprve ověřit obě CI workflow commitu s úpravou `detail(id)` a testem opakovaného otevírání památek. Při FAIL analyzovat konkrétní log a opravit.
+2. Uživatel pošle screenshoty z mobilu; porovnat hlavičku, mapu, spodní navigaci, seznam i detaily proti PC. Neinterpretovat PC screenshoty jako plné mobilní schválení.
+3. Při ručním testu na PC a iPhonu ověřit tři postupně otevřené památky – žádné vrstvení, jediný křížek a zachování změněných stavů. Po potvrzení HRA-P2-13 DONE 100 %.
+
+## HRA-P3-01 – závěrečná kontrola CSS
+
+Zatím **IN PROGRESS 95 %**. Sedm CSS breakpointů a desktopové snímky jsou dostupné; až po mobilních snímcích a závěrečném fyzickém ověření případně dokončit na 100 %. CSS neodstraňovat mechanicky bez stejné specificity, hodnot a testů.
 
 ## HRA-P2-10 – fresh Supabase drill (BLOCKED)
 
-Neprovádět změny v obou Supabase projektech bez výslovného souhlasu; případně placenou branch nevytvářet.
+Bez schválení možných nákladů nezasahovat do Supabase; starý `cgshssdjgzzuprlwnabl` ani nový `abqiprdggptuxebhpfyi` nemazat či upravovat.
 
 ---
 

@@ -442,6 +442,40 @@ test('catalog uses the same card DOM and data contract on desktop and iphone', a
   await expect(detail.locator('.detailGrid .card')).toHaveCount(3)
 })
 
+test('opening another monument replaces the existing detail rather than stacking sheets', async ({ page }) => {
+  const nav = await openApp(page)
+  await nav.nth(1).click()
+  await page.locator('#preservation').selectOption('all')
+  await expect(page.locator('#list .placeMain')).toHaveCount(samplePlaces.length)
+
+  const cards = page.locator('#list .place')
+  const titles = await cards.locator('.placeCopy > b').allTextContents()
+  await cards.first().locator('.placeMain').click()
+  await expect(page.locator('.overlay')).toHaveCount(1)
+  await expect(page.locator('.overlay .sheet h1')).toHaveText(titles[0])
+
+  await page.locator('.overlay #want').click()
+  await expect(page.locator('.overlay #want')).toHaveAttribute('aria-pressed', 'true')
+
+  // Simulate selecting another castle while the first detail still exists,
+  // as may happen through Leaflet's marker click handlers.
+  await page.evaluate(() => document.querySelectorAll('#list .placeMain')[1].click())
+  await expect(page.locator('.overlay')).toHaveCount(1)
+  await expect(page.locator('.overlay .sheet h1')).toHaveText(titles[1])
+
+  await page.evaluate(() => document.querySelectorAll('#list .placeMain')[2].click())
+  await expect(page.locator('.overlay')).toHaveCount(1)
+  await expect(page.locator('.overlay .sheet h1')).toHaveText(titles[2])
+
+  await page.locator('.overlay .close').click()
+  await expect(page.locator('.overlay')).toHaveCount(0)
+
+  await page.locator('#list .placeMain').first().click()
+  await expect(page.locator('.overlay #want')).toHaveAttribute('aria-pressed', 'true')
+  await page.locator('.overlay .close').click()
+  await expect(page.locator('.overlay')).toHaveCount(0)
+})
+
 test('visit date, favorites and toggles preserve account state', async ({ page }) => {
   const nav = await openApp(page)
   await nav.nth(1).click()
