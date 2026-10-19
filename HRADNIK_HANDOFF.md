@@ -756,6 +756,7 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 
 - Oprava `src/account-ui.js`: pouze 401/403 smí odstranit přihlašovací token. Síťová chyba, 503 ani 500 již relaci nesmaže.
 - Tři nové testy v `tests/visual/hhradnik.spec.js`: URL samostatného Hradníku, 503 → zotavení relace, 401 → vymazání chybného tokenu, na PC a iPhone.
+- **Přesnost testu:** Playwright seeduje testovací relaci pouze jednou při prvním otevření karty; při reloadu ji již uměle neobnovuje, aby test výpadku skutečně odhalil nechtěné smazání tokenu.
 - Připraven stručný kontrolní protokol `docs/HRADNIK_MANUAL_QA.md`, podle něhož lze po potvrzení uzavřít P2-14 a vyhodnotit P0-01/02/04/05/06. P0-03 vyžaduje samostatný prázdný DB drill, P2-10 zůstává BLOCKED.
 - **HRA-P0-06 VERIFY 95 %** do obou CI PASS a fyzického potvrzení. Supabase DB se neměnila.
 

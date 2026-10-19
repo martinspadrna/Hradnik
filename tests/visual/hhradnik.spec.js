@@ -11,6 +11,10 @@ const samplePlaces = [
 
 async function mockBackend(page, loggedIn = true, options = {}) {
   await page.addInitScript(loggedIn => {
+    // Seed once per tab, not on every reload: otherwise tests could falsely
+    // restore an auth token that the application incorrectly removed.
+    if (sessionStorage.getItem('hradnik-visual-auth-seeded')) return
+    sessionStorage.setItem('hradnik-visual-auth-seeded', '1')
     if (loggedIn) localStorage.setItem('hradnik_session', 'visual-regression-session')
     else localStorage.removeItem('hradnik_session')
   }, loggedIn)
