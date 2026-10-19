@@ -739,6 +739,7 @@ Neprovádět plošný přepis, pokud není nutný. Zachovat funkční části.
 - `tests/visual/hhradnik.spec.js`: tři nové testy – pozdní zápis a střídání detailů; zavření před koncem zápisu; tři různé Leaflet markery po sobě. Testuje se v profilech PC a iPhone.
 - **HRA-P2-14 VERIFY 95 %** do skutečných obou CI PASS, P2-10 zůstává BLOCKED 10 %, Supabase i účty zcela beze změny.
 - **CI první verze `aa59debfa394c6e248e141d59956c771555dd3d8`:** Build Hradník PASS, visual regression FAIL při parsování nového testu (řádek 60: `await` uvnitř neasynchronního Playwright route callbacku). Nešlo o regresi produkčního JS ani výsledek průchodu testů, ty se nespustily. Callback změněn na `async route =>`; nové CI ověřit před DONE.
+- **CI `7bc49502739769628975560df3997696a0e880e3`:** Build PASS, visual regression 49 PASS, 7 skipped, 4 FAIL pouze kvůli testovacímu selektoru `locator('.want')` (odpovídal tlačítku i dvěma grafickým `span`). Log dokládá správný atribut na cílovém tlačítku. Dva nové testy používají přesný selektor `.quick > button.want`; ostatní scénáře se nemění. Vše znovu ověřit CI.
 
 **Předchozí krok:**
 

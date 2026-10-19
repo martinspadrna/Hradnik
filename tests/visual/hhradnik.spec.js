@@ -496,7 +496,7 @@ test('switching details during an in-flight save keeps the latest sheet and refr
   await expect(page.locator('.overlay .sheet h1')).toHaveText('Hrad Test')
   await page.locator('.overlay .close').click()
   await expect(page.locator('.overlay')).toHaveCount(0)
-  await expect(page.locator('#list .place').first().locator('.want')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#list .place').first().locator('.quick > button.want')).toHaveAttribute('aria-pressed', 'true')
 
   await page.locator('#list .placeMain').first().click()
   await expect(page.locator('.overlay #want')).toHaveAttribute('aria-pressed', 'true')
@@ -516,7 +516,7 @@ test('closing a sheet before its save finishes still updates visible place state
   await page.locator('.overlay .close').click()
   await expect(page.locator('.overlay')).toHaveCount(0)
   await saved
-  await expect(page.locator('#list .place').first().locator('.want')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#list .place').first().locator('.quick > button.want')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.overlay')).toHaveCount(0)
 })
 
