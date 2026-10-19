@@ -84,7 +84,7 @@ Výchozí commit `a7aa7b889415db43c130b8e4dd2190a736b8d7d1` má **Build Hradník
 | `.reference-recent`, `.hradnik-map-toggle` | ≤ 850 px | 2 | `reference-dashboard-final.css` |
 | **Celkem** | | **22** | |
 
-Odstraněná prázdná pravidla se již nevykreslují, ostatní unikátní deklarace zůstávají. Nebyl upraven žádný JS, HTML, backend ani databázový soubor. Testy musí potvrdit přinejmenším předchozí desktop/iPhone kontrakty v sedmi breakpointech. **Reálná kontrola zařízení stále není dokončena.**
+Odstraněná prázdná pravidla se již nevykreslují, ostatní unikátní deklarace zůstávají. Nebyl upraven žádný JS, HTML, backend ani databázový soubor. Testy musí potvrdit přinejmenším předchozí desktop/iPhone kontrakty v sedmi breakpointech. **Ověření hotovo:** commit `93cfa28905a7969b38519e60c4698fe024ed8db0` – Build Hradník **PASS** (run `39263869370`), Hradník visual regression **PASS** (run `39263868976`), Vercel **READY**. Samostatný statický rozbor pěti hlavních CSS vrstev (`reference-true.css`, `reference-lock.css`, `reference-layout-hardlock.css`, `reference-dashboard-final.css`, `search-detail-polish.css`) po změně našel **0 přesných mezisouborových duplicit** stejného selektoru, breakpointu, vlastnosti a hodnoty. Odlišné přepisy zůstávají záměrně beze změny. **Reálná kontrola zařízení stále není dokončena.**
 
 ## Další bezpečný postup
 
