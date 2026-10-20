@@ -5,6 +5,7 @@ on:
       - test/ios-edge-icon-20261020
     paths:
       - scripts/generate-ios-edge-install.mjs
+      - tests/visual/hhradnik.spec.js
       - .github/workflows/ios-edge-preview.yml
 permissions:
   contents: write

@@ -1072,7 +1072,8 @@ test('separate iOS Edge installer contains the real opaque PNG and launches appl
   const response = await page.request.get('/ios-install.html')
   expect(response.status()).toBe(200)
   const html = await response.text()
-  const match = html.match(/rel="apple-touch-icon" sizes="180x180" href="data:image\\/png;base64,([A-Za-z0-9+/=]+)"/)
+  const marker = 'rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,'
+  const match = html.includes(marker) ? [null, html.split(marker)[1].split('"')[0]] : null
   expect(match).not.toBeNull()
   const png = await page.request.get('/apple-touch-icon-ios-v012-test.png')
   expect(png.status()).toBe(200)
