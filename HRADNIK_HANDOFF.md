@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 2026-10-20 – P0-04: automatické read-only testy admin/quality UI
+
+- **Výchozí main:** `8630e3fcb3709aee40cca8a19f251b7868ce6481` (produkce READY, 69 testů PASS; live nepřihlášený smoke test `39477214791` PASS). Nová změna zasahuje **pouze Playwright fixture a testy**; žádná změna aplikace, Supabase, uživatelských dat nebo rolí.
+- **Tři nové scénáře (PC + iPhone):** běžný přihlášený uživatel nemá administrační vstup; administrátor může otevřít a filtrovat seznam památek, otevřít editor **bez uložení**, zobrazit frontu kontroly kvality a zavřít ji; při HTTP 403 z quality se zobrazí české upozornění bez úniku záznamů.
+- **Zabezpečení fixture:** `hradnik-admin` a `hradnik-quality` jsou přesměrovány jen na lokální testovací mock; `save`, `delete`, `restore`, `approve`, `reject` jsou mockem vždy odmítnuty HTTP 405. Testovací přístupové údaje nejsou reálné.
+- **CI:** požaduje se `Build Hradník` a `Hradník visual regression` PASS, Vercel READY se stejným SHA; neoznačovat PASS před dokončením. Cíl P0-04 zatím **VERIFY 97 %**, dokončení vyžaduje reálný read-only test přihlášeného administrátora (bez sdílení hesla nebo tokenu v chatu).
+- **Rollback:** zpět na `8630e3fcb3709aee40cca8a19f251b7868ce6481`; runtime JS beze změny.
+- **Další krok:** po zeleném CI evidovat simulované UI scénáře, poté případně provést povolenou read-only kontrolu admin účtu na skutečném zařízení. P0-03 / P2-10 nesouvisí a zůstávají beze změn.
+
+---
+
 ## Původní plán znovu otevřen po dokončení ikon – 20. 10. 2026
 
 - **Výchozí produkční HEAD:** `52d648f536e165981282570279f8845db2bcc9c3` (v0.1.2). **Scope této dávky:** pouze read-only Supabase/repo audit, dva auth regresní testy, vynucený statický bezpečnostní preflight v `prebuild`, aktualizace plánu. Nezasahovat do produkční databáze ani backend funkcí. Rollback na výchozí HEAD.

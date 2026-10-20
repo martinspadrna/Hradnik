@@ -53,6 +53,31 @@ async function mockBackend(page, loggedIn = true, options = {}) {
     body: JSON.stringify({ url: '/hradnik-app-icon.svg' })
   }))
 
+  // The admin/quality flows are deliberately isolated from live account data.
+  // All mutations are rejected, even if a test accidentally clicks a save button.
+  await page.route('**/functions/v1/hradnik-admin', route => {
+    const action = route.request().postDataJSON()?.action
+    options.adminActions?.push(action)
+    if (!loggedIn || !options.adminAccess) {
+      return route.fulfill({ status: 403, contentType: 'application/json', body: JSON.stringify({ error: 'Přístup mají jen administrátoři.' }) })
+    }
+    if (action === 'me') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { id: 'visual-admin', username: 'visual-admin', role: 'admin' } }) })
+    if (action === 'list') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ places: samplePlaces }) })
+    return route.fulfill({ status: 405, contentType: 'application/json', body: JSON.stringify({ error: 'Zápis není v testu povolen.' }) })
+  })
+  await page.route('**/functions/v1/hradnik-quality', route => {
+    const action = route.request().postDataJSON()?.action
+    options.qualityActions?.push(action)
+    if (!loggedIn || !options.adminAccess || options.qualityDenied) {
+      return route.fulfill({ status: 403, contentType: 'application/json', body: JSON.stringify({ error: 'Přístup mají jen administrátoři.' }) })
+    }
+    if (action === 'list') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ places: [
+      { ...samplePlaces[1], quality_score: 42, quality_reason: 'K ověření' },
+      { ...samplePlaces[2], quality_score: 35, quality_reason: 'Chybí zdroj' }
+    ] }) })
+    return route.fulfill({ status: 405, contentType: 'application/json', body: JSON.stringify({ error: 'Zápis není v testu povolen.' }) })
+  })
+
   const mockStates = new Map([[1, { place_id: 1, status: 'visited', favorite: true, rating: 5, visited_on: '2026-08-01', note: 'Testovací návštěva' }]])
   await page.route('**/functions/v1/hradnik-auth', async route => {
     let body = {}
@@ -1122,4 +1147,48 @@ test('separate iOS Edge installer contains the real opaque PNG and launches appl
   await expect(page.getByRole('link', { name: 'Otevřít Hradník' })).toHaveAttribute('href', '/')
   const app = await page.request.get('/')
   expect(app.status()).toBe(200)
+})
+
+test('ordinary signed-in visitor cannot see the admin entry', async ({ page }) => {
+  const adminActions = []
+  await openApp(page, true, { adminActions })
+  await expect.poll(() => adminActions.includes('me')).toBe(true)
+  await expect(page.locator('.hradnik-admin-btn')).toHaveCount(0)
+  await expect(page.locator('#hqOpen')).toHaveCount(0)
+  expect(await page.evaluate(() => localStorage.getItem('hradnik_session'))).toBe('visual-regression-session')
+})
+
+test('administrator can inspect the catalog and quality queue without modifying data', async ({ page }) => {
+  const adminActions = []
+  const qualityActions = []
+  await openApp(page, true, { adminAccess: true, adminActions, qualityActions })
+  await expect(page.locator('.hradnik-admin-btn')).toBeVisible({ timeout: 15000 })
+  await page.locator('.hradnik-admin-btn').click()
+  await expect(page.locator('#hradnikAdminList .hradnik-admin-row')).toHaveCount(samplePlaces.length)
+  await page.locator('#hradnikAdminSearch').fill('Hrad Test')
+  await expect(page.locator('#hradnikAdminList .hradnik-admin-row')).toHaveCount(1)
+  await expect(page.locator('#hradnikAdminList .hradnik-admin-row b')).toHaveText('Hrad Test')
+  await page.locator('#hradnikAdminList .edit').click()
+  await expect(page.locator('#hradnikAdminForm input[name="name"]')).toHaveValue('Hrad Test')
+  await expect(page.locator('#hqOpen')).toBeVisible()
+  await page.locator('#hqOpen').click()
+  await expect(page.locator('#hqList .hq-row')).toHaveCount(2)
+  await expect(page.locator('#hqSummary')).toContainText('2 ke kontrole')
+  await page.locator('#hqClose').click()
+  await expect(page.locator('#hqModal')).toHaveCount(0)
+  expect(adminActions.every(action => ['me', 'list'].includes(action))).toBe(true)
+  expect(adminActions).toContain('list')
+  expect(qualityActions).toEqual(['list'])
+})
+
+test('quality review access failure is shown without exposing private records', async ({ page }) => {
+  const qualityActions = []
+  await openApp(page, true, { adminAccess: true, qualityDenied: true, qualityActions })
+  await expect(page.locator('.hradnik-admin-btn')).toBeVisible({ timeout: 15000 })
+  await page.locator('.hradnik-admin-btn').click()
+  await expect(page.locator('#hqOpen')).toBeVisible()
+  await page.locator('#hqOpen').click()
+  await expect(page.locator('#hqList .hradnik-admin-empty')).toContainText('Přístup mají jen administrátoři.')
+  await expect(page.locator('#hqList .hq-row')).toHaveCount(0)
+  expect(qualityActions).toEqual(['list'])
 })
