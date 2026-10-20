@@ -62,7 +62,8 @@ function injectAdminButton() {
   if (!account || account.querySelector('.hradnik-admin-btn')) return
   ensureStyle()
   const button = document.createElement('button')
-  button.className = 'hradnik-admin-btn'
+  // Reference shell only shows recognized header actions; keep the admin entry accessible.
+  button.className = 'hradnik-admin-btn reference-header-action'
   button.type = 'button'
   button.textContent = '⚙️ Admin'
   button.title = 'Správa památek'

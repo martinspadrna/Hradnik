@@ -1,5 +1,15 @@
 # HRADNIK_HANDOFF.md
 
+## P0-04 – odhalena skrytá administrace (20. 10. 2026)
+
+- **Reálná regresní závada:** nové tři Playwright scénáře odhalily, že při validní administrátorské roli se tlačítko `.hradnik-admin-btn` vloží do DOM, ale přesto zůstane **skryté** na PC i iPhone. Testovací běh `39480655343`: 71 PASS, 7 skipped, 4 FAIL = dva pozitivní admin/quality scénáře v obou profilech; běžný uživatel správně admin vstup nevidí.
+- **Kořenová příčina:** společný shell `src/reference-runtime-retry.js` záměrně skrývá `header .account>button:not(.reference-header-action)`; tlačítko `src/admin.legacy.js` tuto třídu nemělo.
+- **Minimální oprava:** při tvorbě admin tlačítka přidat stávající třídu `reference-header-action` (nepřidávat další CSS ani jiné viditelné ovládací prvky). Role check `user.role==='admin'` a serverová kontrola tokenu beze změn. Oprava vyžaduje kompletní CI PASS včetně nových simulovaných scénářů PC/iPhone a produkční READY.
+- **HRA-P0-04:** **VERIFY 97 %**, dokud CI a případné následné mobilní ověření nejsou hotovy. Nové testy používají jen mock, takže skutečný pozitivní přístup administrátora do živého backendu stále není potvrzen. Rollback na `8630e3fcb3709aee40cca8a19f251b7868ce6481` (před novými testy).
+- **Další krok:** po úspěšném CI zapsat PASS a prakticky ověřit administraci a frontu kvality pod reálným administrátorským účtem, bez jakéhokoliv zápisu.
+
+---
+
 ## 2026-10-20 – P0-04: automatické read-only testy admin/quality UI
 
 - **Výchozí main:** `8630e3fcb3709aee40cca8a19f251b7868ce6481` (produkce READY, 69 testů PASS; live nepřihlášený smoke test `39477214791` PASS). Nová změna zasahuje **pouze Playwright fixture a testy**; žádná změna aplikace, Supabase, uživatelských dat nebo rolí.
