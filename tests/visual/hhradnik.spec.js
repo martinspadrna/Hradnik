@@ -1069,6 +1069,17 @@ test('PWA update bridge is installed and guest mode still boots', async ({ page 
   expect(bridge.available).toBe('boolean')
 })
 
+test('installed iOS Edge shortcut redirects from installer to actual Hradnik app', async ({ page }) => {
+  await mockBackend(page, false)
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'standalone', { configurable: true, value: true })
+  })
+  await page.goto('/ios-install.html')
+  await expect(page).toHaveURL(/\/\?source=pwa$/, { timeout: 15000 })
+  await expect(page.locator('.redesign-sidebar .redesign-nav > button')).toHaveCount(5, { timeout: 15000 })
+  await expect(page.locator('#app')).toBeVisible()
+})
+
 test('separate iOS Edge installer contains the real opaque PNG and launches application', async ({ page }) => {
   const response = await page.request.get('/ios-install.html')
   expect(response.status()).toBe(200)

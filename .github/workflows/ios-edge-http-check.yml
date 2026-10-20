@@ -13,11 +13,11 @@ jobs:
     steps:
       - name: Check real HTTPS 200, MIME types, and embedded install PNG
         env:
-          BASE: https://hradnik-1qe5iv6ek-martinspadrnas-projects.vercel.app
+          BASE: https://hradnik-git-test-ios-edge-icon-20261020-martinspadrnas-projects.vercel.app
         shell: bash
         run: |
           set -euo pipefail
-          for path in ios-install.html apple-touch-icon-ios-v012-test.png icon-192-v011.png icon-512-v011.png manifest.webmanifest; do
+          for path in ios-install.html apple-touch-icon-ios-v012-test.png icon-192-v011.png icon-512-v011.png manifest.webmanifest '?source=pwa'; do
             headers="$(mktemp)"
             body="$(mktemp)"
             result="$(curl --max-time 30 --silent --show-error --location --dump-header "$headers" --output "$body" --write-out '%{http_code}|%{content_type}|%{url_effective}' "$BASE/$path")"
@@ -41,6 +41,10 @@ jobs:
               manifest.webmanifest)
                 [[ "$mime" == application/* || "$mime" == text/plain* ]]
                 grep -q 'apple-touch-icon-ios-v012-test.png' "$body"
+                ;;
+              '?source=pwa')
+                [[ "$mime" == text/html* ]]
+                grep -q '<title>Hradník</title>' "$body"
                 ;;
             esac
             rm -f "$headers" "$body"

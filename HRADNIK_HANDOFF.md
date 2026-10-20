@@ -2,6 +2,10 @@
 
 ## Testovací větev iOS instalace Edge (2026-10-20)
 
+- **Navazující kontrola:** stabilní alias testovací větve `hradnik-git-test-ios-edge-icon-20261020-martinspadrnas-projects.vercel.app` směřuje na aktuální preview. Výjimka z Vercel Authentication byla přidána **jen tomuto testovacímu aliasu**, nikoli produkci. HTTP workflow teď testuje alias (instalátor, tři PNG/manifest a otevření `/?source=pwa`), aby odkaz nezůstal závislý na náhodné adrese staršího deploye.
+- **Regrese spuštění z ikony:** doplněn Playwright test iOS `navigator.standalone` ověřující automatický přechod z instalační stránky na skutečnou úvodní obrazovku. Tento test je simulovaný; vzhled ikony na fyzickém iPhonu může definitivně schválit pouze uživatel.
+- **20. 10. následná kontrola:** celý předchozí UI suite měl 62 PASS, 7 skipped a jeden kolísavý CSS breakpoint FAIL; samostatný recheck stejného breakpointu `39404946079` již **PASS**. Nové integrační testy v předchozím běhu PASS na PC a iPhone. Žádné změny produkce, databáze ani synchronizace.
+
 - **Stav 20. 10., ověřený preview build:** `31620cd1e0db4c83fdaa2801f84de15ca4ac13b8`, Vercel deployment `dpl_EaW2PaY4WU9vuazfdFSegs9jyrnW` READY, veřejný přístup povolen **pouze pro tento preview deployment** (produkční ochrana projektu nezměněna).
 - **Skutečný test HTTP z GitHub Actions `39404246028`, attempt 2 – PASS:** `/ios-install.html` **200 text/html**, `/apple-touch-icon-ios-v012-test.png` **200 image/png**, `/icon-192-v011.png` **200 image/png**, `/icon-512-v011.png` **200 image/png**, `/manifest.webmanifest` **200 application/manifest+json**. Ověřena i PNG signatura, vložené data URL, JS přesměrování a správný konečný host bez přesměrování na přihlašovací formulář.
 - **GitHub zdroj:** obě požadované statické položky jsou fyzicky commitnuté v `31620cd1` (nikoli generované až v deployi): PNG `8785` bajtů a instalační HTML `13268` bajtů. Vlastní kontrola buildu potvrzuje 180×180 PNG bez alfa kanálu.
