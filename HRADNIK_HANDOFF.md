@@ -4,11 +4,11 @@
 
 - **Výchozí produkční HEAD:** `52d648f536e165981282570279f8845db2bcc9c3` (v0.1.2). **Scope této dávky:** pouze read-only Supabase/repo audit, dva auth regresní testy, vynucený statický bezpečnostní preflight v `prebuild`, aktualizace plánu. Nezasahovat do produkční databáze ani backend funkcí. Rollback na výchozí HEAD.
 - **Uživatelské potvrzení před ikonami:** šest ze šesti bodů PC, mobil, detaily, ukládání, synchronizace PC↔mobil a offline/fotografie bylo oznámeno jako OK. Na tomto základě uzavíráme **HRA-P2-14, HRA-P0-05 a HRA-P0-06 DONE 100 %**; netvrdit, že uživatel na zařízení ručně simuloval 401, 403 či HTTP 503 (to kryje automatizace).
-- **HRA-P0-01 / P0-02:** runtime kód nemá referenci na starou DB; jen jedna sdílená browser Supabase instance. Vychází z reálného uživatelského ověření, dřívějšího Playwright požadavkového testu a z auditu zdrojových souborů. Doplňený build guard musí projít CI před převodem z VERIFY na DONE.
+- **HRA-P0-01 / P0-02:** **DONE 100 %**. Frontend bez staré Supabase URL, jediný browser klient, uživatelské PC/mobil/synchronizace OK. Build včetně statického guardu **PASS** (run `39475985510`), Playwright včetně URL checku a 503/network/401/403 **69 PASS, 7 skipped, 0 FAIL** (run `39475985430`), produkce READY pro `1be4747197cf96191af7fec8ee760c756bd94af6`.
 - **Nová Supabase `abqiprdggptuxebhpfyi`:** read-only metadata ukazují 9 `hradnik_*` tabulek s RLS, 8 aktivních Edge Functions včetně neškodného `hradnik-migrate-temporary` (aktuálně vrací jen HTTP 410). Advisor INFO = 6 tabulek s RLS bez policies, WARN = `pg_net` extension in public; automaticky neměnit ani jedno.
 - **Auditní protokol:** `docs/HRADNIK_BACKEND_AUDIT_2026-10-20.md`. **HRA-P0-04 zůstává VERIFY 95 %** do skutečného read-only funkčního testu admin/quality/rolí. **HRA-P0-03 VERIFY 90 % a HRA-P2-10 BLOCKED 10 %**; bez samostatně odsouhlasené čisté DB instance žádný restore drill.
-- **Co je nutné ověřit po tomto commitu:** GitHub Actions `Build Hradník`, `Hradník visual regression` (včetně nových scénářů offline síťové chyby a 403) a produkční Vercel READY pro stejný SHA. Nehlásit je za PASS před dokončením.
-- **Další krok:** po zeleném CI dát P0-01/02 DONE (pokud guard i síťové hostname kontroly vyšly), a poté pokračovat neinvazivním P0-04 auditem admin/quality, případně RLS security advisory s konkrétním doporučením; bez přímé změny databáze.
+- **Ověření dokončeno 20. 10. 2026:** `Build Hradník` PASS (run `39475985510`), `Hradník visual regression` PASS (run `39475985430`, 69 PASS / 7 skipped, oba nové auth scénáře zvlášť na PC/iPhone), HTTP produkční ikon PASS (run `39475985108`). Produkční Vercel READY se shodnou SHA `1be4747`.
+- **Další krok:** P0-01/02 DONE; pokračovat neinvazivním P0-04 testem skutečných oprávnění admin/quality, ideálně i bezpečnou veřejnou negativní zkouškou 401/403. RLS advisory pouze revidovat, bez nevyžádaných změn databáze.
 
 ---
 
@@ -120,9 +120,9 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 ## P0 – Kritické: funkční backend a bezpečná migrace
 
 ### HRA-P0-01 – Kompletně přepojit Hradník na nový Supabase
-- **Stav:** VERIFY
-- **Dokončeno:** 95 %
-- **Potvrzeno:** jeden hostname pro runtime požadavky, šest uživatelských manuálních kontrol OK, statický CI guard doplněn. DONE až po novém build/visual CI.
+- **Stav:** DONE
+- **Dokončeno:** 100 %
+- **Potvrzeno:** jeden hostname pro runtime požadavky, šest uživatelských manuálních kontrol OK, statický CI guard doplněn. Build i visual regression PASS 20. 10. 2026.
 
 **Audit / problém:**
 Frontend stále používá starý Supabase projekt `cgshssdjgzzuprlwnabl`, zatímco aktuální samostatný projekt Hradníku je `abqiprdggptuxebhpfyi`. Staré API podle auditu vrací 404 a aplikace může místo obsahu zobrazit technickou chybu.
@@ -150,8 +150,8 @@ Frontend stále používá starý Supabase projekt `cgshssdjgzzuprlwnabl`, zatí
 ---
 
 ### HRA-P0-02 – Centralizovat konfiguraci a Supabase klienta
-- **Stav:** VERIFY
-- **Dokončeno:** 95 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
 - **Potvrzeno:** jeden browser `createClient` v `src/supabase.js`, sdílený `globalThis` slot, uživatelská stabilita přihlášení. DONE až po novém CI guard.
 
 **Audit / problém:**
@@ -1836,7 +1836,7 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-1. **HRA-P0-01/02 VERIFY 95 %:** na aktuálním commitu čekat na oba GitHub Actions PASS a Vercel READY; ověřit že `npm run test:isolation` proběhl v `prebuild` a Playwright kontroluje hostname. Pak přesunout P0-01 a P0-02 na DONE 100 %, nejsou-li zjištěny další nedostatky.
+1. **HRA-P0-01/02 DONE 100 %:** potvrzený statický a síťový audit frontendového přepojení, build PASS, 69 regresí PASS, produkce READY. Neotevírat znovu bez nové konkrétní chyby.
 2. **HRA-P0-04 VERIFY 95 %:** kontrola nasazených endpointů admin/quality, aktuálních rolí/opravení přístupových práv a uživatelských dat pouze read-only; dokud nejsou doloženy funkční akceptační testy administrace a quality UI, nepřevádět na DONE.
 3. **Supabase security advisories:** `pg_net` v `public` WARN a 6 INFO tabulek RLS bez policies. Ověřit dopady a potřebnost proti přístupovému modelu; neprovádět automaticky změny policies či extension. Viz `docs/HRADNIK_BACKEND_AUDIT_2026-10-20.md`.
 4. **HRA-P0-03 VERIFY / P2-10 BLOCKED:** fresh-DB restore drill vyžaduje samostatné schválení testovací Supabase/branch a případných nákladů. Do starého a živého Hradníku schéma nepřepisovat.

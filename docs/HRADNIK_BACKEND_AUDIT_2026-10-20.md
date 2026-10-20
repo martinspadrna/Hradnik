@@ -1,5 +1,7 @@
 # Hradník – nedestruktivní audit návaznosti na Supabase (20. 10. 2026)
 
+**Ověření souvisejícího commitu `1be4747` dokončeno:** Build Hradník `39475985510` PASS (včetně runtime-isolation guardu), Hradník visual regression `39475985430` PASS (69 testů, 7 přeskočeno), Vercel produkce READY, HTTP ikony a aplikace `39475985108` PASS. HRA-P0-01 a HRA-P0-02 nyní DONE 100 %. Zbytek migrace včetně serverových rolí a čisté DB instance zůstává nezávislý, nedokončený úkol.
+
 ## Rozsah
 Pouze čtení zdrojových souborů repozitáře, metadat **nové** Supabase `abqiprdggptuxebhpfyi` a výsledků předchozích Playwright testů PC/iPhone. Žádné změny schématu, řádků, RLS, funkcí ani tokenů. **Starý projekt** `cgshssdjgzzuprlwnabl` nedotčen.
 

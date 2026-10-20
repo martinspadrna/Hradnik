@@ -39,3 +39,5 @@ Uživatel potvrdil šest kontrol PC, mobilu, detailů a ukládání, přenosu st
 HRA-P0-01/02: frontendová migrace byla podpořena ruční kontrolou a regresním testem všech volání na samostatný Hradník. Nově se při každém buildu spouští npm run test:isolation, který skenuje frontend a všechny Edge Function zdroje na cizí/starou Supabase, ověřuje jediného browser klienta a bezpečnou obnovu relace. Pokud CI neprojde, změnu nelze převzít.
 
 **Stále neověřeno:** plná administrace/kontrola kvality, kompletní instalace prázdné databáze, konkrétní bezpečnostní politiky skutečné databáze. HRA-P0-04 ponechat VERIFY, P0-03 VERIFY a P2-10 BLOCKED. Stará databáze zůstává beze změny.
+
+**CI po obnovení plánu (20. 10. 2026):** Build `39475985510` PASS (včetně `test:isolation`); vizuální/regresní suite `39475985430` PASS – **69 testů prošlo, 7 přeskočeno**, nové session request-failure a 403 testy prošly zvlášť na PC i iPhone. Produkční Vercel READY pro `1be4747`. HRA-P0-01 a HRA-P0-02 podle akceptačních bodů DONE; HRA-P0-04 a čistý DB drill zůstávají otevřené.
