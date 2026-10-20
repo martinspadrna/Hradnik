@@ -31,3 +31,11 @@ Stačí zpráva např.: **PC: 1–5 OK; mobil: 1–5 OK; sync: 6 OK; offline: 7 
 - **HRA-P0-01, P0-02, P0-04, P0-06:** technické testy + body 1, 6, 8 a podle používaných funkcí bod 10; pro úplné uzavření migrace je vhodná i kontrola skutečných požadavků v konzoli/Network.
 - **HRA-P0-05:** bod 7 a kontrola chybových hlášek.
 - **HRA-P0-03 / HRA-P2-10:** **nelze uzavřít** tímto uživatelským testem, dokud nebude ověřen čistý DB restore na oddělené testovací Supabase. Stará Supabase se nemaže.
+
+## Převzetí uživatelem 19.–20. 10. 2026
+
+Uživatel potvrdil šest kontrol PC, mobilu, detailů a ukládání, přenosu stavů PC↔mobil a offline zobrazení/fotek slovem OK. Na tomto základě lze uzavřít HRA-P2-14 (výměna detailu a pozdní zápis), HRA-P0-05 (offline fallback) a HRA-P0-06 (běžné zachování relace; negativní stavy 401/403 a síťovou chybu zkouší Playwright). Je to potvrzení uživatelského běžného chování, ne tvrzení, že uživatel na fyzickém zařízení uměle simuloval HTTP 503/401.
+
+HRA-P0-01/02: frontendová migrace byla podpořena ruční kontrolou a regresním testem všech volání na samostatný Hradník. Nově se při každém buildu spouští npm run test:isolation, který skenuje frontend a všechny Edge Function zdroje na cizí/starou Supabase, ověřuje jediného browser klienta a bezpečnou obnovu relace. Pokud CI neprojde, změnu nelze převzít.
+
+**Stále neověřeno:** plná administrace/kontrola kvality, kompletní instalace prázdné databáze, konkrétní bezpečnostní politiky skutečné databáze. HRA-P0-04 ponechat VERIFY, P0-03 VERIFY a P2-10 BLOCKED. Stará databáze zůstává beze změny.

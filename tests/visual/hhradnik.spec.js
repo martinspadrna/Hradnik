@@ -59,6 +59,7 @@ async function mockBackend(page, loggedIn = true, options = {}) {
     try { body = route.request().postDataJSON() || {} } catch {}
     if (!loggedIn) return route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'Unauthorized' }) })
     if (body.action === 'session') {
+      if (options.sessionNetworkFailure) return route.abort('failed')
       if (options.sessionErrorStatus) return route.fulfill({ status: options.sessionErrorStatus, contentType: 'application/json', body: JSON.stringify({ error: 'Temporary session check failure' }) })
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { id: 'visual-test', username: 'visual-test' } }) })
     }
@@ -982,6 +983,31 @@ test('temporary profile verification outage preserves session and recovers on re
   await page.reload()
   await expect(page.locator('.reference-profile-button')).toHaveClass(/logged-in/)
   expect(await page.evaluate(() => localStorage.getItem('hradnik_session'))).toBe('visual-regression-session')
+})
+
+test('network failure during session verification keeps the token and recovers on reload', async ({ page }) => {
+  const options = { sessionNetworkFailure: true }
+  const failedRequest = page.waitForEvent('requestfailed', request => {
+    if (!request.url().includes('/functions/v1/hradnik-auth')) return false
+    return request.postDataJSON()?.action === 'session'
+  })
+  await openApp(page, true, options)
+  await failedRequest
+  expect(await page.evaluate(() => localStorage.getItem('hradnik_session'))).toBe('visual-regression-session')
+  options.sessionNetworkFailure = false
+  await page.reload()
+  await expect(page.locator('.reference-profile-button')).toHaveClass(/logged-in/)
+  expect(await page.evaluate(() => localStorage.getItem('hradnik_session'))).toBe('visual-regression-session')
+})
+
+test('explicit 403 session rejection clears the invalid token', async ({ page }) => {
+  const sessionResponse = page.waitForResponse(response => {
+    if (!response.url().includes('/functions/v1/hradnik-auth')) return false
+    return response.request().postDataJSON()?.action === 'session'
+  })
+  await openApp(page, true, { sessionErrorStatus: 403 })
+  expect((await sessionResponse).status()).toBe(403)
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('hradnik_session'))).toBeNull()
 })
 
 test('explicitly rejected profile session is cleared', async ({ page }) => {
