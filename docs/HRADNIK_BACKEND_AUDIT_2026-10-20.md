@@ -31,3 +31,14 @@ Pouze čtení zdrojových souborů repozitáře, metadat **nové** Supabase `abq
 - Znovu zkontrolovat stav bezpečnostních upozornění před jakoukoli DB úpravou a nezasahovat do staré databáze.
 
 **Rollback pro doplněné testy a guard:** předešlý ověřený main `52d648f536e165981282570279f8845db2bcc9c3` (v0.1.2), beze změn aplikačního runtime.
+
+## Živé HTTP ověření přístupů bez přihlašovacích údajů (20. 10. 2026)
+
+Automatický GitHub Actions `Hradník backend access smoke`, run `39477214791`, **PASS**. Běžel proti **novému** produkčnímu Supabase projektu, bez apikey, hesla nebo uživatelského tokenu; nepoužil žádný zápis ani administrátorské volání se skutečnými daty:
+
+- POST `hradnik-admin`, action `list`: **HTTP 403**, anonymní přístup odmítnut.
+- POST `hradnik-quality`, action `list`: **HTTP 403**, anonymní přístup odmítnut.
+- POST `hradnik-auth`, action `session`: **HTTP 401**, relace bez tokenu odmítnuta.
+- GET `hradnik-migrate-temporary`: **HTTP 410**, migrační pomocník deaktivován.
+
+Script `scripts/verify-backend-public-access.mjs` a workflow `.github/workflows/backend-access-smoke.yml` jsou uloženy na main, spuštěné bez produkčních tajných hodnot. **Závěr pouze pro negativní scénář:** externí anonymní požadavky neodhalily admin/quality data. Pozitivní role a výsledky uživatelem povolených admin obrazovek nebyly otestovány. **HRA-P0-04 VERIFY 97 %.**

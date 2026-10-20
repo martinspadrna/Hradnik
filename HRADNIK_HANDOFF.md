@@ -6,9 +6,9 @@
 - **Uživatelské potvrzení před ikonami:** šest ze šesti bodů PC, mobil, detaily, ukládání, synchronizace PC↔mobil a offline/fotografie bylo oznámeno jako OK. Na tomto základě uzavíráme **HRA-P2-14, HRA-P0-05 a HRA-P0-06 DONE 100 %**; netvrdit, že uživatel na zařízení ručně simuloval 401, 403 či HTTP 503 (to kryje automatizace).
 - **HRA-P0-01 / P0-02:** **DONE 100 %**. Frontend bez staré Supabase URL, jediný browser klient, uživatelské PC/mobil/synchronizace OK. Build včetně statického guardu **PASS** (run `39475985510`), Playwright včetně URL checku a 503/network/401/403 **69 PASS, 7 skipped, 0 FAIL** (run `39475985430`), produkce READY pro `1be4747197cf96191af7fec8ee760c756bd94af6`.
 - **Nová Supabase `abqiprdggptuxebhpfyi`:** read-only metadata ukazují 9 `hradnik_*` tabulek s RLS, 8 aktivních Edge Functions včetně neškodného `hradnik-migrate-temporary` (aktuálně vrací jen HTTP 410). Advisor INFO = 6 tabulek s RLS bez policies, WARN = `pg_net` extension in public; automaticky neměnit ani jedno.
-- **Auditní protokol:** `docs/HRADNIK_BACKEND_AUDIT_2026-10-20.md`. **HRA-P0-04 zůstává VERIFY 95 %** do skutečného read-only funkčního testu admin/quality/rolí. **HRA-P0-03 VERIFY 90 % a HRA-P2-10 BLOCKED 10 %**; bez samostatně odsouhlasené čisté DB instance žádný restore drill.
+- **Auditní protokol:** `docs/HRADNIK_BACKEND_AUDIT_2026-10-20.md`. **HRA-P0-04 VERIFY 97 %:** živý anonymní přístup k admin a quality bezpečně odmítnut HTTP 403, k auth/session HTTP 401 a dočasný migration helper vrací HTTP 410; GitHub Actions `39477214791` PASS. Chybí pozitivní read-only funkční ověření legitimního admin účtu / UI. **HRA-P0-03 VERIFY 90 % a HRA-P2-10 BLOCKED 10 %**; bez samostatně odsouhlasené čisté DB instance žádný restore drill.
 - **Ověření dokončeno 20. 10. 2026:** `Build Hradník` PASS (run `39475985510`), `Hradník visual regression` PASS (run `39475985430`, 69 PASS / 7 skipped, oba nové auth scénáře zvlášť na PC/iPhone), HTTP produkční ikon PASS (run `39475985108`). Produkční Vercel READY se shodnou SHA `1be4747`.
-- **Další krok:** P0-01/02 DONE; pokračovat neinvazivním P0-04 testem skutečných oprávnění admin/quality, ideálně i bezpečnou veřejnou negativní zkouškou 401/403. RLS advisory pouze revidovat, bez nevyžádaných změn databáze.
+- **Další krok:** P0-01/02 DONE, negativní auth test P0-04 prošel. Pokračovat bezpečným read-only ověřením přihlášeného admin účtu v administraci / kvalitě bez zápisů a zkouškou rolí; **nevyžadovat hesla/tokeny v chatu**. RLS advisor jen revidovat, bez nevyžádaných zásahů.
 
 ---
 
@@ -207,7 +207,8 @@ Repozitář musí být schopný založit Hradník od nuly.
 
 ### HRA-P0-04 – Prověřit a přepojit všechny služby navázané na Supabase
 - **Stav:** VERIFY
-- **Dokončeno:** 95 %
+- **Dokončeno:** 97 %
+- **Ověřeno:** live negativní přístup bez tokenu: admin/list 403, quality/list 403, auth/session 401, migrační pomocník GET 410. CI `39477214791` PASS. To ověřuje pouze zamítnutí nepřihlášeného přístupu, ne pozitivní scénář se skutečným administrátorem.
 
 **Zkontrolovat minimálně:**
 - katalog,
@@ -1837,7 +1838,7 @@ Po HRA-P0-01 až HRA-P0-05:
 # 13. Další doporučený krok
 
 1. **HRA-P0-01/02 DONE 100 %:** potvrzený statický a síťový audit frontendového přepojení, build PASS, 69 regresí PASS, produkce READY. Neotevírat znovu bez nové konkrétní chyby.
-2. **HRA-P0-04 VERIFY 95 %:** kontrola nasazených endpointů admin/quality, aktuálních rolí/opravení přístupových práv a uživatelských dat pouze read-only; dokud nejsou doloženy funkční akceptační testy administrace a quality UI, nepřevádět na DONE.
+2. **HRA-P0-04 VERIFY 97 %:** živá negativní ochrana admin/quality/auth ověřena `39477214791` PASS. Příští krok ověřit legitimní admin přístup v UI a read-only seznamy, bez změn záznamů; dokud nejsou doloženy funkční akceptační testy a role, nepřevádět na DONE.
 3. **Supabase security advisories:** `pg_net` v `public` WARN a 6 INFO tabulek RLS bez policies. Ověřit dopady a potřebnost proti přístupovému modelu; neprovádět automaticky změny policies či extension. Viz `docs/HRADNIK_BACKEND_AUDIT_2026-10-20.md`.
 4. **HRA-P0-03 VERIFY / P2-10 BLOCKED:** fresh-DB restore drill vyžaduje samostatné schválení testovací Supabase/branch a případných nákladů. Do starého a živého Hradníku schéma nepřepisovat.
 5. **HRA-P0-05, P0-06, P2-14, P2-13 a P3-01:** DONE 100 %. Nepřepisovat už hotové části bez konkrétní reprodukované regrese.
