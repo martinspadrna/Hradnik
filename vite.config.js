@@ -6,7 +6,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       injectRegister: false,
-      includeAssets: ['favicon.ico', 'favicon.svg', 'favicon-16.png', 'favicon-32.png', 'pwa-192.svg', 'pwa-512.svg', 'hradnik-app-icon.svg', 'apple-touch-icon.png', 'apple-touch-icon-v011.png', 'icon-192-v011.png', 'icon-512-v011.png'],
+      includeAssets: ['favicon.ico', 'favicon.svg', 'favicon-16.png', 'favicon-32.png', 'pwa-192.svg', 'pwa-512.svg', 'hradnik-app-icon.svg', 'apple-touch-icon.png', 'apple-touch-icon-v011.png', 'apple-touch-icon-ios-v012-test.png', 'icon-192-v011.png', 'icon-512-v011.png'],
       manifest: {
         id: '/',
         name: 'Hradník',
@@ -20,7 +20,8 @@ export default defineConfig({
         lang: 'cs',
         icons: [
           { src: '/icon-192-v011.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-          { src: '/icon-512-v011.png', sizes: '512x512', type: 'image/png', purpose: 'any' }
+          { src: '/icon-512-v011.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/apple-touch-icon-ios-v012-test.png', sizes: '180x180', type: 'image/png', purpose: 'any' }
         ]
       },
       workbox: {

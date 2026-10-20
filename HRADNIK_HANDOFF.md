@@ -1,5 +1,19 @@
 # HRADNIK_HANDOFF.md
 
+## Testovací větev iOS instalace Edge (2026-10-20)
+
+- **VÝHRADNĚ TEST:** `test/ios-edge-icon-20261020` od `a55184811666fb98311cb9fe145a93bed37efe13`. **MAIN/produkci neupravovat bez nového výslovného svolení.**
+- **Verze náhledu:** `0.1.2-test.1`. Původní verze produkce `0.1.1`, bezpečný rollback = zpět na výchozí commit, žádná změna databáze, synchronizace ani UI aplikace.
+- **Zdroj reference:** RaK na větvi `development`, soubor `ios-install.html`, používá skutečný vložený `data:image/png;base64` a přesměrování při `navigator.standalone` / `display-mode: standalone`.
+- **Logo:** Stávající SVG zlatý štít Hradníku beze změny. Windows/Android průhledné PNG a favicony beze změny. Speciální iOS `public/apple-touch-icon-ios-v012-test.png` je 180×180 **neprůhledný** PNG s původním motivem na tmavém pozadí.
+- **Fyzicky commitované soubory:** `public/ios-install.html` s plně vloženým base64 180 PNG, `public/apple-touch-icon-ios-v012-test.png`. Oba soubory se vytvoří a **commitnou do testovací větve** jednorázovým workflow `ios-edge-preview.yml`; nejde pouze o výstupy buildu. Vite je musí z `public/` kopírovat do deploye.
+- **Instalace přes Edge:** otevřít `https://<ověřený-preview-host>/ios-install.html`, přes Sdílet → Přidat na plochu. Při spuštění z iOS standalone instalace automaticky přejde na `/?source=pwa` (aplikace, nikoli instalační stránka).
+- **Cache:** nové verzované jméno iOS PNG a změněný manifest (třetí PNG s `purpose:any`), html manifest query a Workbox revision/cleanup; Android manifest ikony `icon-192-v011.png`, `icon-512-v011.png` zůstávají stejné.
+- **Akceptace:** skutečné HTTP 200 pro preview `/ios-install.html`, `/apple-touch-icon-ios-v012-test.png` a PWA 192/512 PNG, kontrola HTML data URL a neprůhlednosti, CI build + Playwright PC/iPhone, Vercel preview READY pro finální test SHA.
+- **Čeká se výslovně na skutečný test ikony na iPhonu uživatelem.** Bez potvrzení žádný merge ani změna produkce.
+- **Ostatní projektové úkoly:** zachovat níže, nepřepisovat jejich stav touto izolovanou změnou.
+
+---
 > Jediný průběžně aktualizovaný předávací a řídicí soubor projektu Hradník.
 > Každý nový chat / Work běh má nejdřív načíst tento soubor a pokračovat podle sekce **Aktuálně řešený úkol**.
 
