@@ -1,0 +1,48 @@
+name: Hradník preview real HTTP verification
+on:
+  push:
+    branches:
+      - test/ios-edge-icon-20261020
+    paths:
+      - .github/workflows/ios-edge-http-check.yml
+permissions:
+  contents: read
+jobs:
+  http-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check real HTTPS 200, MIME types, and embedded install PNG
+        env:
+          BASE: https://hradnik-1qe5iv6ek-martinspadrnas-projects.vercel.app
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in ios-install.html apple-touch-icon-ios-v012-test.png icon-192-v011.png icon-512-v011.png manifest.webmanifest; do
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            result="$(curl --max-time 30 --silent --show-error --location --dump-header "$headers" --output "$body" --write-out '%{http_code}|%{content_type}|%{url_effective}' "$BASE/$path")"
+            status="${result%%|*}"
+            mime="${result#*|}"; mime="${mime%%|*}"
+            final="${result##*|}"
+            printf '%s HTTP %s (%s)\n' "$path" "$status" "$mime"
+            test "$status" = 200
+            test "$final" = "$BASE/$path"
+            case "$path" in
+              *.png)
+                [[ "$mime" == image/png* ]]
+                signature="$(od -An -t x1 -N8 "$body" | tr -d ' \n')"
+                test "$signature" = 89504e470d0a1a0a
+                ;;
+              ios-install.html)
+                [[ "$mime" == text/html* ]]
+                grep -q 'data:image/png;base64,' "$body"
+                grep -q 'window.location.replace' "$body"
+                ;;
+              manifest.webmanifest)
+                [[ "$mime" == application/* || "$mime" == text/plain* ]]
+                grep -q 'apple-touch-icon-ios-v012-test.png' "$body"
+                ;;
+            esac
+            rm -f "$headers" "$body"
+          done
+          echo 'All real preview HTTP and content checks passed.'
