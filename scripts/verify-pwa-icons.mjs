@@ -31,7 +31,7 @@ for (const name of ['hradnik-app-icon.svg','hradnik-icon.svg','pwa-192.svg','pwa
   const source = await readFile(resolve('public',name),'utf8')
   assert(!/<rect\b[^>]*\bwidth="512"[^>]*\bheight="512"/i.test(source),name + ' still contains the old square')
 }
-const iconPaths = ['/icon-192-v011.png', '/icon-512-v011.png']
+const iconPaths = ['/icon-192-v011.png', '/icon-512-v011.png', '/apple-touch-icon-ios-v012.png']
 for (const path of ['public/manifest.webmanifest', 'dist/manifest.webmanifest']) {
   const manifest = JSON.parse(await readFile(resolve(path),'utf8'))
   assert.equal(manifest.id, '/', path)
@@ -40,9 +40,21 @@ for (const path of ['public/manifest.webmanifest', 'dist/manifest.webmanifest'])
   assert(manifest.icons.every(icon => icon.type === 'image/png' && icon.purpose === 'any'), path)
 }
 const index = await readFile(resolve('dist/index.html'),'utf8')
-assert(index.includes('favicon.ico') && index.includes('apple-touch-icon-v011.png'))
+assert(index.includes('favicon.ico') && index.includes('apple-touch-icon-ios-v012.png'))
 const sw = await readFile(resolve('dist/sw.js'),'utf8')
-for (const name of ['icon-192-v011.png','icon-512-v011.png','apple-touch-icon-v011.png']) {
+for (const name of ['icon-192-v011.png','icon-512-v011.png','apple-touch-icon-ios-v012.png','ios-install.html']) {
   assert(sw.includes(name), 'Service worker precache must include ' + name)
 }
-console.log('Hradník: PNG transparency, ICO, manifest and SW precache verified')
+const iosIcon = await readFile(resolve('public/apple-touch-icon-ios-v012.png'))
+const opaque = await sharp(iosIcon).metadata()
+assert.equal(opaque.width, 180)
+assert.equal(opaque.height, 180)
+assert.equal(opaque.hasAlpha, false, 'iOS Edge icon must be opaque')
+const installer = await readFile(resolve('public/ios-install.html'), 'utf8')
+const embedded = installer.match(/rel="apple-touch-icon" sizes="180x180" href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/)
+assert(embedded, 'iOS installer must contain directly embedded PNG, not an external link')
+assert.deepEqual(Buffer.from(embedded[1], 'base64'), iosIcon, 'Embedded image must be the exact committed PNG')
+const deployedInstaller = await readFile(resolve('dist/ios-install.html'), 'utf8')
+assert(deployedInstaller.includes(embedded[1]), 'The actual installation HTML must be copied to production build output')
+assert(installer.includes("window.location.replace('/?source=pwa')"), 'Installed shortcut must launch the application')
+console.log('Hradník: PNG transparency, ICO, manifest, SW precache, opaque iOS PNG and static installer verified')

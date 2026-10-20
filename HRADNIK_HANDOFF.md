@@ -1,5 +1,19 @@
 # HRADNIK_HANDOFF.md
 
+## Produkční release 2026-10-20 – Hradník 0.1.2 (iOS Edge PWA ikona)
+
+- **Uživatelský souhlas:** 20. 10. 2026 „dej to na main“ po ověření testovací větve `test/ios-edge-icon-20261020`.
+- **Main výchozí / rollback SHA:** `a55184811666fb98311cb9fe145a93bed37efe13` (verze `0.1.1`). Původní commit i Vercel deployment zachovat pro návrat. Backend, databáze, synchronizace a aplikační UI jsou beze změny.
+- **Zdroj:** odzkoušené soubory z testovací větve, produkční označení bez „TEST“. `public/ios-install.html` je **fyzický soubor commitnutý v main** s vloženým PNG v `data:image/png;base64`; `public/apple-touch-icon-ios-v012.png` je fyzický **neprůhledný 180×180 PNG** (stejný stávající zlatý štít). `src` Android/Windows a jejich průhledné ikony `icon-192-v011.png` a `icon-512-v011.png` se nemění.
+- **Použití:** `https://hradnik.vercel.app/ios-install.html` otevřít v Microsoft Edge na iPhonu a Přidat na plochu. V instalovaném režimu stránka ihned přesměruje `/?source=pwa`. Nová standardní `apple-touch-icon` v indexu a třetí položka v public i Vite manifestu odkazují na existující `/apple-touch-icon-ios-v012.png`; `purpose:any`, beze změny ID PWA. Workbox aktualizuje soubory pomocí revizí a čištění starých cache.
+- **Verze:** `package.json` `0.1.2`, `index.html` `application-version=0.1.2`. `scripts/generate-ios-edge-install.mjs` je reprodukovatelný generátor souborů, ale hotové PNG a HTML jsou **už commitnuté** – není třeba čekat na build.
+- **Před převodem – TEST:** Vercel preview READY; vizuální testy `39467425761`: **65 PASS / 7 skipped / 0 FAIL** (včetně samostatného testu iPhone launch), skutečná HTTP 200 `39467425826` pro instalátor, 180/192/512 PNG, manifest a otevření aplikace. Žádné další UI změny.
+- **Po nasazení na produkci:** ověřit Build Hradník, Hradník visual regression a novou workflow `Production iOS PWA HTTP verification` s reálným HTTP 200 **po vydání**; produkční SHA musí být přesná release SHA. Stav fyzické ikony na iPhonu uživatel ještě může dodatečně potvrdit.
+- **Bezpečná cesta zpět:** revert tohoto jediného release commitu nebo přepnutí na uložený Vercel deployment odpovídající výchozí SHA. Nevypínat produkční ochranné mechanismy, nepřenášet preview aliasy / preview výjimky / testovací GitHub workflows do main.
+
+---
+
+
 > Jediný průběžně aktualizovaný předávací a řídicí soubor projektu Hradník.
 > Každý nový chat / Work běh má nejdřív načíst tento soubor a pokračovat podle sekce **Aktuálně řešený úkol**.
 

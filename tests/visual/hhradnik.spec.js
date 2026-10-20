@@ -1045,9 +1045,10 @@ test('installed PWA uses transparent versioned Hradnik icons', async ({ page }) 
   const manifest = await response.json()
   expect(manifest.icons).toEqual([
     { src: '/icon-192-v011.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-    { src: '/icon-512-v011.png', sizes: '512x512', type: 'image/png', purpose: 'any' }
+    { src: '/icon-512-v011.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+    { src: '/apple-touch-icon-ios-v012.png', sizes: '180x180', type: 'image/png', purpose: 'any' }
   ])
-  await expect(page.locator('link[rel="apple-touch-icon"][sizes="180x180"]')).toHaveAttribute('href', '/apple-touch-icon-v011.png')
+  await expect(page.locator('link[rel="apple-touch-icon"][sizes="180x180"]')).toHaveAttribute('href', '/apple-touch-icon-ios-v012.png')
   await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', '/favicon.svg?v=0.1.1')
   for (const icon of [...manifest.icons, { src:'/apple-touch-icon-v011.png' }]) {
     const file = await page.request.get(icon.src)
@@ -1066,4 +1067,33 @@ test('PWA update bridge is installed and guest mode still boots', async ({ page 
   expect(bridge.check).toBe('function')
   expect(bridge.apply).toBe('function')
   expect(bridge.available).toBe('boolean')
+})
+
+test('installed iOS Edge shortcut redirects from installer to actual Hradnik app', async ({ page }) => {
+  await mockBackend(page, false)
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'standalone', { configurable: true, value: true })
+  })
+  await page.goto('/ios-install.html')
+  await expect(page).toHaveURL(/\/\?source=pwa$/, { timeout: 15000 })
+  await expect(page.locator('.redesign-sidebar .redesign-nav > button')).toHaveCount(5, { timeout: 15000 })
+  await expect(page.locator('#app')).toBeVisible()
+})
+
+test('separate iOS Edge installer contains the real opaque PNG and launches application', async ({ page }) => {
+  const response = await page.request.get('/ios-install.html')
+  expect(response.status()).toBe(200)
+  const html = await response.text()
+  const marker = 'rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,'
+  const match = html.includes(marker) ? [null, html.split(marker)[1].split('"')[0]] : null
+  expect(match).not.toBeNull()
+  const png = await page.request.get('/apple-touch-icon-ios-v012.png')
+  expect(png.status()).toBe(200)
+  expect(png.headers()['content-type']).toContain('image/png')
+  expect(Buffer.from(match[1], 'base64')).toEqual(await png.body())
+  await page.goto('/ios-install.html')
+  await expect(page.getByRole('heading', { name: 'Hradník – instalace na iPhone' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Otevřít Hradník' })).toHaveAttribute('href', '/')
+  const app = await page.request.get('/')
+  expect(app.status()).toBe(200)
 })

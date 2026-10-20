@@ -1,0 +1,74 @@
+name: Verify production iOS PWA HTTP
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - package.json
+      - public/ios-install.html
+      - public/apple-touch-icon-ios-v012.png
+      - public/manifest.webmanifest
+      - vite.config.js
+      - .github/workflows/production-ios-pwa-http.yml
+
+permissions:
+  contents: read
+
+jobs:
+  live-http:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for published v0.1.2 and test real HTTPS files
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=https://hradnik.vercel.app
+          ready=false
+          for attempt in $(seq 1 36); do
+            html="$(mktemp)"
+            code="$(curl --max-time 20 --silent --show-error --location --output "$html" --write-out '%{http_code}' "$BASE/" || true)"
+            if [ "$code" = 200 ] && grep -q 'application-version" content="0.1.2"' "$html"; then
+              ready=true
+              rm -f "$html"
+              break
+            fi
+            rm -f "$html"
+            echo "Production is not on 0.1.2 yet (attempt $attempt)"
+            sleep 10
+          done
+          test "$ready" = true
+
+          for route in ios-install.html apple-touch-icon-ios-v012.png icon-192-v011.png icon-512-v011.png manifest.webmanifest '?source=pwa'; do
+            header="$(mktemp)"
+            body="$(mktemp)"
+            data="$(curl --max-time 25 --silent --show-error --location --dump-header "$header" --output "$body" --write-out '%{http_code}|%{content_type}|%{url_effective}' "$BASE/$route")"
+            code="${data%%|*}"
+            mime="${data#*|}"; mime="${mime%%|*}"
+            target="${data##*|}"
+            printf '%s HTTP %s (%s)\n' "$route" "$code" "$mime"
+            test "$code" = 200
+            test "$target" = "$BASE/$route"
+            case "$route" in
+              *.png)
+                [[ "$mime" == image/png* ]]
+                test "$(od -An -t x1 -N8 "$body" | tr -d ' \n')" = 89504e470d0a1a0a
+                ;;
+              ios-install.html)
+                [[ "$mime" == text/html* ]]
+                grep -q 'data:image/png;base64,' "$body"
+                grep -q 'window.location.replace' "$body"
+                grep -q 'Hradník – instalace na iPhone' "$body"
+                ! grep -q 'Hradník TEST' "$body"
+                ;;
+              manifest.webmanifest)
+                [[ "$mime" == application/* || "$mime" == text/plain* ]]
+                grep -q 'apple-touch-icon-ios-v012.png' "$body"
+                ;;
+              '?source=pwa')
+                [[ "$mime" == text/html* ]]
+                grep -q '<title>Hradník</title>' "$body"
+                ;;
+            esac
+            rm -f "$header" "$body"
+          done
+          echo 'Production iOS installer and Android PWA icons are publicly reachable (all HTTP 200).'
