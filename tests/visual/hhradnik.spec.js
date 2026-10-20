@@ -1162,12 +1162,23 @@ test('ordinary signed-in visitor cannot see the admin entry', async ({ page }) =
   expect(await page.evaluate(() => localStorage.getItem('hradnik_session'))).toBe('visual-regression-session')
 })
 
+async function openAdminForViewport(page) {
+  if (page.viewportSize()?.width < 700) {
+    await page.locator('.mobileHeaderMenu').click()
+    await expect(page.locator('.reference-mobile-drawer.open [data-ref-mobile="admin"]')).toBeVisible()
+    await page.locator('.reference-mobile-drawer.open [data-ref-mobile="admin"]').click()
+    await expect(page.locator('.reference-mobile-drawer.open')).toHaveCount(0)
+  } else {
+    await expect(page.locator('.hradnik-admin-btn')).toBeVisible({ timeout: 15000 })
+    await page.locator('.hradnik-admin-btn').click()
+  }
+}
+
 test('administrator can inspect the catalog and quality queue without modifying data', async ({ page }) => {
   const adminActions = []
   const qualityActions = []
   await openApp(page, true, { adminAccess: true, adminActions, qualityActions })
-  await expect(page.locator('.hradnik-admin-btn')).toBeVisible({ timeout: 15000 })
-  await page.locator('.hradnik-admin-btn').click()
+  await openAdminForViewport(page)
   await expect(page.locator('#hradnikAdminList .hradnik-admin-row')).toHaveCount(samplePlaces.length)
   await page.locator('#hradnikAdminSearch').fill('Hrad Test')
   await expect(page.locator('#hradnikAdminList .hradnik-admin-row')).toHaveCount(1)
@@ -1188,8 +1199,7 @@ test('administrator can inspect the catalog and quality queue without modifying 
 test('quality review access failure is shown without exposing private records', async ({ page }) => {
   const qualityActions = []
   await openApp(page, true, { adminAccess: true, qualityDenied: true, qualityActions })
-  await expect(page.locator('.hradnik-admin-btn')).toBeVisible({ timeout: 15000 })
-  await page.locator('.hradnik-admin-btn').click()
+  await openAdminForViewport(page)
   await expect(page.locator('#hqOpen')).toBeVisible()
   await page.locator('#hqOpen').click()
   await expect(page.locator('#hqList .hradnik-admin-empty')).toContainText('Přístup mají jen administrátoři.')

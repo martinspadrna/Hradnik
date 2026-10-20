@@ -1,5 +1,14 @@
 # HRADNIK_HANDOFF.md
 
+## P0-04 – oprava testovacího postupu pro iPhone (20. 10. 2026)
+
+- Běh `39482602542` na `714c7243`: desktop admin/quality testy **PASS**, mobilní testy **FAIL**, protože jejich selektor stále mířil na úmyslně skryté desktopové tlačítko. Oprava mobilního menu samotného již byla ve zdrojáku, ale během předchozího commitu se nedopatřením přepsaly změny testovacího pomocníka.
+- **Pouze test:** společný helper `openAdminForViewport` otevírá desktopové tlačítko na PC, mobilní hamburger a položku `data-ref-mobile="admin"` na iPhonu. Kód aplikace, role, DB i API beze změn. Běžný uživatel musí dál mít admin menu skryté.
+- Akceptace: Build a celá vizuální/regresní sada PASS na obou profilech, produkční Vercel READY. **P0-04 stále VERIFY**, žádný pozitivní přístup s živým admin tokenem nebyl zkoušen.
+- **Rollback:** `8630e3fcb3709aee40cca8a19f251b7868ce6481` před admin změnami; historie testů zachována.
+
+---
+
 ## P0-04 – zajištění administrace na mobilu (20. 10. 2026)
 
 - **Stav před opravou:** commit `a571ec9e6b2c28fc8b8da6021015065a31fa4de3` – desktopové administrátorské scénáře prošly, ale mobilní pozitivní průchod FAIL, protože mobilní hlavička úmyslně nezobrazuje desktopové akce. CI `39481557119` navíc ojediněle selhal v nesouvisejícím měření šířek desktopových karet (hodnota `undefined`; neoznačovat za potvrzenou chybu layoutu bez reprodukce).
