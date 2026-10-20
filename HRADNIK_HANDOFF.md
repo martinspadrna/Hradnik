@@ -2,6 +2,12 @@
 
 ## Testovací větev iOS instalace Edge (2026-10-20)
 
+- **Závěrečné technické ověření (20. 10. 2026): PASS.** Commit `8703d744c3f572413b42e5a9abea185f671be704` je na oddělené testovací větvi a preview `hradnik-8szpgb59m-martinspadrnas-projects.vercel.app` je **READY**. Alias `hradnik-git-test-ios-edge-icon-20261020-martinspadrnas-projects.vercel.app` míří právě na tento deployment, nikoli na produkci.
+- **GitHub Actions `39467425761` – PASS:** 65 testů prošlo, 7 přeskočeno, 0 selhalo; obě nově přidané zkoušky správné vložené ikony a přesměrování do aplikace prošly samostatně v desktop i iPhone profilu. Build ověřil 180×180 neprůhledný iOS PNG, dosavadní průhledné Windows/Android ikony, manifest a SW precache.
+- **HTTP `39467425826`, attempt 2 – PASS po nasazení posledního commitu:** stabilní testovací alias vrací skutečně HTTP 200 pro `/ios-install.html`, iOS PNG, obě Android PNG, manifest a `/?source=pwa`. Ověřeny správné content-types, PNG signatury a skutečné HTML místo přihlašovací stránky.
+- **AKCEPTACE:** Technické kontroly splněny. Fyzický vzhled ikony při uložení z Microsoft Edge na konkrétním iPhonu a otevření přímo do aplikace **stále čekají na jednoznačnou odpověď uživatele**. Nevykládat „ok, pokračuj“ jako potvrzení obou bodů. Ani nyní neprovádět merge, zásah do MAIN či produkční deployment.
+- **Instalační odkaz pro fyzickou kontrolu:** `https://hradnik-git-test-ios-edge-icon-20261020-martinspadrnas-projects.vercel.app/ios-install.html` (stálý preview alias, původní jednorázový odkaz je jen historický).
+
 - **Navazující kontrola:** stabilní alias testovací větve `hradnik-git-test-ios-edge-icon-20261020-martinspadrnas-projects.vercel.app` směřuje na aktuální preview. Výjimka z Vercel Authentication byla přidána **jen tomuto testovacímu aliasu**, nikoli produkci. HTTP workflow teď testuje alias (instalátor, tři PNG/manifest a otevření `/?source=pwa`), aby odkaz nezůstal závislý na náhodné adrese staršího deploye.
 - **Regrese spuštění z ikony:** doplněn Playwright test iOS `navigator.standalone` ověřující automatický přechod z instalační stránky na skutečnou úvodní obrazovku. Tento test je simulovaný; vzhled ikony na fyzickém iPhonu může definitivně schválit pouze uživatel.
 - **20. 10. následná kontrola:** celý předchozí UI suite měl 62 PASS, 7 skipped a jeden kolísavý CSS breakpoint FAIL; samostatný recheck stejného breakpointu `39404946079` již **PASS**. Nové integrační testy v předchozím běhu PASS na PC a iPhone. Žádné změny produkce, databáze ani synchronizace.
