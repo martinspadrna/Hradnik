@@ -1,0 +1,19 @@
+name: Hradník backend access smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/verify-backend-public-access.mjs
+      - .github/workflows/backend-access-smoke.yml
+permissions:
+  contents: read
+jobs:
+  anonymous-access:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check unauthorized admin/quality and disabled migration endpoints
+        run: node scripts/verify-backend-public-access.mjs
