@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## P0-04 – admin a quality UI ověřeny na PC + iPhone (20. 10. 2026)
+
+- **Hotový aplikační HEAD:** `9d70d9f2718e214cd81358a3bdd197572b271a71` na `main`. Vercel produkce **READY** pro shodnou SHA, `Build Hradník` **PASS** (run `39483500864`), `Hradník visual regression` **PASS** (run `39483500880`: **75 passed, 7 skipped, 0 failed**).
+- **Ověřené nové průchody PC/iPhone:** běžný přihlášený uživatel nevidí admin vstup v hlavičce ani v mobilní nabídce; administrátor může otevřít správu památek, vyhledat místo, prohlížet editor **bez uložení**, otevřít a zavřít frontu kontroly kvality; při odmítnutí HTTP 403 se zobrazí česká chyba bez privátních záznamů.
+- **Skutečně opravená závada:** desktopové admin tlačítko používalo špatnou třídu vůči referenčnímu shellu, proto bylo skryté; na mobilu je teď dostupné přes již existující hamburger menu. Role serveru se nemění. Mock v regresních testech všechny zapisovací požadavky odmítá.
+- **HRA-P0-04: VERIFY 98 %.** Reálně nasazené veřejné API ochrany byly dříve ověřeny HTTP 401/403/410, ale **kladný přístup s legitimními skutečnými administrátorskými oprávněními dosud nebyl ověřen** (pouze simulován Playwright). Na 100 % převést až po bezpečné reálné read-only zkoušce admin/quality pod vlastním účtem. Nevyžadovat uživatelské heslo ani token.
+- **Větev/verze/rollback:** `main`, verze aplikace stále `0.1.2` (cílený fix bez změny manifestu). Možnost návratu na `8630e3fcb3709aee40cca8a19f251b7868ce6481` před P0-04 fixem; žádné změny Supabase databáze, politik ani dat.
+- **Další krok:** uživatelská real-device read-only kontrola přístupu do `Správa památek` a `Kontrola kvality` bez použití tlačítek Uložit/Schválit/Zamítnout. Ostatní otevřené položky P0-03 VERIFY 90 % a P2-10 BLOCKED 10 % zůstávají nedotčené.
+
+---
+
 ## P0-04 – oprava testovacího postupu pro iPhone (20. 10. 2026)
 
 - Běh `39482602542` na `714c7243`: desktop admin/quality testy **PASS**, mobilní testy **FAIL**, protože jejich selektor stále mířil na úmyslně skryté desktopové tlačítko. Oprava mobilního menu samotného již byla ve zdrojáku, ale během předchozího commitu se nedopatřením přepsaly změny testovacího pomocníka.
@@ -46,7 +57,7 @@
 - **Uživatelské potvrzení před ikonami:** šest ze šesti bodů PC, mobil, detaily, ukládání, synchronizace PC↔mobil a offline/fotografie bylo oznámeno jako OK. Na tomto základě uzavíráme **HRA-P2-14, HRA-P0-05 a HRA-P0-06 DONE 100 %**; netvrdit, že uživatel na zařízení ručně simuloval 401, 403 či HTTP 503 (to kryje automatizace).
 - **HRA-P0-01 / P0-02:** **DONE 100 %**. Frontend bez staré Supabase URL, jediný browser klient, uživatelské PC/mobil/synchronizace OK. Build včetně statického guardu **PASS** (run `39475985510`), Playwright včetně URL checku a 503/network/401/403 **69 PASS, 7 skipped, 0 FAIL** (run `39475985430`), produkce READY pro `1be4747197cf96191af7fec8ee760c756bd94af6`.
 - **Nová Supabase `abqiprdggptuxebhpfyi`:** read-only metadata ukazují 9 `hradnik_*` tabulek s RLS, 8 aktivních Edge Functions včetně neškodného `hradnik-migrate-temporary` (aktuálně vrací jen HTTP 410). Advisor INFO = 6 tabulek s RLS bez policies, WARN = `pg_net` extension in public; automaticky neměnit ani jedno.
-- **Auditní protokol:** `docs/HRADNIK_BACKEND_AUDIT_2026-10-20.md`. **HRA-P0-04 VERIFY 97 %:** živý anonymní přístup k admin a quality bezpečně odmítnut HTTP 403, k auth/session HTTP 401 a dočasný migration helper vrací HTTP 410; GitHub Actions `39477214791` PASS. Chybí pozitivní read-only funkční ověření legitimního admin účtu / UI. **HRA-P0-03 VERIFY 90 % a HRA-P2-10 BLOCKED 10 %**; bez samostatně odsouhlasené čisté DB instance žádný restore drill.
+- **Auditní protokol:** `docs/HRADNIK_BACKEND_AUDIT_2026-10-20.md`. **HRA-P0-04 VERIFY 98 %:** živý anonymní přístup k admin a quality bezpečně odmítnut HTTP 403, k auth/session HTTP 401 a dočasný migration helper vrací HTTP 410; GitHub Actions `39477214791` PASS. Chybí pozitivní read-only funkční ověření legitimního admin účtu / UI. **HRA-P0-03 VERIFY 90 % a HRA-P2-10 BLOCKED 10 %**; bez samostatně odsouhlasené čisté DB instance žádný restore drill.
 - **Ověření dokončeno 20. 10. 2026:** `Build Hradník` PASS (run `39475985510`), `Hradník visual regression` PASS (run `39475985430`, 69 PASS / 7 skipped, oba nové auth scénáře zvlášť na PC/iPhone), HTTP produkční ikon PASS (run `39475985108`). Produkční Vercel READY se shodnou SHA `1be4747`.
 - **Další krok:** P0-01/02 DONE, negativní auth test P0-04 prošel. Pokračovat bezpečným read-only ověřením přihlášeného admin účtu v administraci / kvalitě bez zápisů a zkouškou rolí; **nevyžadovat hesla/tokeny v chatu**. RLS advisor jen revidovat, bez nevyžádaných zásahů.
 
@@ -247,7 +258,7 @@ Repozitář musí být schopný založit Hradník od nuly.
 
 ### HRA-P0-04 – Prověřit a přepojit všechny služby navázané na Supabase
 - **Stav:** VERIFY
-- **Dokončeno:** 97 %
+- **Dokončeno:** 98 %
 - **Ověřeno:** live negativní přístup bez tokenu: admin/list 403, quality/list 403, auth/session 401, migrační pomocník GET 410. CI `39477214791` PASS. To ověřuje pouze zamítnutí nepřihlášeného přístupu, ne pozitivní scénář se skutečným administrátorem.
 
 **Zkontrolovat minimálně:**

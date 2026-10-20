@@ -42,3 +42,7 @@ Automatický GitHub Actions `Hradník backend access smoke`, run `39477214791`, 
 - GET `hradnik-migrate-temporary`: **HTTP 410**, migrační pomocník deaktivován.
 
 Script `scripts/verify-backend-public-access.mjs` a workflow `.github/workflows/backend-access-smoke.yml` jsou uloženy na main, spuštěné bez produkčních tajných hodnot. **Závěr pouze pro negativní scénář:** externí anonymní požadavky neodhalily admin/quality data. Pozitivní role a výsledky uživatelem povolených admin obrazovek nebyly otestovány. **HRA-P0-04 VERIFY 97 %.**
+
+## Simulované pozitivní průchody admin/quality UI – ověřeno 20. 10. 2026
+
+`main` runtime commit `9d70d9f2718e214cd81358a3bdd197572b271a71`, Build `39483500864` PASS, Hradník visual regression `39483500880` **75 passed / 7 skipped / 0 failed**, Vercel produkce READY se shodným SHA. Opravené skutečné UI: „⚙️ Admin“ v desktopové hlavičce (třída `reference-header-action`), „⚙️ Správa památek“ v mobilní nabídce pro roli `admin`. Playwright mock výslovně odmítá všechny zápisy HTTP 405, ověřuje oprávněný read-only katalog, filtrování a frontu kvality i chybu při 403 na PC/iPhonu. Nepřihlášený přístup do skutečných služeb byl samostatně ověřen HTTP 401/403. **Pozitivní live admin read-only kontrola zbývá, P0-04 VERIFY 98 %.**
