@@ -1,0 +1,22 @@
+name: Hradník iOS preview mobile layout recheck
+on:
+  push:
+    branches:
+      - test/ios-edge-icon-20261020
+    paths:
+      - .github/workflows/ios-edge-mobile-recheck.yml
+permissions:
+  contents: read
+jobs:
+  mobile-layout-recheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Recheck the previously intermittent iPhone CSS case
+        run: npx playwright test tests/visual/hhradnik.spec.js --project=iphone --grep "CSS cascade preserves mobile shell and map clearance"

@@ -2,6 +2,12 @@
 
 ## Testovací větev iOS instalace Edge (2026-10-20)
 
+- **Stav 20. 10., ověřený preview build:** `31620cd1e0db4c83fdaa2801f84de15ca4ac13b8`, Vercel deployment `dpl_EaW2PaY4WU9vuazfdFSegs9jyrnW` READY, veřejný přístup povolen **pouze pro tento preview deployment** (produkční ochrana projektu nezměněna).
+- **Skutečný test HTTP z GitHub Actions `39404246028`, attempt 2 – PASS:** `/ios-install.html` **200 text/html**, `/apple-touch-icon-ios-v012-test.png` **200 image/png**, `/icon-192-v011.png` **200 image/png**, `/icon-512-v011.png` **200 image/png**, `/manifest.webmanifest` **200 application/manifest+json**. Ověřena i PNG signatura, vložené data URL, JS přesměrování a správný konečný host bez přesměrování na přihlašovací formulář.
+- **GitHub zdroj:** obě požadované statické položky jsou fyzicky commitnuté v `31620cd1` (nikoli generované až v deployi): PNG `8785` bajtů a instalační HTML `13268` bajtů. Vlastní kontrola buildu potvrzuje 180×180 PNG bez alfa kanálu.
+- **Regresní scénáře:** `39403894046` – 62 PASS, 7 skipped, 1 FAIL v dříve existujícím mobilním CSS breakpoint testu (jiná funkce), nové testy instalátoru **PC i iPhone PASS**. Samostatný recheck tohoto testu je spuštěn, bez změny CSS/rozhraní.
+- **Instalační URL k fyzickému testu:** `https://hradnik-1qe5iv6ek-martinspadrnas-projects.vercel.app/ios-install.html`. Po potvrzení vzhledu ikony na fyzickém iPhonu čekat na výslovný souhlas s případným přenesením do MAIN.
+
 - **VÝHRADNĚ TEST:** `test/ios-edge-icon-20261020` od `a55184811666fb98311cb9fe145a93bed37efe13`. **MAIN/produkci neupravovat bez nového výslovného svolení.**
 - **Verze náhledu:** `0.1.2-test.1`. Původní verze produkce `0.1.1`, bezpečný rollback = zpět na výchozí commit, žádná změna databáze, synchronizace ani UI aplikace.
 - **Zdroj reference:** RaK na větvi `development`, soubor `ios-install.html`, používá skutečný vložený `data:image/png;base64` a přesměrování při `navigator.standalone` / `display-mode: standalone`.
