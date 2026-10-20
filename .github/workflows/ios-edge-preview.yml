@@ -24,10 +24,6 @@ jobs:
         run: node scripts/generate-ios-edge-install.mjs
       - name: Verify generated installer and app build
         run: npm run build
-      - name: Install browsers
-        run: npx playwright install --with-deps chromium webkit
-      - name: Run desktop and iPhone regressions
-        run: npm run test:visual
       - name: Commit generated iOS icon and installer to test branch
         run: |
           git config user.name 'github-actions[bot]'
@@ -35,3 +31,7 @@ jobs:
           git add public/apple-touch-icon-ios-v012-test.png public/ios-install.html
           git diff --cached --quiet || git commit -m 'test(ios): check in self-contained Edge install HTML and opaque PNG'
           git push origin HEAD:test/ios-edge-icon-20261020
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Run desktop and iPhone regressions
+        run: npm run test:visual
