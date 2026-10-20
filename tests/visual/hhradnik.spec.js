@@ -1155,6 +1155,10 @@ test('ordinary signed-in visitor cannot see the admin entry', async ({ page }) =
   await expect.poll(() => adminActions.includes('me')).toBe(true)
   await expect(page.locator('.hradnik-admin-btn')).toHaveCount(0)
   await expect(page.locator('#hqOpen')).toHaveCount(0)
+  if (page.viewportSize()?.width < 700) {
+    await page.locator('.mobileHeaderMenu').click()
+    await expect(page.locator('.reference-mobile-drawer.open [data-ref-mobile="admin"]')).toHaveCount(0)
+  }
   expect(await page.evaluate(() => localStorage.getItem('hradnik_session'))).toBe('visual-regression-session')
 })
 

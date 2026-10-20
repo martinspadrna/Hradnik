@@ -1,5 +1,15 @@
 # HRADNIK_HANDOFF.md
 
+## P0-04 – zajištění administrace na mobilu (20. 10. 2026)
+
+- **Stav před opravou:** commit `a571ec9e6b2c28fc8b8da6021015065a31fa4de3` – desktopové administrátorské scénáře prošly, ale mobilní pozitivní průchod FAIL, protože mobilní hlavička úmyslně nezobrazuje desktopové akce. CI `39481557119` navíc ojediněle selhal v nesouvisejícím měření šířek desktopových karet (hodnota `undefined`; neoznačovat za potvrzenou chybu layoutu bez reprodukce).
+- **Kořenová oprava:** namísto odkrytí desktopových tlačítek na úzkém displeji přidat administrátorům položku **„⚙️ Správa památek“** do již existující mobilní nabídky (vedle profilu / nastavení). Zobrazovat jen po úspěšném `hradnik-admin/me` s rolí `admin`; stejné `openAdmin()`, po klepnutí se nabídka zavře. Bez nových CSS, bez změn backendu a oprávnění.
+- **Regrese:** Playwright PC používá existující header action, iPhone otevře mobilní menu a položku pro administraci. Test neadministrátora nově ověřuje absenci položky i v mobilní nabídce. Mock trvale blokuje všechny zapisovací akce.
+- **Akceptace:** nové CI Build a Visual Regression PASS na desktop+iPhone; teprve potom P0-04 zvýšit v evidenci. P0-04 nesmí být označen DONE pouze z mocku: skutečný legitimní admin endpoint se ještě musí bezpečně ověřit.
+- **Rollback:** `8630e3fcb3709aee40cca8a19f251b7868ce6481` před testovacím balíkem, popř. `a571ec9e` (desktop only), bez změn Supabase.
+
+---
+
 ## P0-04 – odhalena skrytá administrace (20. 10. 2026)
 
 - **Reálná regresní závada:** nové tři Playwright scénáře odhalily, že při validní administrátorské roli se tlačítko `.hradnik-admin-btn` vloží do DOM, ale přesto zůstane **skryté** na PC i iPhone. Testovací běh `39480655343`: 71 PASS, 7 skipped, 4 FAIL = dva pozitivní admin/quality scénáře v obou profilech; běžný uživatel správně admin vstup nevidí.

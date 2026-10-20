@@ -57,18 +57,34 @@ function ensureStyle() {
 }
 
 function injectAdminButton() {
-  if (!adminState.user?.role || adminState.user.role !== 'admin') return
+  if (adminState.user?.role !== 'admin') return
   const account = document.querySelector('.account')
-  if (!account || account.querySelector('.hradnik-admin-btn')) return
-  ensureStyle()
-  const button = document.createElement('button')
-  // Reference shell only shows recognized header actions; keep the admin entry accessible.
-  button.className = 'hradnik-admin-btn reference-header-action'
-  button.type = 'button'
-  button.textContent = '⚙️ Admin'
-  button.title = 'Správa památek'
-  button.onclick = openAdmin
-  account.insertBefore(button, account.firstChild)
+  if (account && !account.querySelector('.hradnik-admin-btn')) {
+    ensureStyle()
+    const button = document.createElement('button')
+    // Desktop shell shows only recognized header action buttons.
+    button.className = 'hradnik-admin-btn reference-header-action'
+    button.type = 'button'
+    button.textContent = '⚙️ Admin'
+    button.title = 'Správa památek'
+    button.onclick = openAdmin
+    account.insertBefore(button, account.firstChild)
+  }
+  // Mobile shell deliberately hides desktop header actions. Provide the
+  // same role-gated entry in its existing menu instead of making the header
+  // overflow the screen. Server-side auth remains authoritative.
+  const panel = document.querySelector('.reference-mobile-drawer-panel')
+  if (panel && !panel.querySelector('[data-ref-mobile="admin"]')) {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.dataset.refMobile = 'admin'
+    button.textContent = '⚙️ Správa památek'
+    button.onclick = () => {
+      document.querySelector('.reference-mobile-drawer')?.classList.remove('open')
+      openAdmin()
+    }
+    panel.querySelector('.reference-mobile-drawer-head')?.after(button)
+  }
 }
 
 async function checkAdmin() {
