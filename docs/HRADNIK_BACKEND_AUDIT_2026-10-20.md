@@ -46,3 +46,11 @@ Script `scripts/verify-backend-public-access.mjs` a workflow `.github/workflows/
 ## Simulované pozitivní průchody admin/quality UI – ověřeno 20. 10. 2026
 
 `main` runtime commit `9d70d9f2718e214cd81358a3bdd197572b271a71`, Build `39483500864` PASS, Hradník visual regression `39483500880` **75 passed / 7 skipped / 0 failed**, Vercel produkce READY se shodným SHA. Opravené skutečné UI: „⚙️ Admin“ v desktopové hlavičce (třída `reference-header-action`), „⚙️ Správa památek“ v mobilní nabídce pro roli `admin`. Playwright mock výslovně odmítá všechny zápisy HTTP 405, ověřuje oprávněný read-only katalog, filtrování a frontu kvality i chybu při 403 na PC/iPhonu. Nepřihlášený přístup do skutečných služeb byl samostatně ověřen HTTP 401/403. **Pozitivní live admin read-only kontrola zbývá, P0-04 VERIFY 98 %.**
+
+## 21. 10. 2026 – skutečný stav rolí, relací a nasazených funkcí (read-only)
+
+- Dotaz `select role,count(*)` do živé samostatné DB: **1 administrátorský účet**. Dotaz pouze na počet neexpirovaných administrátorských relací: **2**. Nebyla načtena žádná osoba, uživatelské jméno, heslo, session token ani hash.
+- Skutečně nasazená Edge Function `hradnik-admin` v1 = zdrojový soubor `supabase/functions/hradnik-admin/index.ts` na `main` (textová shoda 100 %); totéž `hradnik-quality` v1. Obě ověřují bearer token přes hash v `hradnik_sessions`, expiraci a roli `admin` v `hradnik_users`.
+- Živé metadata `pg_class`/RLS: 9/9 `hradnik_*` tabulek pod RLS, tři veřejné tabulky s jednou politikou; šest interních bez politik. To není samo o sobě zranitelnost, pokud datová oprávnění používá pouze důvěryhodná Edge Function se serverovou rolí. Linter `pg_net in public` dosud WARN; nezměněno.
+- Zdrojová funkce `hradnik-geocode` není nasazena, aktivní je novější `hradnik-geocode-v3`. Nasazená dočasná migrace má stav ACTIVE, ale odpovídá 410 disabled a v repozitáři nemá stejnojmennou složku. Nenahrazovat automaticky.
+- **Omezení:** žádné skutečné volání `hradnik-admin/list` ani `hradnik-quality/list` se soukromým administrátorským tokenem. P0-04 zůstává **VERIFY 98 %** do reálné uživatelské kontroly. Žádné změny databáze ani relací.

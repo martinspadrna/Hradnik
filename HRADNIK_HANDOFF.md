@@ -1,5 +1,17 @@
 # HRADNIK_HANDOFF.md
 
+## 21. 10. 2026 – P0-04: porovnání živého backendu a rolí (pouze čtení)
+
+- **Výchozí MAIN:** `6316eb8e0ad87916b1dd6eeaafb56bb2edfbcb53` (v0.1.2, Build/visual PASS, 75 passed + 7 skipped). Během kontroly nebyly použity uživatelské přihlašovací údaje, tokeny ani zapisovací databázové operace.
+- **Živý nový projekt Supabase:** `abqiprdggptuxebhpfyi`. Agregovaný dotaz ověřil existenci **1 účtu s rolí admin** a **2 neexpirovaných admin relací**. Bez čtení osobních profilů nebo relací/token hashů. Existenci účtu a relací nelze vydávat za pozitivní provozní test `hradnik-admin/list` se skutečným tokenem.
+- **Nasazené funkce:** `hradnik-admin` v1 a `hradnik-quality` v1 jsou ACTIVE a **jejich skutečný `index.ts` je znak po znaku totožný** s repozitářem na MAIN. Obě implementace vyžadují bearer token, token hash, neexpirovanou relaci a `hradnik_users.role === 'admin'`; pozitivní scénáře role jsou pokryty Playwright mockem (75 PASS).
+- **RLS:** všech **9** tabulek `public.hradnik_*` má `relrowsecurity=true`. Tři veřejné katalogové tabulky mají po jedné RLS politice; zbývajících šest interních tabulek má 0 politik a jsou odděleny serverovou rolí. Neodstraňovat RLS ani nepřidávat veřejné politiky jen kvůli informačnímu varování linteru.
+- **Edge inventory:** nasazeno 8 funkcí včetně `hradnik-geocode-v3` a záměrně vypnutého migračního pomocníka (HTTP 410). V repozitáři je navíc starší zdroj `hradnik-geocode`, **který není nasazen**; naopak migrační pomocník je jen v live deploymentu. Rozdíly evidovat, starou geocode verzi ani dočasnou migraci bez příčiny nevypínat/nedoplňovat.
+- **Stav P0-04: VERIFY 98 %.** Není důvod tvrdit DONE, dokud není read-only ověřen skutečný přihlášený administrátor na PC a mobilu, obě nabídky a načtení seznamů; uživateli nevyžadovat heslo ani token.
+- **Zbývající P0-03 / P2-10:** beze změny, žádný čistý restore ani mazání staré Supabase. **Další krok:** bezpečný uživatelský průchod (otevřít Správa památek → Kontrola kvality, nic neschvalovat/neukládat) a poté P0-04 DONE, pokud bez chyby.
+
+---
+
 ## P0-04 – admin a quality UI ověřeny na PC + iPhone (20. 10. 2026)
 
 - **Hotový aplikační HEAD:** `9d70d9f2718e214cd81358a3bdd197572b271a71` na `main`. Vercel produkce **READY** pro shodnou SHA, `Build Hradník` **PASS** (run `39483500864`), `Hradník visual regression` **PASS** (run `39483500880`: **75 passed, 7 skipped, 0 failed**).
