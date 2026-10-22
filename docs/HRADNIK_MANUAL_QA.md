@@ -41,3 +41,5 @@ HRA-P0-01/02: frontendová migrace byla podpořena ruční kontrolou a regresní
 **Stále neověřeno:** plná administrace/kontrola kvality, kompletní instalace prázdné databáze, konkrétní bezpečnostní politiky skutečné databáze. HRA-P0-04 ponechat VERIFY, P0-03 VERIFY a P2-10 BLOCKED. Stará databáze zůstává beze změny.
 
 **CI po obnovení plánu (20. 10. 2026):** Build `39475985510` PASS (včetně `test:isolation`); vizuální/regresní suite `39475985430` PASS – **69 testů prošlo, 7 přeskočeno**, nové session request-failure a 403 testy prošly zvlášť na PC i iPhone. Produkční Vercel READY pro `1be4747`. HRA-P0-01 a HRA-P0-02 podle akceptačních bodů DONE; HRA-P0-04 a čistý DB drill zůstávají otevřené.
+
+**Přejímka P0-04 (22. 10. 2026):** po výslovné žádosti otevřít skutečné produkční administrátorské obrazovky Správa památek a Kontrola kvality bez zápisů uživatel potvrdil „je to ok“. HRA-P0-04 **DONE 100 %**. Výsledek se týká potvrzeného průchodu, nikoli testování všech zařízení zvlášť. Další krok P0-03 VERIFY 90 %: nedestruktivní audit SQL; P2-10 BLOCKED 10 % bez schválení testovacího prostředí.

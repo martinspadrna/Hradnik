@@ -1,5 +1,15 @@
 # HRADNIK_HANDOFF.md
 
+## HRA-P0-04 – produkční uživatelská přejímka (22. 10. 2026)
+
+- **Výsledek:** **DONE 100 %**. Po výslovné žádosti o ověření skutečného administrátorského účtu v produkci, otevření **Správa památek → Kontrola kvality** a načtení obou seznamů bez ukládání/schvalování uživatel odpověděl **„je to ok“**. Výsledek tím potvrzuje zamýšlený pozitivní průchod pod jeho účtem; potvrzení nerozlišuje samostatně PC vs fyzický iPhone.
+- **Předchozí automatické testy:** Build a vizuální regrese commitu `3627c2c61f3cb991e8aebdeba8711d9c16f8fa04` úspěšné (GitHub Actions `39656206021` a `39656206049`), předtím 75 PASS / 7 skipped na PC + emulaci iPhonu. Živé anonymní požadavky na admin/quality byly odmítnuty 403, auth/session 401, migrační helper 410. Zdrojové kódy admin/quality funkcí odpovídají nasazeným.
+- **Databáze:** žádné zásahy do schématu, rolí, relací, uživatelských dat či starého Supabase. Verze Hradníku zůstává `0.1.2`; při této aktualizaci se mění **pouze evidence a dokumentace**.
+- **Aktuálně řešený úkol:** **HRA-P0-03 – VERIFY 90 %** (zakládací migrace) s navazujícím **HRA-P2-10 – BLOCKED 10 %** (zkouška na čisté oddělené Supabase). Nezakládat placený projekt ani neupravovat živou/staronovou databázi bez výslovného souhlasu; další bezpečný krok je jen offline audit baseline/porovnání s produkčním schématem a seznam rozdílů.
+- **Rollback před dokumentačním commitem:** `3627c2c61f3cb991e8aebdeba8711d9c16f8fa04`.
+
+---
+
 ## 21. 10. 2026 – P0-04: porovnání živého backendu a rolí (pouze čtení)
 
 - **Výchozí MAIN:** `6316eb8e0ad87916b1dd6eeaafb56bb2edfbcb53` (v0.1.2, Build/visual PASS, 75 passed + 7 skipped). Během kontroly nebyly použity uživatelské přihlašovací údaje, tokeny ani zapisovací databázové operace.
@@ -142,10 +152,12 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 
 ## 4. Aktuálně řešený úkol
 
-**ID:** HRA-P0-04  
-**Název:** Read-only ověření správy / kontroly kvality po migraci  
+**ID:** HRA-P0-03  
+**Název:** Doložit reprodukovatelnou zakládací migraci bez zásahu do produkce  
 **Stav:** VERIFY  
-**Dokončeno:** 95 %
+**Dokončeno:** 90 %
+
+**Předchozí úkol HRA-P0-04:** DONE 100 % na základě potvrzení uživatele 22. 10. 2026. Historické poznámky níže zůstávají zachované jako auditní stopa.
 
 ### Navazující technické ověření (2026-10-19)
 
@@ -269,8 +281,9 @@ Repozitář musí být schopný založit Hradník od nuly.
 ---
 
 ### HRA-P0-04 – Prověřit a přepojit všechny služby navázané na Supabase
-- **Stav:** VERIFY
-- **Dokončeno:** 98 %
+- **Stav:** DONE
+- **Dokončeno:** 100 %
+- **Ruční přejímka:** 22. 10. 2026 uživatel potvrdil „je to ok“ po požadavku otevřít obě produkční administrátorské obrazovky v režimu pouze prohlížení. Není tvrzeno samostatné fyzické ověření každého typu zařízení.
 - **Ověřeno:** live negativní přístup bez tokenu: admin/list 403, quality/list 403, auth/session 401, migrační pomocník GET 410. CI `39477214791` PASS. To ověřuje pouze zamítnutí nepřihlášeného přístupu, ne pozitivní scénář se skutečným administrátorem.
 
 **Zkontrolovat minimálně:**
@@ -1900,11 +1913,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-1. **HRA-P0-01/02 DONE 100 %:** potvrzený statický a síťový audit frontendového přepojení, build PASS, 69 regresí PASS, produkce READY. Neotevírat znovu bez nové konkrétní chyby.
-2. **HRA-P0-04 VERIFY 97 %:** živá negativní ochrana admin/quality/auth ověřena `39477214791` PASS. Příští krok ověřit legitimní admin přístup v UI a read-only seznamy, bez změn záznamů; dokud nejsou doloženy funkční akceptační testy a role, nepřevádět na DONE.
-3. **Supabase security advisories:** `pg_net` v `public` WARN a 6 INFO tabulek RLS bez policies. Ověřit dopady a potřebnost proti přístupovému modelu; neprovádět automaticky změny policies či extension. Viz `docs/HRADNIK_BACKEND_AUDIT_2026-10-20.md`.
-4. **HRA-P0-03 VERIFY / P2-10 BLOCKED:** fresh-DB restore drill vyžaduje samostatné schválení testovací Supabase/branch a případných nákladů. Do starého a živého Hradníku schéma nepřepisovat.
-5. **HRA-P0-05, P0-06, P2-14, P2-13 a P3-01:** DONE 100 %. Nepřepisovat už hotové části bez konkrétní reprodukované regrese.
+1. **HRA-P0-04 DONE 100 % (22. 10. 2026):** skutečný produkční read-only průchod správou památek a kontrolou kvality potvrdil uživatel. Zbývající testy PC/iPhone emulace, přístupové role a anonimní odmítnutí prošly CI. Neotevírat znovu bez konkrétní chyby.
+2. **HRA-P0-03 VERIFY 90 %:** dalším aktivním krokem je **nedestruktivní audit SQL baseline** a kontrola soupisu RLS, grantů, funkcí, triggerů, indexů a konfigurace storage oproti živému Hradníku. Nic neměnit na živém projektu, žádný automatický restore.
+3. **HRA-P2-10 BLOCKED 10 %:** pro potvrzení plné opakovatelnosti je potřeba **oddělená čistá testovací Supabase instance/branch** a případné schválení nákladů. Bez souhlasu nevytvářet projekt ani nenasazovat SQL.
+4. **Bezpečnostní upozornění:** 6 interních tabulek bez veřejných RLS politik a `pg_net` v `public` (WARN) pouze posoudit proti skutečnému přístupovému modelu; neměnit oprávnění naslepo.
+5. **Uzavřené P0-01/02/04/05/06, P2-12/13/14, P3-01:** držet DONE 100 %; při změnách ověřit regresní testy.
 
 ---
 

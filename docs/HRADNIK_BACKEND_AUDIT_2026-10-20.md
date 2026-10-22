@@ -54,3 +54,7 @@ Script `scripts/verify-backend-public-access.mjs` a workflow `.github/workflows/
 - Živé metadata `pg_class`/RLS: 9/9 `hradnik_*` tabulek pod RLS, tři veřejné tabulky s jednou politikou; šest interních bez politik. To není samo o sobě zranitelnost, pokud datová oprávnění používá pouze důvěryhodná Edge Function se serverovou rolí. Linter `pg_net in public` dosud WARN; nezměněno.
 - Zdrojová funkce `hradnik-geocode` není nasazena, aktivní je novější `hradnik-geocode-v3`. Nasazená dočasná migrace má stav ACTIVE, ale odpovídá 410 disabled a v repozitáři nemá stejnojmennou složku. Nenahrazovat automaticky.
 - **Omezení:** žádné skutečné volání `hradnik-admin/list` ani `hradnik-quality/list` se soukromým administrátorským tokenem. P0-04 zůstává **VERIFY 98 %** do reálné uživatelské kontroly. Žádné změny databáze ani relací.
+
+## P0-04 – přejímka v produkci 22. 10. 2026
+
+Uživatel po instrukci pod svým skutečným administrátorským účtem otevřít **Správa památek → Kontrola kvality** a pouze ověřit načtení seznamů odpověděl **„je to ok“**. Tento skutečný pozitivní průchod spolu s dřívějším PASS PC/iPhone simulace a negativními live HTTP 401/403/410 umožňuje uzavřít HRA-P0-04 jako **DONE 100 %**. Zpráva uživatele samostatně neurčila každé zařízení; nevyvozovat další neprovedené testy. Žádný zápis do databáze ani jejích oprávnění nebyl uskutečněn. Následuje HRA-P0-03 (SQL baseline review) a blokovaný P2-10 (čistá DB bez schváleného odděleného prostředí).
