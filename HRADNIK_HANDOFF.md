@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 22. 10. 2026 – P2-10 bezpečná příprava zkoušky přenosu katalogu
+
+- **Výchozí ověřený MAIN:** `4a624aba5d322db40c32182266615206f25f25a4`, Build Hradník **PASS** (`39818460994`), Visual regression **PASS** (`39818460858`), Vercel production READY. Předchozí `scripts/clean-data-flow-smoke.sql` **PASS** (`39817922883`), včetně uživatelských stavů a oprávnění.
+- **Připravený nový integrační krok:** `scripts/ci-catalog-restore-smoke.sh` + `scripts/ci-catalog-restore-check.sql` v `Hradník clean PostgreSQL schema smoke`. Jen ve standardním dočasném GitHub Actions PostgreSQL 16 z původní testovací DB (3 **fiktivní** památky, 3 vazby a 1 falešný účet) vyrobí katalogový `pg_dump` **výhradně** tabulek `hradnik_places` a `hradnik_place_sources`. Založí **druhou nezávislou prázdnou dočasnou databázi**, aplikuje obě SQL migrace, obnoví archiv a ověří zachování ID, vazeb, fotografických URL, oprávnění a vyloučení osobních dat.
+- **Kritický detail obnovy:** při zachování historických ID je třeba **posunout identity sekvence na MAX(importovaná ID)**. Test používá explicitní vysoká ID a ověřuje, že další nově založená památka a její vazba získají vyšší ID. Bez toho se může při budoucích zápisech obnovit konflikt ID.
+- **Bezpečnostní omezení:** skript odmítne spuštění mimo GitHub Actions s `PGHOST=127.0.0.1`, `PGDATABASE=hradnik_ci`, `PGPORT=5432`, `PGUSER=postgres`. Archiv je výhradně lokální dočasný CI soubor a je smazán; žádné produkční přihlašování, kopírování reálných uživatelských dat, změny DB nebo placená Supabase.
+- **Akceptace:** PASS nového kroku v GitHub Actions + `Build Hradník` PASS + vizuální regrese PASS. Výsledek neoznačovat za PASS před novým CI. **P0-03 VERIFY 98 % a P2-10 BLOCKED 10 %** zůstávají beze změny – plnou Supabase instalaci včetně Edge Functions a katalogu 3004 památek tento test nenahrazuje.
+- **Rollback:** `4a624aba5d322db40c32182266615206f25f25a4` (pouze pomocné CI soubory a dokumentace; runtime 0.1.2 beze změny).
+
+---
+
 ## 22. 10. 2026 – P2-10 dílčí test skutečných datových toků PASS
 
 - **Commit:** `4f581d09ed6fb37c9443398eed1cca4b8c1b3a34` na `main`, stále verze aplikace `0.1.2`; Vercel produkce **READY**. GitHub Actions `Hradník clean PostgreSQL schema smoke` **PASS** (run `39817922883`), `Build Hradník` **PASS** (run `39817922938`). Vizuální regrese `39817922860` při zápisu ještě běžela: její závěr zkontrolovat zvlášť.
