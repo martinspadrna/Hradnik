@@ -57,3 +57,9 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 --single-transaction --file=supabase/migrations/20261007_hradnik_photo_urls_https.sql
       - name: Assert structure, RLS, permissions and normalized photo URL
         run: psql -v ON_ERROR_STOP=1 --file=scripts/clean-schema-smoke.sql
+      - name: Replay both migrations to verify idempotence
+        run: |
+          psql -v ON_ERROR_STOP=1 --single-transaction --file=supabase/migrations/20261003_hradnik_standalone_baseline.sql
+          psql -v ON_ERROR_STOP=1 --single-transaction --file=supabase/migrations/20261007_hradnik_photo_urls_https.sql
+      - name: Assert repeated application preserved schema, permissions and fixture
+        run: psql -v ON_ERROR_STOP=1 --file=scripts/clean-schema-smoke.sql

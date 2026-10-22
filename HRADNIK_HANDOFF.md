@@ -1,12 +1,22 @@
 # HRADNIK_HANDOFF.md
 
+## 22. 10. 2026 – clean PostgreSQL smoke PASS + opakované aplikování
+
+- **První běh:** GitHub Actions **`39808221750` PASS** na `605d8923615388e38cf0e42e007cf68707dd7efb`. Obě SQL migrace skutečně provedeny nad novým, prázdným ephemeral PostgreSQL 16. CI fixture s HTTP Wikimedia URL byla správně aktualizována na HTTPS (`UPDATE 1`), smoke ověřil všech 9 tabulek, 106 sloupců, 14 funkcí, 5 triggerů, 39 indexů, 3 RLS politiky, FK, seed a přístupová práva. `Build Hradník` **PASS** (`39808221589`). Živý Supabase ani stará DB nebyly použity. `Hradník visual regression` na této SHA ještě ověřit.
+- **Navazující zpevnění:** nově spustit v tomtéž CI jobu obě migrace **podruhé**, znovu ověřit stejné invarianty a tím prověřit idempotenci vůči již existující testovací databázi. Výsledek druhého běhu nelze považovat za PASS do dokončení CI.
+- **P0-03:** po prvním skutečném čistém PostgreSQL smoke **VERIFY 98 %**; i po opakovaném PASS nebude zcela hotovo bez skutečné čisté Supabase včetně jejího produktu a funkcí.
+- **P2-10:** nadále **BLOCKED 10 %**, protože samostatná čistá Supabase a kompletní aplikace nebyly vyzkoušeny. V žádném případě nepřepojovat Vercel ani neimportovat produkční osobní data.
+- **Rollback:** `c7bdc5387e70bd260fcbfbd04bc7e71a9dd28500` odstraní pouze nové smoke ověřování; žádná změna ostré aplikace ani DB.
+
+---
+
 ## 22. 10. 2026 – P2-10: skutečný SQL smoke v izolované dočasné PostgreSQL CI databázi
 
 - **Výchozí HEAD:** `c7bdc5387e70bd260fcbfbd04bc7e71a9dd28500`. Po předchozím P0-03 auditu je SQL statický prebuild guard PASS a Vercel produkce READY. Vizuální workflow `39804145042` bylo při poslední kontrole stále in progress, znovu ověřit stav.
 - **Nový bezpečný krok:** GitHub Actions `.github/workflows/clean-schema-smoke.yml` spustí jen v izolované ephemeral **PostgreSQL 16** službě `hradnik_ci`. V této krátkodobé DB připraví nezbytné Supabase-like role `anon`, `authenticated`, `service_role` a schéma `extensions`. Zkusí **skutečně provést obě migrace** v pořadí, vloží jednu výhradně testovací památku s HTTP Wikimedia URL a ověří HTTPS normalizaci, strukturu, 9 RLS, 5 FK, 14 SQL funkcí, 5 triggerů, 39 indexů, 9 zdrojů, vygenerované kontrolní klíče a omezená SELECT oprávnění. Výsledek `scripts/clean-schema-smoke.sql`.
 - **Význam/omezení:** tento test ověří čisté PostgreSQL schéma bez produktové Supabase a **bez placené nové Supabase instance**. **Není** to finální instalace Hradníku v Supabase: Edge Functions, frontend, první plnění 3004 položek a uživatelská data se zde nenasazují. Jakákoli chyba CI musí být odstraněna před označením podkroku za hotový.
 - **Ochrana:** žádné URL, klíče, migrace nebo SQL nejsou odesílány do produkční nebo staré DB; PostgreSQL service container existuje jen v rámci GitHub Action a po dokončení zanikne. Nejvýše změna dokumentace a nové CI soubory v repozitáři; neměnit aplikační runtime.
-- **HRA-P0-03:** `VERIFY 95 %` do PASS testu skutečné aplikace obou migrací, poté možno zvážit max `VERIFY 98 %` (pořád ne fresh-Supabase).
+- **HRA-P0-03:** od GitHub Actions `39808221750` PASS **VERIFY 98 %**. Základní PostgreSQL instalace obou migrací ověřena na čisté dočasné databázi, s následným souhrnným SQL testem; zbývá opakovaná aplikace a plná Supabase.
 - **HRA-P2-10:** zůstává `BLOCKED 10 %` pro skutečné obnovení kompletní aplikace na samostatné Supabase; samotný ephemeral PostgreSQL test není plnohodnotný Supabase restore.
 - **Rollback:** `c7bdc5387e70bd260fcbfbd04bc7e71a9dd28500` pro přidanou CI kontrolu; žádná riziková DB operace.
 
@@ -179,7 +189,7 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **ID:** HRA-P0-03  
 **Název:** Doložit reprodukovatelnou zakládací migraci bez zásahu do produkce  
 **Stav:** VERIFY  
-**Dokončeno:** 95 %
+**Dokončeno:** 98 %
 
 **Předchozí úkol HRA-P0-04:** DONE 100 % na základě potvrzení uživatele 22. 10. 2026. Historické poznámky níže zůstávají zachované jako auditní stopa.
 
@@ -270,7 +280,7 @@ Supabase klient je vytvořený několikrát. Produkční konzole hlásí více i
 
 ### HRA-P0-03 – Doplnit úplnou zakládací migraci databáze
 - **Stav:** VERIFY
-- **Dokončeno:** 95 %
+- **Dokončeno:** 98 %
 - **Nedestruktivní audit 22. 10. 2026:** všech 9 tabulek, 106 sloupců, 14 SQL funkcí, 5 triggerů, 3 veřejné RLS politiky, 5 FK, 27 pojmenovaných indexů sedí proti živému schématu. Automatický offline schema guard přidán do `prebuild`. **Clean restore neproveden**; podrobnosti `docs/HRADNIK_P0_03_SCHEMA_AUDIT_2026-10-22.md`.
 
 **Audit / problém:**
@@ -1938,7 +1948,7 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-1. **HRA-P0-03 VERIFY 95 % (22. 10. 2026):** kompletní read-only kontrola schématu oproti standalone baseline; 9 tabulek, 106 sloupců, 14 funkcí, 5 triggerů, 27+12 indexů, 3 politiky, 5 FK. Statický `npm run test:schema` začleněn do `prebuild`. **Po commitu ověřit Build/Visual PASS**, jinak opravit příčinu.
+1. **HRA-P0-03 VERIFY 98 % (22. 10. 2026):** kompletní read-only kontrola schématu oproti standalone baseline; 9 tabulek, 106 sloupců, 14 funkcí, 5 triggerů, 27+12 indexů, 3 politiky, 5 FK. Statický `npm run test:schema` začleněn do `prebuild`. **Po commitu ověřit Build/Visual PASS**, jinak opravit příčinu.
 2. **HRA-P2-10 BLOCKED 10 %:** zbývá faktické provedení migrací na čisté izolované Supabase, nasazení Edge Functions a import či synchronizace katalogu. Bez samostatného schválení nové testovací instance/branch a případných nákladů nic nenasazovat.
 3. **Další práce bez rizika:** aktualizovat dokumentaci a kontrolní skript pouze při konkrétní změně schématu, připravit přesný restore testovací scénář dle `docs/HRADNIK_P0_03_SCHEMA_AUDIT_2026-10-22.md`, případně zkontrolovat export/import katalogu pouze jako návrh, ne reálný export uživatelských dat.
 4. **RLS a zabezpečení:** 6 interních tabulek bez veřejné politiky je záměrné a správné při serverové autorizaci; `pg_net` v public je WARN pro audit. Neotvírat interní tabulky přes anon a nepřesouvat rozšíření naslepo.
