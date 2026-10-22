@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 22. 10. 2026 – P2-10 navazující kontrola datových toků (dočasná PostgreSQL CI DB)
+
+- **Výchozí ověřený MAIN:** `3187556223eac7fe5f2ebee378cbb93259db64fe`: `Build Hradník` PASS (`39809173340`), `Hradník visual regression` PASS (`39809173339`), předchozí čistý PostgreSQL restore 2× PASS (`39808766154`); produkce READY.
+- **Nový krok:** `scripts/clean-data-flow-smoke.sql` se po dvojí aplikaci migrací spouští **pouze** nad ephemeral PostgreSQL 16 v GitHub Actions. Pomocí fiktivních dat prochází `hradnik_ingest_source_records` insert → opakovaný update → spojení z druhého zdroje → počty vazeb / quality trigger, dále založení testovacího uživatele/relace, stav `visited`, datum návštěvy a smazání účtu s FK cascade. Ověřuje oddělení `anon` a `service_role`. Všechny testovací řádky jsou v SQL transakci s `ROLLBACK` a celý kontejner se po CI automaticky zahodí.
+- **Ochrana:** žádný produkční účet, token, data ani klíče; tento SQL soubor nikdy nespouštět proti žádné skutečné Supabase. Není vytvořena žádná placená služba a neprovádí se žádná změna runtime nebo produkční databáze.
+- **Akceptace této dávky:** `Hradník clean PostgreSQL schema smoke` PASS včetně nového integračního kroku a současně `Build Hradník` / `Hradník visual regression` PASS. Dokud neprojdou, nezvyšovat procenta a opravit případné chyby testu nebo skutečné SQL migrace až po posouzení dopadu na produkci.
+- **P0-03:** `VERIFY 98 %`; **P2-10:** `BLOCKED 10 %`. Pro jejich plné uzavření stále chybí oddělená opravdová Supabase s Edge Functions a E2E aplikací.
+- **Rollback před dávkou:** `3187556223eac7fe5f2ebee378cbb93259db64fe`.
+
+---
+
 ## 22. 10. 2026 – výsledné převzetí P0-03 PostgreSQL smoke (CI PASS)
 
 - **Aktuální ověřený HEAD:** `799a2e2f426a068e841f4d6f2657f9f1fc4fc238` na `main`. **`Hradník clean PostgreSQL schema smoke` – PASS**, GitHub Actions run `39808766154`. Obě skutečné SQL migrace byly aplikovány na novou krátkodobou PostgreSQL 16, ověřeny (`PASS: clean PostgreSQL baseline, HTTPS follow-up, RLS and role smoke`), **pak obě úspěšně aplikovány podruhé** a znovu ověřeny. Fotomigrace poprvé upravila 1 fiktivní URL, podruhé 0 (idempotence). Po dokončení CI byla služba odstraněna.

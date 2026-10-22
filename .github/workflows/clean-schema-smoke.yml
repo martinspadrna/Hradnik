@@ -6,6 +6,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/clean-schema-smoke.sql'
+      - 'scripts/clean-data-flow-smoke.sql'
       - '.github/workflows/clean-schema-smoke.yml'
   workflow_dispatch:
 
@@ -63,3 +64,5 @@ jobs:
           psql -v ON_ERROR_STOP=1 --single-transaction --file=supabase/migrations/20261007_hradnik_photo_urls_https.sql
       - name: Assert repeated application preserved schema, permissions and fixture
         run: psql -v ON_ERROR_STOP=1 --file=scripts/clean-schema-smoke.sql
+      - name: Exercise ingest RPC, visit state and role boundaries on temporary data
+        run: psql -v ON_ERROR_STOP=1 --file=scripts/clean-data-flow-smoke.sql
