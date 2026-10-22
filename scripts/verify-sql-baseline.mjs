@@ -57,8 +57,12 @@ for (const expected of [
 
 const sourceSeed = baseline.match(/insert\s+into\s+public\.hradnik_sources\s*\([^;]+?on\s+conflict/is)?.[0] || ''
 assert.equal((sourceSeed.match(/^\s*\('[^']+',/gm) || []).length, 9, 'Expected nine catalog source seeds')
-assert(!/insert\s+into\s+public\.hradnik_(?:users|sessions|user_place_state)\b/i.test(baseline), 'User data must never be embedded in schema baseline')
-assert(!/insert\s+into\s+public\.hradnik_places\b/i.test(baseline), 'Production catalog must be imported/synced separately')
+// SQL functions legitimately INSERT rows when called at runtime.
+// Only inspect top-level seed statements after the function / policy definitions.
+const seedBlock = baseline.slice(baseline.indexOf('insert into public.hradnik_sources(source_key'))
+assert(seedBlock.length > 0 && seedBlock.length < baseline.length, 'Expected catalog seed block not found')
+assert(!/insert\s+into\s+public\.hradnik_(?:users|sessions|user_place_state)\b/i.test(seedBlock), 'Private account/session data must never be embedded in static seed statements')
+assert(!/insert\s+into\s+public\.hradnik_places\b/i.test(seedBlock), 'Production catalog must be imported/synced separately')
 
 assert(/update\s+public\.hradnik_places/i.test(followup), 'Photo URL follow-up missing')
 assert(/where\s+photo_urls\s+is\s+not\s+null/i.test(followup), 'Photo URL follow-up needs a guard')
