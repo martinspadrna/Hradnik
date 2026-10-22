@@ -1,5 +1,15 @@
 # HRADNIK_HANDOFF.md
 
+## 22. 10. 2026 – P2-10 dílčí test skutečných datových toků PASS
+
+- **Commit:** `4f581d09ed6fb37c9443398eed1cca4b8c1b3a34` na `main`, stále verze aplikace `0.1.2`; Vercel produkce **READY**. GitHub Actions `Hradník clean PostgreSQL schema smoke` **PASS** (run `39817922883`), `Build Hradník` **PASS** (run `39817922938`). Vizuální regrese `39817922860` při zápisu ještě běžela: její závěr zkontrolovat zvlášť.
+- **Integrační kontrola:** po dvojí úspěšné SQL migraci na nové ephemeral PostgreSQL 16 vytvoří fiktivní památku přes `hradnik_ingest_source_records`, provede idempotentní opakování, sloučí vazbu z dalšího zdroje, zkontroluje `quality_status`, `source_count`, uživatelský stav `visited` s datem, FK k relaci, smazání účtu s cascade a oprávnění `anon` proti `service_role`. Výsledek jobu: `PASS: isolated ingest RPC, deduplication, source links, auth/session FK, visited state, RLS and rollback.`
+- **Data:** pouze fiktivní účet a památka v **BEGIN/ROLLBACK**; žádný uživatelský token, produkční Supabase, stará databáze ani nová placená instance. Zbytek izolovaného kontejneru se po jobu odstranil.
+- **P0-03 VERIFY 98 %** a **P2-10 BLOCKED 10 %** ponechány: jde o skutečný PostgreSQL SQL/backend test, **nikoli** kompletní obnovení Supabase Auth/Data API/Edge Functions s frontendem a importem katalogu. To vyžaduje explicitně schválené oddělené prostředí.
+- **Další bezpečný krok:** zkontrolovat vizuální CI, sepsat integrační plán pro skutečný Supabase restore bez production tokenů/dat; nedělat žádný nový produkční rollout změn backendu. **Rollback** před testem `3187556223eac7fe5f2ebee378cbb93259db64fe`.
+
+---
+
 ## 22. 10. 2026 – P2-10 navazující kontrola datových toků (dočasná PostgreSQL CI DB)
 
 - **Výchozí ověřený MAIN:** `3187556223eac7fe5f2ebee378cbb93259db64fe`: `Build Hradník` PASS (`39809173340`), `Hradník visual regression` PASS (`39809173339`), předchozí čistý PostgreSQL restore 2× PASS (`39808766154`); produkce READY.

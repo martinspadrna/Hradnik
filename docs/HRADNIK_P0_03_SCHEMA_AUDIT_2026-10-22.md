@@ -61,3 +61,7 @@ GitHub Actions run `39808766154` pro commit `799a2e2f426a068e841f4d6f2657f9f1fc4
 ## Připravený integrační smoke datových toků (22. 10. 2026)
 
 Doplněn `scripts/clean-data-flow-smoke.sql` a odpovídající GitHub Actions krok. Na dočasné PostgreSQL 16 se mají ověřit vyvolání `hradnik_ingest_source_records` pro vytvoření památky, opakovanou aktualizaci a propojení druhého zdroje, dále SQL trigger kvality, relace a stav „navštíveno“ s datem, smazání účtu s kaskádou a kontrola oddělení oprávnění `anon`/`service_role`. Test používá pouze fiktivní položky v `BEGIN ... ROLLBACK`; nic nekopíruje z produkční databáze. **Stav je zatím připravený, nikoli potvrzený PASS**, dokud nové GitHub Actions neprojdou. Plná obnova celé aplikace v Supabase stále neproběhla.
+
+## 22. 10. 2026 – CI integrace datových toků dokončena
+
+GitHub Actions `Hradník clean PostgreSQL schema smoke`, run `39817922883` na `4f581d09`, **PASS**. Nad výhradně lokálním PostgreSQL kontejnerem po dvojí aplikaci obou migrací prošel `scripts/clean-data-flow-smoke.sql`: RPC ingest, aktualizace stejného zdroje, napojení druhého zdroje bez duplicity památky, trigger kvality, stav návštěvy a datum, relace a FK cascade, oprávnění klientských rolí, rollback fikčních testovacích záznamů. `Build Hradník` run `39817922938` **PASS**, produkční Vercel pro shodnou SHA READY. Vizuální workflow `39817922860` při zápisu čekalo na dokončení. P0-03 zůstává VERIFY 98 %, P2-10 BLOCKED 10 %, protože žádný skutečný Supabase restore/import katalogu nebyl vytvořen ani spuštěn.
