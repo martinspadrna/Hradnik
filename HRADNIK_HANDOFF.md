@@ -1,5 +1,17 @@
 # HRADNIK_HANDOFF.md
 
+## 22. 10. 2026 – HRA-P0-03: porovnání migrační baseline a produkčního schématu
+
+- **Výchozí HEAD:** `0a052e34423c82af8fe699c3db71a6165fd26107` (`main`, verze `0.1.2`; Build i visual regression úspěšné). **Rozsah této dávky:** pouze read-only dotazy na katalogy PostgreSQL, offline statický guard, postup pro izolovaný restore a aktualizace handoffu. **Nezasahovat do žádné živé ani staré Supabase.**
+- **Porovnání produkční nové Supabase `abqiprdggptuxebhpfyi` s `20261003_hradnik_standalone_baseline.sql`:** 9/9 tabulek, **106/106 sloupců**, 14/14 SQL funkcí, 5/5 triggerů, 3/3 veřejných SELECT RLS politik, 5/5 FK a všech **27** pojmenovaných indexů odpovídá. Dalších **12** indexů produkce jsou implicitní PK/UNIQUE (celkem 39), nikoliv chybějící ruční migrace. Všech 9 tabulek má aktivní RLS; SELECT na 6 interních tabulkách není povolen pro anon/authenticated.
+- **Data a závislosti:** ostrý katalog má **3 004** památek a **9** zdrojů. Baseline se připraví s 9 zdroji a prázdným katalogem. Samostatný import/synchronizace katalogu, Edge Function nasazení, serverové klíče a případný bezpečný přenos soukromých uživatelských dat nejsou součástí samotného SQL. Projekt Hradníku nemá zjištěný specializovaný Storage bucket; fotky se ukládají pomocí URL. Další `20261007_hradnik_photo_urls_https.sql` upravuje starší Wikimedia odkazy.
+- **Přidané soubory:** `docs/HRADNIK_P0_03_SCHEMA_AUDIT_2026-10-22.md`, `scripts/verify-sql-baseline.mjs`. Nový `npm run test:schema` je součástí `prebuild`; blokuje regresi SQL objektů, **neprovádí žádné SQL ani síťová volání**.
+- **Stav:** **HRA-P0-03 VERIFY 95 %**; HRA-P2-10 **BLOCKED 10 %**. K DONE chybí skutečný isolated fresh-DB restore a kompletní bootstrap – vytvoření dalšího projektu/branch a náklady vyžadují samostatné povolení. Nenačítat skutečná hesla ani tokeny.
+- **Po commitu ověřit:** Build Hradník PASS (zejména nový `test:schema` v prebuild), visual regression PASS, Vercel produkce READY se shodným SHA; pokud některý failne, opravit a nepovažovat změnu za hotovou.
+- **Další bezpečný krok:** dle výsledků CI doplnit seznam věcí blokujících clean restore, bez přepojení produkčních environment proměnných nebo úprav databáze. Rollback: `0a052e34423c82af8fe699c3db71a6165fd26107`.
+
+---
+
 ## HRA-P0-04 – produkční uživatelská přejímka (22. 10. 2026)
 
 - **Výsledek:** **DONE 100 %**. Po výslovné žádosti o ověření skutečného administrátorského účtu v produkci, otevření **Správa památek → Kontrola kvality** a načtení obou seznamů bez ukládání/schvalování uživatel odpověděl **„je to ok“**. Výsledek tím potvrzuje zamýšlený pozitivní průchod pod jeho účtem; potvrzení nerozlišuje samostatně PC vs fyzický iPhone.
@@ -155,7 +167,7 @@ Kompletně oddělit Hradník od staré Domácnost+ Supabase, stabilizovat fronte
 **ID:** HRA-P0-03  
 **Název:** Doložit reprodukovatelnou zakládací migraci bez zásahu do produkce  
 **Stav:** VERIFY  
-**Dokončeno:** 90 %
+**Dokončeno:** 95 %
 
 **Předchozí úkol HRA-P0-04:** DONE 100 % na základě potvrzení uživatele 22. 10. 2026. Historické poznámky níže zůstávají zachované jako auditní stopa.
 
@@ -246,7 +258,8 @@ Supabase klient je vytvořený několikrát. Produkční konzole hlásí více i
 
 ### HRA-P0-03 – Doplnit úplnou zakládací migraci databáze
 - **Stav:** VERIFY
-- **Dokončeno:** 90 %
+- **Dokončeno:** 95 %
+- **Nedestruktivní audit 22. 10. 2026:** všech 9 tabulek, 106 sloupců, 14 SQL funkcí, 5 triggerů, 3 veřejné RLS politiky, 5 FK, 27 pojmenovaných indexů sedí proti živému schématu. Automatický offline schema guard přidán do `prebuild`. **Clean restore neproveden**; podrobnosti `docs/HRADNIK_P0_03_SCHEMA_AUDIT_2026-10-22.md`.
 
 **Audit / problém:**
 Současné migrace předpokládají, že tabulky už existují. Nový prázdný Supabase projekt nelze spolehlivě postavit pouze z repozitáře.
@@ -1913,11 +1926,11 @@ Po HRA-P0-01 až HRA-P0-05:
 
 # 13. Další doporučený krok
 
-1. **HRA-P0-04 DONE 100 % (22. 10. 2026):** skutečný produkční read-only průchod správou památek a kontrolou kvality potvrdil uživatel. Zbývající testy PC/iPhone emulace, přístupové role a anonimní odmítnutí prošly CI. Neotevírat znovu bez konkrétní chyby.
-2. **HRA-P0-03 VERIFY 90 %:** dalším aktivním krokem je **nedestruktivní audit SQL baseline** a kontrola soupisu RLS, grantů, funkcí, triggerů, indexů a konfigurace storage oproti živému Hradníku. Nic neměnit na živém projektu, žádný automatický restore.
-3. **HRA-P2-10 BLOCKED 10 %:** pro potvrzení plné opakovatelnosti je potřeba **oddělená čistá testovací Supabase instance/branch** a případné schválení nákladů. Bez souhlasu nevytvářet projekt ani nenasazovat SQL.
-4. **Bezpečnostní upozornění:** 6 interních tabulek bez veřejných RLS politik a `pg_net` v `public` (WARN) pouze posoudit proti skutečnému přístupovému modelu; neměnit oprávnění naslepo.
-5. **Uzavřené P0-01/02/04/05/06, P2-12/13/14, P3-01:** držet DONE 100 %; při změnách ověřit regresní testy.
+1. **HRA-P0-03 VERIFY 95 % (22. 10. 2026):** kompletní read-only kontrola schématu oproti standalone baseline; 9 tabulek, 106 sloupců, 14 funkcí, 5 triggerů, 27+12 indexů, 3 politiky, 5 FK. Statický `npm run test:schema` začleněn do `prebuild`. **Po commitu ověřit Build/Visual PASS**, jinak opravit příčinu.
+2. **HRA-P2-10 BLOCKED 10 %:** zbývá faktické provedení migrací na čisté izolované Supabase, nasazení Edge Functions a import či synchronizace katalogu. Bez samostatného schválení nové testovací instance/branch a případných nákladů nic nenasazovat.
+3. **Další práce bez rizika:** aktualizovat dokumentaci a kontrolní skript pouze při konkrétní změně schématu, připravit přesný restore testovací scénář dle `docs/HRADNIK_P0_03_SCHEMA_AUDIT_2026-10-22.md`, případně zkontrolovat export/import katalogu pouze jako návrh, ne reálný export uživatelských dat.
+4. **RLS a zabezpečení:** 6 interních tabulek bez veřejné politiky je záměrné a správné při serverové autorizaci; `pg_net` v public je WARN pro audit. Neotvírat interní tabulky přes anon a nepřesouvat rozšíření naslepo.
+5. **Uzavřené P0-01/02/04/05/06, P2-12/13/14 a P3-01:** DONE 100 %. Správu památek a kontrolu kvality potvrdil uživatel na produkci 22. 10. 2026.
 
 ---
 

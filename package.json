@@ -8,10 +8,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:visual": "playwright test",
-    "prebuild": "node scripts/verify-runtime-isolation.mjs && node scripts/generate-pwa-icons.mjs",
+    "prebuild": "node scripts/verify-runtime-isolation.mjs && node scripts/verify-sql-baseline.mjs && node scripts/generate-pwa-icons.mjs",
     "postbuild": "node scripts/verify-pwa-icons.mjs",
     "test:icons": "node scripts/verify-pwa-icons.mjs",
-    "test:isolation": "node scripts/verify-runtime-isolation.mjs"
+    "test:isolation": "node scripts/verify-runtime-isolation.mjs",
+    "test:schema": "node scripts/verify-sql-baseline.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.4",
