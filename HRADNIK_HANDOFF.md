@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 22. 10. 2026 – výsledné převzetí P0-03 PostgreSQL smoke (CI PASS)
+
+- **Aktuální ověřený HEAD:** `799a2e2f426a068e841f4d6f2657f9f1fc4fc238` na `main`. **`Hradník clean PostgreSQL schema smoke` – PASS**, GitHub Actions run `39808766154`. Obě skutečné SQL migrace byly aplikovány na novou krátkodobou PostgreSQL 16, ověřeny (`PASS: clean PostgreSQL baseline, HTTPS follow-up, RLS and role smoke`), **pak obě úspěšně aplikovány podruhé** a znovu ověřeny. Fotomigrace poprvé upravila 1 fiktivní URL, podruhé 0 (idempotence). Po dokončení CI byla služba odstraněna.
+- **Úroveň kontroly:** 9 tabulek, 106 sloupců, 14 SQL funkcí, 5 triggerů, 39 indexů včetně PK/UNIQUE, 3 politiky a RLS, 5 FK, 9 zdrojů, interní kontrolní klíče, role `anon`/`authenticated` a zákaz SELECT pro interní tabulky. Žádné přihlášení ani produkční data nebyla použita.
+- **`Build Hradník`** z prvního commitu `605d892` **PASS** (`39808221589`); vizuální regrese stejného commitu **PASS** (`39808221463`). Nové pracovní commity na `main` musí samostatně projít standardním CI a Vercel READY; status závěrečného dokumentačního commitu kontrolovat podle aktuálního SHA.
+- **HRA-P0-03:** **VERIFY 98 %** – SQL baseline je strukturově shodný a reálně aplikovatelný dvakrát v PostgreSQL, nikoli však ještě ověřený v úplně nové Supabase instalaci.
+- **HRA-P2-10:** **BLOCKED 10 %**, protože nová izolovaná **Supabase** s Edge Functions, frontend preview a naplněním katalogu zatím **nevznikla**. Pouhý PostgreSQL service v GitHub Actions není plnohodnotná Supabase. Pro skutečný Supabase restore je nutné oddělené prostředí, kontrola nákladů a výslovné schválení; produkční ani stará DB se nemění.
+- **Další postup:** nepřepisovat již ověřené SQL, připravit příp. izolovaný end-to-end integrační postup bez produkčních osobních dat; pro vytvoření Supabase projektu si vyžádat schválení konkrétního prostředí. Rollback před přidáním DB smoke `c7bdc5387e70bd260fcbfbd04bc7e71a9dd28500`.
+
+---
+
 ## 22. 10. 2026 – clean PostgreSQL smoke PASS + opakované aplikování
 
 - **První běh:** GitHub Actions **`39808221750` PASS** na `605d8923615388e38cf0e42e007cf68707dd7efb`. Obě SQL migrace skutečně provedeny nad novým, prázdným ephemeral PostgreSQL 16. CI fixture s HTTP Wikimedia URL byla správně aktualizována na HTTPS (`UPDATE 1`), smoke ověřil všech 9 tabulek, 106 sloupců, 14 funkcí, 5 triggerů, 39 indexů, 3 RLS politiky, FK, seed a přístupová práva. `Build Hradník` **PASS** (`39808221589`). Živý Supabase ani stará DB nebyly použity. `Hradník visual regression` na této SHA ještě ověřit.
