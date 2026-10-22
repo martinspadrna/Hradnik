@@ -45,3 +45,7 @@ Nový offline skript `scripts/verify-sql-baseline.mjs` kontroluje 9 tabulek/RLS,
 6. Uložit výsledky a teardown/rollback postup. Produkční Hradník a staré databáze nechat beze změn.
 
 **Stav HRA-P0-03:** VERIFY 95 % (struktura a statický preflight ověřené; skutečné založení na čisté DB ne). **HRA-P2-10:** BLOCKED 10 %, dokud neexistuje schválené oddělené prostředí.
+
+## Izolovaný PostgreSQL smoke test bez vytvoření Supabase projektu
+
+Jako další mezikrok lze testovat fyzickou aplikaci zakládacích SQL migrací v **dočasné PostgreSQL 16 službě** spuštěné pouze v GitHub Actions. To je odlišné od obnovy v nové Supabase, ale odhalí chyby `CREATE TABLE`/`CREATE FUNCTION`/`CREATE TRIGGER`, FK, RLS či chybějící rozšíření dříve, než se začne připravovat skutečný Supabase restore. CI workflow `.github/workflows/clean-schema-smoke.yml` a test `scripts/clean-schema-smoke.sql` nezapisují do žádné živé databáze, nenahrávají produkční data ani tajné klíče. Zahrnují i test následné HTTPS fotografie na výhradně fiktivní památce. P2-10 i po úspěšném smoke testu zůstává blokován, dokud nebude schválena a provedena oddělená Supabase instalace včetně Edge Functions a katalogu.

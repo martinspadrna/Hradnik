@@ -1,5 +1,17 @@
 # HRADNIK_HANDOFF.md
 
+## 22. 10. 2026 – P2-10: skutečný SQL smoke v izolované dočasné PostgreSQL CI databázi
+
+- **Výchozí HEAD:** `c7bdc5387e70bd260fcbfbd04bc7e71a9dd28500`. Po předchozím P0-03 auditu je SQL statický prebuild guard PASS a Vercel produkce READY. Vizuální workflow `39804145042` bylo při poslední kontrole stále in progress, znovu ověřit stav.
+- **Nový bezpečný krok:** GitHub Actions `.github/workflows/clean-schema-smoke.yml` spustí jen v izolované ephemeral **PostgreSQL 16** službě `hradnik_ci`. V této krátkodobé DB připraví nezbytné Supabase-like role `anon`, `authenticated`, `service_role` a schéma `extensions`. Zkusí **skutečně provést obě migrace** v pořadí, vloží jednu výhradně testovací památku s HTTP Wikimedia URL a ověří HTTPS normalizaci, strukturu, 9 RLS, 5 FK, 14 SQL funkcí, 5 triggerů, 39 indexů, 9 zdrojů, vygenerované kontrolní klíče a omezená SELECT oprávnění. Výsledek `scripts/clean-schema-smoke.sql`.
+- **Význam/omezení:** tento test ověří čisté PostgreSQL schéma bez produktové Supabase a **bez placené nové Supabase instance**. **Není** to finální instalace Hradníku v Supabase: Edge Functions, frontend, první plnění 3004 položek a uživatelská data se zde nenasazují. Jakákoli chyba CI musí být odstraněna před označením podkroku za hotový.
+- **Ochrana:** žádné URL, klíče, migrace nebo SQL nejsou odesílány do produkční nebo staré DB; PostgreSQL service container existuje jen v rámci GitHub Action a po dokončení zanikne. Nejvýše změna dokumentace a nové CI soubory v repozitáři; neměnit aplikační runtime.
+- **HRA-P0-03:** `VERIFY 95 %` do PASS testu skutečné aplikace obou migrací, poté možno zvážit max `VERIFY 98 %` (pořád ne fresh-Supabase).
+- **HRA-P2-10:** zůstává `BLOCKED 10 %` pro skutečné obnovení kompletní aplikace na samostatné Supabase; samotný ephemeral PostgreSQL test není plnohodnotný Supabase restore.
+- **Rollback:** `c7bdc5387e70bd260fcbfbd04bc7e71a9dd28500` pro přidanou CI kontrolu; žádná riziková DB operace.
+
+---
+
 ## 22. 10. 2026 – HRA-P0-03: porovnání migrační baseline a produkčního schématu
 
 - **Výchozí HEAD:** `0a052e34423c82af8fe699c3db71a6165fd26107` (`main`, verze `0.1.2`; Build i visual regression úspěšné). **Rozsah této dávky:** pouze read-only dotazy na katalogy PostgreSQL, offline statický guard, postup pro izolovaný restore a aktualizace handoffu. **Nezasahovat do žádné živé ani staré Supabase.**

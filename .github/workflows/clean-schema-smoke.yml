@@ -1,0 +1,59 @@
+name: Hradník clean PostgreSQL schema smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/clean-schema-smoke.sql'
+      - '.github/workflows/clean-schema-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ephemeral-schema:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: hradnik_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d hradnik_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: local-ci-only
+      PGDATABASE: hradnik_ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Supabase-compatible database roles and extensions schema
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE SCHEMA IF NOT EXISTS extensions;
+          CREATE ROLE anon NOLOGIN;
+          CREATE ROLE authenticated NOLOGIN;
+          CREATE ROLE service_role NOLOGIN BYPASSRLS;
+          SQL
+      - name: Apply standalone baseline to empty PostgreSQL
+        run: psql -v ON_ERROR_STOP=1 --single-transaction --file=supabase/migrations/20261003_hradnik_standalone_baseline.sql
+      - name: Insert a disposable photo test fixture
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          INSERT INTO public.hradnik_places (slug,name,kind,photo_urls)
+          VALUES ('ci-only-castle', 'CI testovací hrad', 'Hrad', '["http://commons.wikimedia.org/wiki/File:CI.jpg"]'::jsonb);
+          SQL
+      - name: Apply the photo HTTPS migration
+        run: psql -v ON_ERROR_STOP=1 --single-transaction --file=supabase/migrations/20261007_hradnik_photo_urls_https.sql
+      - name: Assert structure, RLS, permissions and normalized photo URL
+        run: psql -v ON_ERROR_STOP=1 --file=scripts/clean-schema-smoke.sql
