@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 22. 10. 2026 – P2-10: úspěšná simulace ID-preserving obnovy katalogu (CI PASS)
+
+- **Testovaný HEAD:** `7fb883d9711bd7c3cdb487d7ee6ac154050c6696` na `main`. Workflow `Hradník clean PostgreSQL schema smoke` run **`39820835966` PASS**, včetně nového kroku `Restore synthetic catalogue into independent clean PostgreSQL database`. `Build Hradník` run **`39820835968` PASS**, Vercel produkce pro shodnou SHA **READY**. `Hradník visual regression` run `39820835982` při prvním zápisu ještě probíhal; jeho konečný výsledek zkontrolovat.
+- **Skutečný integrační průchod:** v disposable GitHub Actions PostgreSQL 16 vytvořen testovací katalog 3 fiktivních památek + 3 zdrojových vazeb a falešný účet se zkušební návštěvou. `pg_dump -Fc --data-only` zahrnul **výlučně** `hradnik_places` a `hradnik_place_sources`; v **druhé, nové izolované databázi** byly nejprve provedeny obě SQL migrace a pak `pg_restore`. Kontrola ověřila, že zůstala původní ID `910001` a `910002`, FK vazby, zdrojový počet a foto URL, ale soukromý účet ani návštěva **nebyly** přeneseny.
+- **Oprava postupu po importu:** v cílové DB se **sekvence identity `hradnik_places.id` a `hradnik_place_sources.id` nastavují na `MAX(id)`**; test úspěšně založil další památku a novou vazbu s ID vyšším než importované hodnoty. Je to nutný krok pro skutečnou budoucí katalogovou obnovu se zachováním historických ID.
+- **Bezpečnost:** scénář je omezen podmínkami `GITHUB_ACTIONS=true`, `PGHOST=127.0.0.1`, `PGDATABASE=hradnik_ci`; obě databáze i archiv existovaly pouze v CI. **Žádná** ostrá ani stará Supabase, export reálných uživatelských dat, změna aplikace ani placený nový Supabase projekt.
+- **Rozsah a stav:** HRA-P0-03 **VERIFY 98 %**, HRA-P2-10 **BLOCKED 10 %** (samotný PostgreSQL katalogový drill není plnohodnotná Supabase obnova včetně Edge Functions, Data API a všech 3 004 památek). Poslední mezikrok plně ověřen; pro dokončení P2-10 bude potřeba samostatně schválený testovací Supabase projekt/branch.
+- **Rollback před P2-10 drill:** `4a624aba5d322db40c32182266615206f25f25a4`; při této další aktualizaci pouze dokumentace.
+
+---
+
 ## 22. 10. 2026 – P2-10 bezpečná příprava zkoušky přenosu katalogu
 
 - **Výchozí ověřený MAIN:** `4a624aba5d322db40c32182266615206f25f25a4`, Build Hradník **PASS** (`39818460994`), Visual regression **PASS** (`39818460858`), Vercel production READY. Předchozí `scripts/clean-data-flow-smoke.sql` **PASS** (`39817922883`), včetně uživatelských stavů a oprávnění.
