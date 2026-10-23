@@ -28,3 +28,10 @@
 - Žádný schválený nezávislý Supabase projekt ani rozpočet dosud nejsou k dispozici.
 
 **Stav:** HRA-P0-03 VERIFY 98 %; HRA-P2-10 BLOCKED 10 %. Jakékoli vytvoření nového projektu nebo nasazení Edge Functions do něj vyžaduje zvláštní schválení.
+
+
+## Zpřísnění offline preflight (23. 10. 2026)
+- Commit před úpravou: `1935067eac00e04becdfa587c92b4f63ec009f5b`. Všechny tři workflow na něm **PASS**: restore target safety `39993237696`, Build `39993237795`, visual regression `39993237692`; Vercel status success.
+- Guard nyní kontroluje **celou kořenovou HTTPS URL** včetně zákazu vlastního portu, login údajů v adrese, cesty, query a fragmentu **u Supabase i Vercel preview**. Testy obsahují 23 případů (1 povolený + 22 odmítnutých).
+- **Důležité omezení:** offline regex neprokazuje, že Supabase projekt je skutečně izolovaný ani že Vercel hostname směřuje na neprodukční deployment. Před případným skutečným restore je nutné nezávisle zkontrolovat identitu projektu, konkrétní preview deployment, environment variables a oddělení service-role tajemství; žádná automatická kontrola nenahrazuje výslovný souhlas.
+- Kontrolní krok této úpravy: nové CI na commitu se zpřísněním musí projít. Do té doby je implementace **čekající na CI**, stav HRA-P0-03 VERIFY 98 % a HRA-P2-10 BLOCKED 10 % zůstává beze změny.
