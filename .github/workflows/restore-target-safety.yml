@@ -1,0 +1,28 @@
+name: Hradník restore target safety
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-restore-target.mjs'
+      - 'scripts/test-restore-target.mjs'
+      - '.github/workflows/restore-target-safety.yml'
+  pull_request:
+    paths:
+      - 'scripts/verify-restore-target.mjs'
+      - 'scripts/test-restore-target.mjs'
+      - '.github/workflows/restore-target-safety.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify isolated-only restore guard (no network operations)
+        run: node scripts/test-restore-target.mjs

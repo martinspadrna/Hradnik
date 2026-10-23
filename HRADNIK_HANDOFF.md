@@ -1,5 +1,15 @@
 # HRADNIK_HANDOFF.md
 
+## 23. 10. 2026 – P2-10: kontrola izolace cíle obnovy a přehledný restore runbook
+
+- **Výchozí HEAD:** `1083fdaca0c2ce3f3c7713e0efe627d14469beb6`; Build Hradník **PASS** (`39821344414`), visual regression **PASS** (`39821344327`), produkční Vercel **READY**. Předešlá kompletní dvojitá migrace a syntetický katalogový import také PASS.
+- **Nový bezpečný krok:** `docs/HRADNIK_P2_10_RESTORE_RUNBOOK_2026-10-23.md` přináší postup pro budoucí izolovanou Supabase od schválení prostředí po test auth, správu památek, stav návštěv, kontrolu kvality a bezpečné ukončení. `scripts/verify-restore-target.mjs` je **offline-only guard**, který odmítne obě existující Supabase (`abqiprdggptuxebhpfyi`, `cgshssdjgzzuprlwnabl`), nesprávný formát URL, chybějící výslovné `HRADNIK_RESTORE_APPROVED=yes` a produkční Vercel hostname. `scripts/test-restore-target.mjs` kontroluje 12 případů.
+- **CI:** nový `.github/workflows/restore-target-safety.yml` spouští tyto bezpečné offline testy při každé související změně. Nespouští `supabase login`, SQL, síťová volání ani tvorbu projektu. GitHub CI PASS musí být ověřen až po dokončení workflow.
+- **Stav:** **HRA-P0-03 VERIFY 98 %; HRA-P2-10 BLOCKED 10 %**. Full-stack Supabase restore vyžaduje samostatné schválení nové izolované instance a případných nákladů. Nikdy neprovádět restore na produkci či starém projektu.
+- **Rollback:** před této pouze dokumentační/offline dávkou `1083fdaca0c2ce3f3c7713e0efe627d14469beb6`. Runtime aplikace, verze 0.1.2 a všechny databáze beze změny.
+
+---
+
 ## 22. 10. 2026 – P2-10: úspěšná simulace ID-preserving obnovy katalogu (CI PASS)
 
 - **Testovaný HEAD:** `7fb883d9711bd7c3cdb487d7ee6ac154050c6696` na `main`. Workflow `Hradník clean PostgreSQL schema smoke` run **`39820835966` PASS**, včetně nového kroku `Restore synthetic catalogue into independent clean PostgreSQL database`. `Build Hradník` run **`39820835968` PASS**, Vercel produkce pro shodnou SHA **READY**. `Hradník visual regression` run `39820835982` při prvním zápisu ještě probíhal; jeho konečný výsledek zkontrolovat.
