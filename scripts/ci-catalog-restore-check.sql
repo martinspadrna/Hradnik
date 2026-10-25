@@ -8,10 +8,27 @@ DECLARE
   source_max bigint;
   next_link_id bigint;
 BEGIN
-  IF (SELECT count(*) FROM public.hradnik_places) <> 3
-  THEN RAISE EXCEPTION 'Expected 3 synthetic catalogue places'; END IF;
-  IF (SELECT count(*) FROM public.hradnik_place_sources) <> 3
-  THEN RAISE EXCEPTION 'Expected 3 restored source links'; END IF;
+  IF (SELECT count(*) FROM public.hradnik_places) <> 3004
+  THEN RAISE EXCEPTION 'Expected 3004 synthetic catalogue places'; END IF;
+  IF (SELECT count(*) FROM public.hradnik_place_sources) <> 3004
+  THEN RAISE EXCEPTION 'Expected 3004 restored source links'; END IF;
+  IF (SELECT count(*) FROM public.hradnik_places
+      WHERE id BETWEEN 930001 AND 933001
+        AND source_key='osm'
+        AND slug = 'ci-scale-place-' || (id - 930000)::text
+        AND external_id = 'ci-scale-' || (id - 930000)::text
+        AND source_count=1) <> 3001
+  THEN RAISE EXCEPTION 'Synthetic scale fixture lost IDs, slugs or attributes'; END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM public.hradnik_places p
+    LEFT JOIN public.hradnik_place_sources ps ON ps.place_id=p.id
+    WHERE p.id BETWEEN 930001 AND 933001
+    GROUP BY p.id
+    HAVING count(ps.id) <> 1
+       OR min(ps.source_key) <> 'osm'
+       OR min(ps.external_id) <> 'ci-scale-link-' || (p.id - 930000)::text
+  ) THEN RAISE EXCEPTION 'Synthetic scale source links missing, repeated or mismatched'; END IF;
   IF (SELECT count(*) FROM public.hradnik_sources) <> 9
   THEN RAISE EXCEPTION 'Expected nine baseline source seeds'; END IF;
   IF NOT EXISTS (SELECT 1 FROM public.hradnik_places WHERE id=910001 AND slug='ci-restore-one')
@@ -55,4 +72,4 @@ SET ROLE anon;
 SELECT count(*) AS restored_visible_places FROM public.hradnik_places;
 RESET ROLE;
 
-\echo 'PASS: two-database catalogue transfer, IDs, source links, private exclusion and identity sequences.'
+\echo 'PASS: two-database 3004-place synthetic catalogue transfer, IDs, source links, private exclusion and identity sequences.'

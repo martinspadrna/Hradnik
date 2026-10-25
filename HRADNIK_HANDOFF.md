@@ -1,5 +1,15 @@
 # HRADNIK_HANDOFF.md
 
+## 25. 10. 2026 – P2-10: bezpečný restore test se 3 004 syntetickými památkami
+
+- **Převzetí `8364880`:** GitHub Actions restore target safety **PASS** (run `39998524862`, všech 23 scénářů), Build Hradník **PASS** (`39998524728`), visual regression **PASS** (`39998524786`), Vercel status success.
+- **Nová CI dávka:** `scripts/ci-catalog-restore-smoke.sh` vytváří celkem 3 004 fiktivních míst a 3 004 zdrojových vazeb. `scripts/ci-catalog-restore-check.sql` po katalogovém restore do nezávislé dočasné PostgreSQL DB ověřuje počty, syntetická ID, slugs, externí ID, 1:1 vazby, soukromá data, granty a sekvence. Doplněn runbook.
+- **Akceptace:** `Hradník clean PostgreSQL schema smoke` musí projít na novém commitu; build, visual a Vercel taktéž ověřit. **Před CI netvrdit PASS této dávky.**
+- **Bez dopadu:** žádný frontend/backend runtime ani databázové migrace se nemění; žádná živá Supabase, produkční data nebo nový placený projekt. Zůstává HRA-P0-03 **VERIFY 98 %** a HRA-P2-10 **BLOCKED 10 %**. Plné obnovení do samostatné Supabase vyžaduje nové výslovné schválení.
+- **Rollback:** `836488086e301696d14a9c1a4796b70edf3626ec`.
+
+---
+
 ## 23. 10. 2026 – P2-10: PASS předchozího CI a zpřísnění URL guardu
 
 - **Ověřené workflow výchozího MAIN `1935067e`:** restore target safety **PASS** (run `39993237696`), Build Hradník **PASS** (`39993237795`), visual regression **PASS** (`39993237692`). Vercel commit status **success**.

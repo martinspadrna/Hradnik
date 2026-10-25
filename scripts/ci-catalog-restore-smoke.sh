@@ -25,6 +25,21 @@ VALUES
 UPDATE public.hradnik_places SET source_count=2 WHERE id=910001;
 UPDATE public.hradnik_places SET source_count=1 WHERE id=910002;
 
+-- Add 3,001 wholly fictitious places and links: the independent backup will
+-- contain exactly 3,004 places (one existing schema fixture + two above + these).
+-- IDs and slugs are deliberately unique and reproducible for restore checks.
+INSERT INTO public.hradnik_places
+  (id, source_key, external_id, slug, name, kind, source_count)
+SELECT 930000 + n, 'osm', 'ci-scale-' || n, 'ci-scale-place-' || n,
+       'Hrad CI syntetický ' || n, 'Hrad', 1
+FROM generate_series(1, 3001) AS series(n);
+
+INSERT INTO public.hradnik_place_sources
+  (place_id, source_key, external_id, source_url, raw_data)
+SELECT 930000 + n, 'osm', 'ci-scale-link-' || n,
+       'https://example.invalid/ci/scale/' || n, '{}'::jsonb
+FROM generate_series(1, 3001) AS series(n);
+
 -- Deliberately excluded from the catalogue-only backup.
 WITH fake AS (
   INSERT INTO public.hradnik_users (username,password_hash)
@@ -68,4 +83,4 @@ SQL
 psql -X -v ON_ERROR_STOP=1 -d "$target_db" \
   -f scripts/ci-catalog-restore-check.sql
 
-echo "PASS: isolated catalogue transfer, stable IDs/source links, no private accounts, identity sequences and role grants."
+echo "PASS: isolated 3004-place synthetic catalogue transfer, stable IDs/source links, no private accounts, identity sequences and role grants."

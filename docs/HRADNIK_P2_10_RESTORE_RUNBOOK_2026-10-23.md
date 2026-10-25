@@ -35,3 +35,10 @@
 - Guard nyní kontroluje **celou kořenovou HTTPS URL** včetně zákazu vlastního portu, login údajů v adrese, cesty, query a fragmentu **u Supabase i Vercel preview**. Testy obsahují 23 případů (1 povolený + 22 odmítnutých).
 - **Důležité omezení:** offline regex neprokazuje, že Supabase projekt je skutečně izolovaný ani že Vercel hostname směřuje na neprodukční deployment. Před případným skutečným restore je nutné nezávisle zkontrolovat identitu projektu, konkrétní preview deployment, environment variables a oddělení service-role tajemství; žádná automatická kontrola nenahrazuje výslovný souhlas.
 - Kontrolní krok této úpravy: nové CI na commitu se zpřísněním musí projít. Do té doby je implementace **čekající na CI**, stav HRA-P0-03 VERIFY 98 % a HRA-P2-10 BLOCKED 10 % zůstává beze změny.
+
+## 25. 10. 2026 – ověření katalogu v produkčním počtu, pouze syntetická data
+
+- Poslední bezpečnostní úprava `836488086e301696d14a9c1a4796b70edf3626ec` má GitHub CI **PASS**: guard `39998524862`, build `39998524728` a visual regression `39998524786`.
+- Katalogový restore smoke byl rozšířen na **3 004 zcela fiktivních památek** (původní testovací fixture + 2 individuální fixtures + 3 001 syntetických záznamů) a **3 004 vazeb na zdroje**. Při ověření se kontrolují všechna syntetická ID, slugs, vazby 1:1, přetrvání dat po obnovení, vyloučení soukromého účtu a posun identity sekvencí.
+- Test zůstává omezen na dvě krátkodobé databáze PostgreSQL v GitHub Actions. **Neobsahuje a nestahuje reálný katalog, nevytváří Supabase projekt, netestuje Supabase Auth ani Edge runtime.** Shodný počet řádků není záruka shodného obsahu nebo času odezvy.
+- **Akceptace tohoto kroku:** zelený workflow `Hradník clean PostgreSQL schema smoke` spuštěný po nové změně, dále `Build Hradník` a `Hradník visual regression` PASS. Do dokončení nového workflow je stav čekající na CI, HRA-P0-03 VERIFY 98 % a HRA-P2-10 BLOCKED 10 % se nemění.
