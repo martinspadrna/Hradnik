@@ -9,6 +9,8 @@ on:
       - 'scripts/clean-data-flow-smoke.sql'
       - 'scripts/ci-catalog-restore-smoke.sh'
       - 'scripts/ci-catalog-restore-check.sql'
+      - 'scripts/verify-catalog-archive-manifest.mjs'
+      - 'scripts/test-catalog-archive-manifest.mjs'
       - '.github/workflows/clean-schema-smoke.yml'
   workflow_dispatch:
 
@@ -68,5 +70,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 --file=scripts/clean-schema-smoke.sql
       - name: Exercise ingest RPC, visit state and role boundaries on temporary data
         run: psql -v ON_ERROR_STOP=1 --file=scripts/clean-data-flow-smoke.sql
+      - name: Reject non-catalog archive objects (13 offline negative/positive cases)
+        run: node scripts/test-catalog-archive-manifest.mjs
       - name: Restore synthetic catalogue into independent clean PostgreSQL database
         run: bash scripts/ci-catalog-restore-smoke.sh

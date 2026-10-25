@@ -66,3 +66,9 @@ Zdroj aktuálního postupu nasazování: https://supabase.com/docs/guides/functi
 - Při `verify_jwt=false` **nefunguje výchozí kontrola JWT Supabase**, proto před budoucím reálným nasazením ověřit přístupovou logiku každého HTTP endpointu (vlastní session/token, hlavičky s klíčem, veřejná read-only cesta), včetně odmítnutí požadavků bez oprávnění. Nebylo provedeno žádné nasazení funkcí ani změna produkčních oprávnění.
 - `scripts/verify-restore-edge-jwt.mjs` a `scripts/test-restore-edge-jwt.mjs` se spouští výhradně offline. Kontrolují explicitních sedm schválených funkcí, přesné JWT hodnoty a osm scénářů; nezjišťují dostupnost funkcí ani správnost jejich autorizace.
 - Supabase dokumentace k možnosti `[functions.<name>] verify_jwt = false`: https://supabase.com/docs/guides/functions/function-configuration
+
+## 25. 10. 2026 – povinná kontrola obsahu katalogového archivu (fail-closed)
+
+- Před každým katalogovým importem je potřeba kontrolovat **celý seznam objektů**, nikoli pouze hledat několik známých privátních názvů. `scripts/verify-catalog-archive-manifest.mjs` v CI přijímá pouze `TABLE DATA public.hradnik_places` a `TABLE DATA public.hradnik_place_sources` (volitelně dva odpovídající `SEQUENCE SET` záznamy). Chybějící, duplicitní nebo jakýkoli další objekt import zablokuje.
+- CI vytvoří manifest příkazem `pg_restore --list` nad **syntetickým archivem** bez přístupu k reálným datům a zkontroluje ho dřív, než vznikne cílová dočasná PostgreSQL databáze. `test-catalog-archive-manifest.mjs` obsahuje 13 scénářů; vlastní integrační PostgreSQL import poté stále ověřuje 3 004 fiktivních míst.
+- Tato kontrola neprokazuje správnost všech řádků nebo bezpečnost budoucího skutečného katalogového exportu; pouze snižuje riziko omylem přibalených privátních tabulek. Reálná samostatná Supabase a případné kopírování ostrých dat jsou nadále zablokovány do zvláštního schválení.

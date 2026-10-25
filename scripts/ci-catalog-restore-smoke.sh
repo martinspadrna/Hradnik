@@ -54,11 +54,11 @@ pg_dump -Fc --data-only --no-owner --no-privileges \
   -t public.hradnik_places -t public.hradnik_place_sources \
   --file="$scratch/public-catalog.dump" -d hradnik_ci
 
-# Inspect archive manifest before importing; never dump private accounts.
-if pg_restore --list "$scratch/public-catalog.dump" | grep -E 'TABLE DATA .*hradnik_(users|sessions|user_place_state|sync_control|enrich_control)' ; then
-  echo "Private account/control data detected in catalog archive." >&2
-  exit 3
-fi
+# Fail closed: allow only the two catalogue TABLE DATA objects (and their
+# identity sequence state). Reject any unknown/new/private table or object.
+# This runs BEFORE creating or importing into the independent CI target.
+pg_restore --list "$scratch/public-catalog.dump" > "$scratch/public-catalog.list"
+node scripts/verify-catalog-archive-manifest.mjs "$scratch/public-catalog.list"
 
 # Independently initialized target, within the same disposable CI service.
 createdb --template=template0 "$target_db"
@@ -83,4 +83,4 @@ SQL
 psql -X -v ON_ERROR_STOP=1 -d "$target_db" \
   -f scripts/ci-catalog-restore-check.sql
 
-echo "PASS: isolated 3004-place synthetic catalogue transfer, stable IDs/source links, no private accounts, identity sequences and role grants."
+echo "PASS: isolated 3004-place synthetic catalogue transfer with exact archive allowlist, stable IDs/source links, no private accounts, identity sequences and role grants."

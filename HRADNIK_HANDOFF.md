@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 25. 10. 2026 – P2-10: katalogový archiv musí obsahovat pouze dvě povolené tabulky
+
+- **Ověřený výchozí MAIN `9cbd706`:** GitHub Actions Build `40214216647` **PASS**, Visual Regression `40214216530` **PASS**, Restore Target Safety `40214216546` **PASS**. Dříve rovněž úspěšný katalogový restore 3 004 syntetických památek `40205437360`.
+- **Odhalené slabší místo:** dosavadní kontrola `pg_restore --list | grep` odmítala jen vyjmenované známé privátní tabulky; neznámá nová tabulka, sekvence nebo jiný TOC objekt nemusel být odmítnut.
+- **Změna:** `scripts/verify-catalog-archive-manifest.mjs` kontroluje celý manifest archivního TOC a vyžaduje **přesně** TABLE DATA `public.hradnik_places` a `public.hradnik_place_sources`; toleruje pouze případné odpovídající SEQUENCE SET. Jakýkoli jiný objekt, duplicitní objekt, nesprávné schéma nebo chybějící tabulka způsobí fail ještě **před vytvořením cílové testovací DB**.
+- **Testy:** `scripts/test-catalog-archive-manifest.mjs` přináší 13 syntetických scénářů včetně anonymních uživatelů, relací, návštěv, budoucí neznámé tabulky i nekatalogové sekvence. `clean-schema-smoke.yml` spouští samostatnou kontrolu a následný reálný `pg_dump -Fc` / `pg_restore` test v krátkodobém PostgreSQL CI.
+- **Akceptace:** nová workflow `Hradník clean PostgreSQL schema smoke`, Build a visual regression musí PASS, Vercel success. Až do výsledku CI **neoznačovat nový archivní guard za PASS**. Produkční runtime, živé databáze i Supabase Edge Functions beze změny. HRA-P0-03 VERIFY 98 %, HRA-P2-10 BLOCKED 10 %.
+- **Rollback:** `9cbd7061225caa4879c7cd1ace0d5ec087928071`.
+
+---
+
 ## 25. 10. 2026 – P2-10: reprodukovatelná konfigurace JWT pro 7 Edge Functions
 
 - **Výchozí ověřený main:** `c15a2cb6a19c64097742ac4de7c88a13a44674c9`; Build Hradník **PASS** (`40209467032`), visual regression **PASS** (`40209467035`), restore target safety **PASS** (`40209467101`). Vercel na předchozím ověření success.
