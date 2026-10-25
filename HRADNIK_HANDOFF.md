@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 25. 10. 2026 – P2-10: ověřena předchozí sada + bezpečný seznam Edge Functions
+
+- **Potvrzený PASS** posledního MAIN `84dd1acf5a7c46eb0729f001d4720ed998ce13a1`: PostgreSQL 3 004 syntetických památek `40205437360`, Build `40205437464`, Visual regression `40205437458`; Vercel nasazení úspěšné.
+- **Read-only Supabase inventura** (25. 10.): produkční `abqiprdggptuxebhpfyi` aktivní, **žádná vývojová větev**. Sedm běžných funkcí nasazeno a označeno ACTIVE: auth, admin, quality, photo, sync, enrich-v4, geocode-v3. Navíc historický `hradnik-migrate-temporary` v produkci ACTIVE (dříve ověřen HTTP 410, nyní **nebyl** proveden nový HTTP test). `hradnik-geocode` je v repozitáři jako nenasazený legacy zdroj. Žádný další samostatný testovací Supabase projekt v propojeném účtu zjištěn.
+- **Nové offline ověřování:** `supabase/restore-edge-allowlist.json` obsahuje explicitně jen 7 schválených funkcí; `scripts/verify-restore-edge-allowlist.mjs` kontroluje úplný seznam, existenci index.ts a nepovolené adresáře. `scripts/test-restore-edge-allowlist.mjs` simuluje 9 scénářů. Workflow `restore-target-safety.yml` spouští obojí při souvisejících změnách; žádná funkce se nenasazuje.
+- **Důležitý důvod:** oficiální Supabase CLI umožňuje `supabase functions deploy` bez jména, což nasadí všechny adresáře; pro budoucí izolovaný restore povolit **jen jednotlivá vyjmenovaná jména** po výslovném souhlasu. Rozsah testu neověřuje reálnou izolaci ani funkčnost Supabase runtime.
+- **Akceptace:** CI `Hradník restore target safety`, Build, Visual a Vercel pro **nový** commit musí PASS. Do té doby nepovažovat novou sadu za ověřenou. HRA-P0-03 VERIFY 98 %, HRA-P2-10 BLOCKED 10 % beze změny, žádné DB změny, náklady ani vytvoření projektu.
+- **Rollback:** `84dd1acf5a7c46eb0729f001d4720ed998ce13a1`.
+
+---
+
 ## 25. 10. 2026 – P2-10: bezpečný restore test se 3 004 syntetickými památkami
 
 - **Převzetí `8364880`:** GitHub Actions restore target safety **PASS** (run `39998524862`, všech 23 scénářů), Build Hradník **PASS** (`39998524728`), visual regression **PASS** (`39998524786`), Vercel status success.

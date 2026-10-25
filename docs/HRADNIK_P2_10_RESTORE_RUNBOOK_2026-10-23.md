@@ -42,3 +42,15 @@
 - Katalogový restore smoke byl rozšířen na **3 004 zcela fiktivních památek** (původní testovací fixture + 2 individuální fixtures + 3 001 syntetických záznamů) a **3 004 vazeb na zdroje**. Při ověření se kontrolují všechna syntetická ID, slugs, vazby 1:1, přetrvání dat po obnovení, vyloučení soukromého účtu a posun identity sekvencí.
 - Test zůstává omezen na dvě krátkodobé databáze PostgreSQL v GitHub Actions. **Neobsahuje a nestahuje reálný katalog, nevytváří Supabase projekt, netestuje Supabase Auth ani Edge runtime.** Shodný počet řádků není záruka shodného obsahu nebo času odezvy.
 - **Akceptace tohoto kroku:** zelený workflow `Hradník clean PostgreSQL schema smoke` spuštěný po nové změně, dále `Build Hradník` a `Hradník visual regression` PASS. Do dokončení nového workflow je stav čekající na CI, HRA-P0-03 VERIFY 98 % a HRA-P2-10 BLOCKED 10 % se nemění.
+
+## 25. 10. 2026 – seznam funkcí pro izolované ověření (bez deploy)
+
+- Předchozí testy 3 004 fiktivních památek, Build a Visual regression pro commit `84dd1ac` všechny PASS.
+- V propojeném Supabase účtu je pouze stávající produkční Hradník `abqiprdggptuxebhpfyi`; žádná vývojová databázová větev. **Z tohoto důvodu nebyl vytvořen ani testován skutečný Supabase restore.**
+- Offline povolený seznam ve `supabase/restore-edge-allowlist.json` obsahuje **pouze**: `hradnik-auth`, `hradnik-admin`, `hradnik-quality`, `hradnik-photo`, `hradnik-sync`, `hradnik-enrich-v4`, `hradnik-geocode-v3`.
+- **Nevybírat** `hradnik-geocode` (starší zdroj v repo) ani `hradnik-migrate-temporary` (historický migrační pomocník existující pouze v produkčním deploymentu). Žádný obecný příkaz `supabase functions deploy` bez názvu funkce: dle Supabase dokumentace může hromadně nasadit všechny nalezené funkce. Budoucí deployment pouze cíleně po jedné funkci a po kontrolách target ref, oddělených klíčů a výslovného schválení; `supabase functions deploy` se nyní **nespouští**.
+- `node scripts/verify-restore-edge-allowlist.mjs` a `node scripts/test-restore-edge-allowlist.mjs` fungují výhradně offline a kontrolují inventuru a 9 negativních/pozitivních stavů; do dokončení GitHub CI nové změny zatím **neoznačovat za PASS**.
+- Před reálným restore ověřit samostatnou testovací Supabase, její Edge functions, funkční API, oddělenou Vercel preview konfiguraci a zásady pro případné náklady. Ověření samotného seznamu **nenahrazuje end-to-end**.
+
+Zdroj aktuálního postupu nasazování: https://supabase.com/docs/guides/functions/deploy
+

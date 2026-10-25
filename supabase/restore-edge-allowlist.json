@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "approvedForIsolatedRestore": [
+    "hradnik-auth",
+    "hradnik-admin",
+    "hradnik-quality",
+    "hradnik-photo",
+    "hradnik-sync",
+    "hradnik-enrich-v4",
+    "hradnik-geocode-v3"
+  ],
+  "excludedFromRestore": [
+    "hradnik-geocode",
+    "hradnik-migrate-temporary"
+  ]
+}

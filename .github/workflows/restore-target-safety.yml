@@ -6,11 +6,19 @@ on:
     paths:
       - 'scripts/verify-restore-target.mjs'
       - 'scripts/test-restore-target.mjs'
+      - 'scripts/verify-restore-edge-allowlist.mjs'
+      - 'scripts/test-restore-edge-allowlist.mjs'
+      - 'supabase/restore-edge-allowlist.json'
+      - 'supabase/functions/**'
       - '.github/workflows/restore-target-safety.yml'
   pull_request:
     paths:
       - 'scripts/verify-restore-target.mjs'
       - 'scripts/test-restore-target.mjs'
+      - 'scripts/verify-restore-edge-allowlist.mjs'
+      - 'scripts/test-restore-edge-allowlist.mjs'
+      - 'supabase/restore-edge-allowlist.json'
+      - 'supabase/functions/**'
       - '.github/workflows/restore-target-safety.yml'
 
 permissions:
@@ -26,3 +34,7 @@ jobs:
           node-version: 22
       - name: Verify isolated-only restore guard (no network operations)
         run: node scripts/test-restore-target.mjs
+      - name: Verify explicitly approved Edge Function inventory (offline only)
+        run: |
+          node scripts/verify-restore-edge-allowlist.mjs
+          node scripts/test-restore-edge-allowlist.mjs
