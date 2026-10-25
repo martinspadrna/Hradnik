@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "runtimeProvided": [
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY"
+  ],
+  "functions": {
+    "hradnik-auth": [],
+    "hradnik-admin": [],
+    "hradnik-quality": [],
+    "hradnik-photo": [],
+    "hradnik-sync": [],
+    "hradnik-enrich-v4": [
+      "HRADNIK_ENRICH_KEY"
+    ],
+    "hradnik-geocode-v3": [
+      "HRADNIK_GEOCODE_KEY"
+    ]
+  },
+  "note": "Variable names only. HRADNIK_*_KEY environment keys are fallbacks when database control keys are missing. Never store secret values here."
+}

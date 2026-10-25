@@ -54,3 +54,8 @@
 
 Zdroj aktuálního postupu nasazování: https://supabase.com/docs/guides/functions/deploy
 
+## 25. 10. 2026 – statická závislost Edge Functions na prostředí
+
+- `supabase/restore-edge-env.json` eviduje **pouze názvy** potřebných proměnných. Sedm schválených funkcí používá `SUPABASE_URL` a `SUPABASE_SERVICE_ROLE_KEY`; servisní roli nikdy nepředávat do `VITE_*` a browseru.
+- `hradnik-enrich-v4` primárně používá hodnotu `hradnik_enrich_control.enrich_key`; `HRADNIK_ENRICH_KEY` je fallback. `hradnik-geocode-v3` primárně používá `hradnik_sync_control.sync_key`; `HRADNIK_GEOCODE_KEY` je fallback. Při čistém nasazení nepřenášet produkční tajné klíče: ověřit, že nové DB klíče byly vytvořeny a funguje jejich autorizace.
+- `verify-restore-edge-env.mjs` je offline inventura zdrojů, nikoli ověření skutečného nastavení, dostupnosti nebo nasazení funkcí. CI spouští i `test-restore-edge-env.mjs` se sedmi případy. Skutečný isolated Supabase restore nadále vyžaduje výslovný souhlas.

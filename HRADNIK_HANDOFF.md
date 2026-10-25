@@ -1,5 +1,15 @@
 # HRADNIK_HANDOFF.md
 
+## 25. 10. 2026 – P2-10: inventura závislostí Edge Functions
+
+- **Výchozí `bc6f5b2`:** bezpečnostní CI PASS, Build PASS a Vercel success; poslední visual regression při kontrole stále probíhala.
+- **Read-only audit:** všech sedm produkčních Edge Functions používá `SUPABASE_URL` a `SUPABASE_SERVICE_ROLE_KEY`. `hradnik-enrich-v4` navíc čte `HRADNIK_ENRICH_KEY` a `hradnik-geocode-v3` `HRADNIK_GEOCODE_KEY`, ale obě hodnoty jsou **fallbacky** za nově generovanými klíči v řídicích tabulkách DB; jejich přítomnost v prostředí tedy není vždy nutná.
+- **Nová offline kontrola:** `supabase/restore-edge-env.json` obsahuje pouze názvy proměnných; `scripts/verify-restore-edge-env.mjs` kontroluje shodu se skutečnými zdroji a `scripts/test-restore-edge-env.mjs` sedm scénářů včetně změny deklarací. Připojeno do `restore-target-safety.yml`.
+- **Bezpečnost:** žádné čtení či přenos tajných hodnot, žádný zápis do Supabase, žádná nová instance nebo náklady. Nový commit musí projít CI. Stav HRA-P0-03 VERIFY 98 %, HRA-P2-10 BLOCKED 10 % se nemění.
+- **Rollback:** `bc6f5b203456c7b2aa8bc4c74b8fe8e36d0ff504`.
+
+---
+
 ## 25. 10. 2026 – P2-10: ověřena předchozí sada + bezpečný seznam Edge Functions
 
 - **Potvrzený PASS** posledního MAIN `84dd1acf5a7c46eb0729f001d4720ed998ce13a1`: PostgreSQL 3 004 syntetických památek `40205437360`, Build `40205437464`, Visual regression `40205437458`; Vercel nasazení úspěšné.
