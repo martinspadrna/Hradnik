@@ -59,3 +59,10 @@ Zdroj aktuálního postupu nasazování: https://supabase.com/docs/guides/functi
 - `supabase/restore-edge-env.json` eviduje **pouze názvy** potřebných proměnných. Sedm schválených funkcí používá `SUPABASE_URL` a `SUPABASE_SERVICE_ROLE_KEY`; servisní roli nikdy nepředávat do `VITE_*` a browseru.
 - `hradnik-enrich-v4` primárně používá hodnotu `hradnik_enrich_control.enrich_key`; `HRADNIK_ENRICH_KEY` je fallback. `hradnik-geocode-v3` primárně používá `hradnik_sync_control.sync_key`; `HRADNIK_GEOCODE_KEY` je fallback. Při čistém nasazení nepřenášet produkční tajné klíče: ověřit, že nové DB klíče byly vytvořeny a funguje jejich autorizace.
 - `verify-restore-edge-env.mjs` je offline inventura zdrojů, nikoli ověření skutečného nastavení, dostupnosti nebo nasazení funkcí. CI spouští i `test-restore-edge-env.mjs` se sedmi případy. Skutečný isolated Supabase restore nadále vyžaduje výslovný souhlas.
+
+## 25. 10. 2026 – JWT režim sedmi funkcí při čistém obnovení
+
+- Read-only inventura aktivních Edge Functions v produkční Supabase `abqiprdggptuxebhpfyi` potvrdila `verify_jwt=false` pro sedm běžných funkcí. Výslovná shodná nastavení jsou nyní ve `supabase/config.toml` **pouze pro schválený seznam** `supabase/restore-edge-allowlist.json`. Nastavení odpovídá live konfiguraci, samo o sobě ale neprokazuje bezpečnost logiky.
+- Při `verify_jwt=false` **nefunguje výchozí kontrola JWT Supabase**, proto před budoucím reálným nasazením ověřit přístupovou logiku každého HTTP endpointu (vlastní session/token, hlavičky s klíčem, veřejná read-only cesta), včetně odmítnutí požadavků bez oprávnění. Nebylo provedeno žádné nasazení funkcí ani změna produkčních oprávnění.
+- `scripts/verify-restore-edge-jwt.mjs` a `scripts/test-restore-edge-jwt.mjs` se spouští výhradně offline. Kontrolují explicitních sedm schválených funkcí, přesné JWT hodnoty a osm scénářů; nezjišťují dostupnost funkcí ani správnost jejich autorizace.
+- Supabase dokumentace k možnosti `[functions.<name>] verify_jwt = false`: https://supabase.com/docs/guides/functions/function-configuration

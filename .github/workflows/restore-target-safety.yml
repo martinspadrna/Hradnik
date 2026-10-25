@@ -10,6 +10,9 @@ on:
       - 'scripts/test-restore-edge-allowlist.mjs'
       - 'supabase/restore-edge-allowlist.json'
       - 'supabase/restore-edge-env.json'
+      - 'supabase/config.toml'
+      - 'scripts/verify-restore-edge-jwt.mjs'
+      - 'scripts/test-restore-edge-jwt.mjs'
       - 'scripts/verify-restore-edge-env.mjs'
       - 'scripts/test-restore-edge-env.mjs'
       - 'supabase/functions/**'
@@ -22,6 +25,9 @@ on:
       - 'scripts/test-restore-edge-allowlist.mjs'
       - 'supabase/restore-edge-allowlist.json'
       - 'supabase/restore-edge-env.json'
+      - 'supabase/config.toml'
+      - 'scripts/verify-restore-edge-jwt.mjs'
+      - 'scripts/test-restore-edge-jwt.mjs'
       - 'scripts/verify-restore-edge-env.mjs'
       - 'scripts/test-restore-edge-env.mjs'
       - 'supabase/functions/**'
@@ -48,3 +54,7 @@ jobs:
         run: |
           node scripts/verify-restore-edge-env.mjs
           node scripts/test-restore-edge-env.mjs
+      - name: Verify live-equivalent JWT configuration for isolated restores
+        run: |
+          node scripts/verify-restore-edge-jwt.mjs
+          node scripts/test-restore-edge-jwt.mjs

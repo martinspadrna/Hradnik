@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 25. 10. 2026 – P2-10: reprodukovatelná konfigurace JWT pro 7 Edge Functions
+
+- **Výchozí ověřený main:** `c15a2cb6a19c64097742ac4de7c88a13a44674c9`; Build Hradník **PASS** (`40209467032`), visual regression **PASS** (`40209467035`), restore target safety **PASS** (`40209467101`). Vercel na předchozím ověření success.
+- **Read-only porovnání s live Supabase** `abqiprdggptuxebhpfyi`: všech 7 běžných funkcí nasazeno jako ACTIVE a mají `verify_jwt=false`. Dříve toto nastavení chybělo v repozitáři, takže při čistém nasazení mohl výchozí JWT gate změnit chování.
+- **Nová dávka:** `supabase/config.toml` výslovně nastavuje `verify_jwt=false` jen pro 7 schválených funkcí. `scripts/verify-restore-edge-jwt.mjs` odmítá jiné sekce, chybějící hodnoty a nepovolené funkce. `scripts/test-restore-edge-jwt.mjs` obsahuje 8 scénářů. Obojí se kontroluje v `restore-target-safety.yml` při souvisejících změnách.
+- **Bezpečnost:** `verify_jwt=false` vypíná pouze výchozí Supabase JWT bránu; vlastní zabezpečení jednotlivých funkcí se musí před skutečným restore samostatně zkontrolovat. Nikdy nenasazovat plošně legacy `hradnik-geocode` ani historický `hradnik-migrate-temporary`. Nebylo spuštěno `supabase functions deploy`, nic se nezměnilo v produkční Supabase, frontend runtime ani DB.
+- **Akceptace:** po novém commitu kontrolovat bezpečnostní CI + Build + Visual + Vercel. Do té doby **čeká na CI**. HRA-P0-03 **VERIFY 98 %**, HRA-P2-10 **BLOCKED 10 %** beze změny.
+- **Rollback:** `c15a2cb6a19c64097742ac4de7c88a13a44674c9`.
+
+---
+
 ## 25. 10. 2026 – P2-10: inventura závislostí Edge Functions
 
 - **Výchozí `bc6f5b2`:** bezpečnostní CI PASS, Build PASS a Vercel success; poslední visual regression při kontrole stále probíhala.

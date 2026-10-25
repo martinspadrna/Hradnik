@@ -1,0 +1,26 @@
+# Verified against the seven active Hradnik Edge Functions on 2026-10-25.
+# JWT verification is disabled in the LIVE deployment; keep behavior equivalent
+# in a separately approved restore. These functions enforce their own access
+# controls (or intentional read-only public routes); audit those before deploy.
+# DO NOT deploy all functions in bulk: the repository also has a legacy function.
+
+[functions.hradnik-auth]
+verify_jwt = false
+
+[functions.hradnik-admin]
+verify_jwt = false
+
+[functions.hradnik-quality]
+verify_jwt = false
+
+[functions.hradnik-photo]
+verify_jwt = false
+
+[functions.hradnik-sync]
+verify_jwt = false
+
+[functions.hradnik-enrich-v4]
+verify_jwt = false
+
+[functions.hradnik-geocode-v3]
+verify_jwt = false
