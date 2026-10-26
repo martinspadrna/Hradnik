@@ -41,9 +41,11 @@ async function mockBackend(page, loggedIn = true, options = {}) {
     }
     const places = options.catalogPlaces || samplePlaces
     const requestedRange = route.request().headers()['range'] || '0-999'
-    const match = /^(\\d+)-(\\d+)$/.exec(requestedRange)
-    const from = match ? Number(match[1]) : 0
-    const to = match ? Number(match[2]) : 999
+    const match = /^(\d+)-(\d+)$/.exec(requestedRange)
+    if (!match) throw new Error('Unexpected mock catalog range: '+requestedRange)
+    options.catalogRangeRequests?.push(requestedRange)
+    const from = Number(match[1])
+    const to = Number(match[2])
     const page = places.slice(from, to + 1)
     return route.fulfill({
       status: 200,
@@ -331,7 +333,10 @@ test('catalog displays all 1205 monuments in accessible batches, without requiri
     id: 10000 + index,
     name: `Hrad katalog ${String(index + 1).padStart(4, '0')}`
   }))
-  const nav = await openApp(page, true, { catalogPlaces: places })
+  const catalogRangeRequests = []
+  const nav = await openApp(page, true, { catalogPlaces: places, catalogRangeRequests })
+  expect(catalogRangeRequests).toContain('0-999')
+  expect(catalogRangeRequests).toContain('1000-1999')
   await nav.nth(1).click()
   await page.locator('#preservation').selectOption('all')
 

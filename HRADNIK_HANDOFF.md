@@ -1,5 +1,16 @@
 # HRADNIK_HANDOFF.md
 
+## 26. 10. 2026 – P3: oprava regrese 1 205-kusového katalogového testu
+
+- **Výchozí main `1f1a403fa0b9b1cc85f67545b5255884bc189cdd`:** Build `40264226051` **PASS**, Vercel success, ale visual regression `40264226034` **FAIL** – 75 testů PASS, 7 skipped, 2 FAIL (desktop+iPhone stejného nového testu).
+- **Příčina vyčtená z logu a kódu:** mock REST stránkování v `tests/visual/hhradnik.spec.js` omylem obsahoval dvojitě escapovaný regex, takže hlavička `range: 1000-1999` se nerozpoznala. Testovací backend opakoval prvních 1 000 položek; `loadCatalog` očekává stránkovaná data, takže nenastartoval dashboard a kontrola 5 navigačních prvků timeoutovala. Starší běžné testy PASS.
+- **Oprava:** regex nyní rozpozná číslice; neplatný tvar `Range` test explicitně odmítne místo opakování první stránky. Nový test sbírá požadované range hlavičky a kontroluje `0-999` i `1000-1999`, pak načte všech 1 205 syntetických míst po 120 a ověří poslední i vyhledávání.
+- **Rozsah:** pouze testovací soubor + handoff; **produkční `src/main.legacy.js`, styly, API, Supabase i data jsou beze změny**.
+- **Akceptace:** nový commit musí mít Build PASS, Visual PASS na obou profilech a Vercel success. P3 katalogové dávky zůstávají **VERIFY** do úspěšného CI a ručního ověření PC+iPhone. P0-03 VERIFY 98 %, P2-10 BLOCKED 10 %.
+- **Rollback:** `1f1a403fa0b9b1cc85f67545b5255884bc189cdd`.
+
+---
+
 ## 26. 10. 2026 – P3: katalog po dávkách a přístup ke všem 3 004 místům
 
 - **Převzetí výchozího MAIN `50f7bc179c3208d115248ad0c67b08be08b9659c`:** PostgreSQL smoke **PASS** (`40216371567`), Build Hradník **PASS** (`40216371711`), visual regression **PASS** (`40216371713`). Produkční data i Edge Functions beze změn.
