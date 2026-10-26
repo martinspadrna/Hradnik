@@ -142,7 +142,53 @@ function catalog(){
  $('search').value=ui.q;$('search').oninput=()=>{ui.q=$('search').value;renderCatalogList()};$('preservation').innerHTML=PRESERVATION.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');$('preservation').value=ui.catalogPreservation;$('preservation').onchange=()=>{ui.catalogPreservation=$('preservation').value;renderCatalogList()}
  TYPES.forEach(t=>{const b=document.createElement('button');b.textContent=t;b.className=t===ui.catalogType?'active':'';b.onclick=()=>{ui.catalogType=t;catalog()};$('typeChips').appendChild(b)});renderCatalogList()
 }
-function renderCatalogList(){const q=ui.q.toLocaleLowerCase('cs-CZ').trim(),a=ui.places.filter(p=>(ui.catalogType==='Vše'||p.kind===ui.catalogType)&&matchesPreservation(p,ui.catalogPreservation)&&`${p.name} ${p.district||''} ${p.region||''} ${p.municipality||''}`.toLocaleLowerCase('cs-CZ').includes(q));$('count').textContent=a.length.toLocaleString('cs-CZ');$('list').innerHTML='';a.slice(0,1000).forEach(p=>$('list').appendChild(card(p)));if(!a.length)$('list').innerHTML='<div class="empty">Nic nenalezeno.</div>';if(a.length>1000)$('list').insertAdjacentHTML('beforeend','<div class="empty">Použij vyhledávání pro zobrazení dalších výsledků.</div>')}
+function renderCatalogList(){
+  const q=ui.q.toLocaleLowerCase('cs-CZ').trim()
+  const places=ui.places.filter(p=>
+    (ui.catalogType==='Vše'||p.kind===ui.catalogType)
+    &&matchesPreservation(p,ui.catalogPreservation)
+    &&`${p.name} ${p.district||''} ${p.region||''} ${p.municipality||''}`.toLocaleLowerCase('cs-CZ').includes(q))
+  $('count').textContent=places.length.toLocaleString('cs-CZ')
+  const list=$('list')
+  list.replaceChildren()
+  if(!places.length){
+    list.innerHTML='<div class="empty">Nic nenalezeno.</div>'
+    return
+  }
+  // Avoid building 1,000 cards at once. All matching places remain reachable
+  // without requiring the visitor to know their name or use search.
+  const pageSize=120
+  let shown=0
+  const footer=document.createElement('div')
+  footer.className='catalogMore'
+  const progress=document.createElement('span')
+  progress.className='catalogProgress'
+  progress.setAttribute('role','status')
+  const more=document.createElement('button')
+  more.type='button'
+  more.className='catalog-load-more'
+  footer.append(progress,more)
+  list.appendChild(footer)
+  const appendNext=()=>{
+    const end=Math.min(shown+pageSize,places.length)
+    const fragment=document.createDocumentFragment()
+    for(;shown<end;shown++)fragment.appendChild(card(places[shown]))
+    list.insertBefore(fragment,footer)
+    if(places.length<=pageSize){
+      footer.remove()
+      return
+    }
+    progress.textContent=`Zobrazeno ${shown.toLocaleString('cs-CZ')} z ${places.length.toLocaleString('cs-CZ')}`
+    if(shown<places.length){
+      more.textContent=`Zobrazit dalších ${Math.min(pageSize,places.length-shown).toLocaleString('cs-CZ')}`
+    }else{
+      more.remove()
+      progress.textContent=`Zobrazeno všech ${places.length.toLocaleString('cs-CZ')} míst.`
+    }
+  }
+  more.onclick=appendNext
+  appendNext()
+}
 
 function mine(){ $('content').innerHTML=`<section><p class="eyebrow">MOJE</p><h1>Naše místa</h1><div class="chips"><button id="mw"><span class="stateDot want"></span>Chceme</button><button id="mv"><span class="stateDot visited"></span>Navštívili jsme</button><button id="mf"><span class="favoriteDot">★</span> Oblíbené</button></div><div id="mineList" class="list"></div></section>`;const show=m=>{const a=ui.places.filter(p=>m==='favorite'?getState(p.id).favorite:getState(p.id).status===m);$('mineList').innerHTML='';a.forEach(p=>$('mineList').appendChild(card(p)));if(!a.length)$('mineList').innerHTML='<div class="empty">Zatím prázdné.</div>'};$('mw').onclick=()=>show('want');$('mv').onclick=()=>show('visited');$('mf').onclick=()=>show('favorite');show('want')}
 function diary(){const a=ui.places.filter(p=>getState(p.id).status==='visited').sort((x,y)=>String(getState(y.id).visited_on||'').localeCompare(String(getState(x.id).visited_on||'')));$('content').innerHTML=`<section><p class="eyebrow">DENÍK</p><h1>Naše návštěvy</h1><div id="diaryList" class="list"></div></section>`;a.forEach(p=>$('diaryList').appendChild(card(p)));if(!a.length)$('diaryList').innerHTML='<div class="empty">Zatím žádné návštěvy.</div>'}

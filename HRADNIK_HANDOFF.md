@@ -1,5 +1,17 @@
 # HRADNIK_HANDOFF.md
 
+## 26. 10. 2026 – P3: katalog po dávkách a přístup ke všem 3 004 místům
+
+- **Převzetí výchozího MAIN `50f7bc179c3208d115248ad0c67b08be08b9659c`:** PostgreSQL smoke **PASS** (`40216371567`), Build Hradník **PASS** (`40216371711`), visual regression **PASS** (`40216371713`). Produkční data i Edge Functions beze změn.
+- **Nalezený UX/performance limit:** původní `renderCatalogList()` najednou vytvářel až **1 000** DOM karet a zbývající výsledky bez psaní do vyhledávání uživatel vůbec neviděl. To omezuje procházení celého katalogu 3 004 míst a zpomaluje počáteční vykreslení.
+- **Změna:** `src/main.legacy.js` zobrazuje prvních **120** odpovídajících karet a umožní postupné načítání po 120 pomocí tlačítka „Zobrazit dalších…“, až do konce. Zobrazí průběžný počet, hledání stále filtruje **celý katalog**, nikoli jen zobrazenou dávku. V `src/reference-all-tabs.css` je vzhled a dostupné focus zvýraznění.
+- **Regresní test:** `tests/visual/hhradnik.spec.js` použije 1 205 fiktivních památek a ověří načítání všech, vyhledání poslední, restart seznamu při změně hledání; běží na PC i iPhone. Test upravuje pouze mockované API odpovědi, nesahá na produkční Supabase.
+- **Akceptace:** na novém commitu Build, Visual i Vercel success; fyzicky zkontrolovat Seznam na mobilu a PC, postupně načíst více dávek a ověřit hledání a ovládání detailů. Do CI nepovažovat změnu za plně ověřenou.
+- **Stav:** P3 (výkon katalogu) **VERIFY 95 %** po technickém nasazení, dokud nebude automatická i ruční kontrola; starší CSS úklid HRA-P3-01 **IN PROGRESS 98 %** čeká na uživatelskou kontrolu. HRA-P0-03 VERIFY 98 %, HRA-P2-10 BLOCKED 10 %.
+- **Rollback:** `50f7bc179c3208d115248ad0c67b08be08b9659c`.
+
+---
+
 ## 25. 10. 2026 – P2-10: katalogový archiv musí obsahovat pouze dvě povolené tabulky
 
 - **Ověřený výchozí MAIN `9cbd706`:** GitHub Actions Build `40214216647` **PASS**, Visual Regression `40214216530` **PASS**, Restore Target Safety `40214216546` **PASS**. Dříve rovněž úspěšný katalogový restore 3 004 syntetických památek `40205437360`.

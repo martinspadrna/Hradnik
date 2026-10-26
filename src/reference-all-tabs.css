@@ -53,6 +53,14 @@ main.redesign-main{color:var(--hr-text)!important}
 .redesign-main .row{padding:12px 4px!important;border-bottom:1px solid var(--hr-line2)!important;color:#d5d8d5!important}
 .redesign-main .row:last-child{border-bottom:0!important}
 
+
+/* Catalog: small incremental DOM batches instead of a 1000-card first render. */
+.redesign-main #list .catalogMore{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding:14px 12px;border:1px solid var(--hr-line);border-radius:10px;background:var(--hr-panel)}
+.redesign-main #list .catalogProgress{color:#a5ada8;font-size:12px}
+.redesign-main #list .catalog-load-more{min-height:42px;padding:9px 16px;border:1px solid #806527;border-radius:9px;background:#302715;color:#f0c65f;font-weight:800;cursor:pointer}
+.redesign-main #list .catalog-load-more:hover{background:#40321c;border-color:#ac8735}
+.redesign-main #list .catalog-load-more:focus-visible{outline:2px solid #f0c65f;outline-offset:2px}
+
 /* Catalog */
 .redesign-main #typeChips{margin-top:7px!important}
 .redesign-main #catalogType{}

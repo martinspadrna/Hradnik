@@ -43,3 +43,7 @@ HRA-P0-01/02: frontendová migrace byla podpořena ruční kontrolou a regresní
 **CI po obnovení plánu (20. 10. 2026):** Build `39475985510` PASS (včetně `test:isolation`); vizuální/regresní suite `39475985430` PASS – **69 testů prošlo, 7 přeskočeno**, nové session request-failure a 403 testy prošly zvlášť na PC i iPhone. Produkční Vercel READY pro `1be4747`. HRA-P0-01 a HRA-P0-02 podle akceptačních bodů DONE; HRA-P0-04 a čistý DB drill zůstávají otevřené.
 
 **Přejímka P0-04 (22. 10. 2026):** po výslovné žádosti otevřít skutečné produkční administrátorské obrazovky Správa památek a Kontrola kvality bez zápisů uživatel potvrdil „je to ok“. HRA-P0-04 **DONE 100 %**. Výsledek se týká potvrzeného průchodu, nikoli testování všech zařízení zvlášť. Další krok P0-03 VERIFY 90 %: nedestruktivní audit SQL; P2-10 BLOCKED 10 % bez schválení testovacího prostředí.
+
+## P3 – procházení kompletního katalogu (26. 10. 2026)
+
+Na PC i mobilu otevři **Seznam** a ověř, že se zpočátku vykreslí omezený počet míst, pod nimi je tlačítko **Zobrazit dalších…** a počet zobrazených výsledků. Po kliknutí se přidá další dávka bez ztráty předchozích karet. Vyhledání konkrétní památky musí fungovat okamžitě bez ohledu na to, zda byla karta původně načtena. Po smazání hledání se seznam vrátí k první dávce. Vyzkoušej detail a návrat do seznamu. Zápis do účtu není pro tento test nutný.

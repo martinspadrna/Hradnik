@@ -39,11 +39,17 @@ async function mockBackend(page, loggedIn = true, options = {}) {
         })
       })
     }
+    const places = options.catalogPlaces || samplePlaces
+    const requestedRange = route.request().headers()['range'] || '0-999'
+    const match = /^(\\d+)-(\\d+)$/.exec(requestedRange)
+    const from = match ? Number(match[1]) : 0
+    const to = match ? Number(match[2]) : 999
+    const page = places.slice(from, to + 1)
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
-      headers: { 'content-range': '0-5/6' },
-      body: JSON.stringify(samplePlaces)
+      headers: { 'content-range': `${from}-${from + Math.max(0, page.length - 1)}/${places.length}` },
+      body: JSON.stringify(page)
     })
   })
 
@@ -315,6 +321,45 @@ test('list search, categories and favorites route to useful screens', async ({ p
   const currentNav = page.locator('.redesign-sidebar .redesign-nav > button')
   await currentNav.nth(2).click()
   await expect(page.locator('#mineList')).toBeVisible()
+})
+
+
+test('catalog displays all 1205 monuments in accessible batches, without requiring search', async ({ page }) => {
+  test.setTimeout(90_000)
+  const places = Array.from({ length: 1205 }, (_, index) => ({
+    ...samplePlaces[1],
+    id: 10000 + index,
+    name: `Hrad katalog ${String(index + 1).padStart(4, '0')}`
+  }))
+  const nav = await openApp(page, true, { catalogPlaces: places })
+  await nav.nth(1).click()
+  await page.locator('#preservation').selectOption('all')
+
+  const cards = page.locator('#list .place')
+  const more = page.locator('#list .catalog-load-more')
+  await expect(page.locator('#count')).toContainText('1')
+  await expect(cards).toHaveCount(120)
+  await expect(more).toBeVisible()
+  await expect(page.locator('#list .catalogProgress')).toContainText('120')
+
+  for (let expected = 240; expected < places.length + 120; expected += 120) {
+    if (expected - 120 >= places.length) break
+    await more.click()
+    await expect(cards).toHaveCount(Math.min(expected, places.length))
+  }
+  await expect(cards.last()).toContainText('Hrad katalog 1205')
+  await expect(page.locator('#list .catalogProgress')).toContainText('Zobrazeno všech')
+  await expect(more).toHaveCount(0)
+
+  // Search still sees all 1,205 places, including those never pre-rendered.
+  await page.locator('#search').fill('Hrad katalog 1205')
+  await expect(cards).toHaveCount(1)
+  await expect(cards.first()).toContainText('Hrad katalog 1205')
+  await expect(page.locator('#list .catalogMore')).toHaveCount(0)
+
+  await page.locator('#search').fill('')
+  await expect(cards).toHaveCount(120)
+  await expect(more).toBeVisible()
 })
 
 test('desktop catalog cards keep readable widths', async ({ page }) => {
