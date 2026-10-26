@@ -1,5 +1,15 @@
 # HRADNIK_HANDOFF.md
 
+## 26. 10. 2026 – P3: oprava testu podle skutečných PostgREST URL (`offset` / `limit`)
+
+- **Kontrola předchozí opravy `a5f95ee44707781df2340965972f94ba9786f4cf`:** Build `40375390018` **PASS**, Vercel success, ale visual regression `40375390274` **FAIL**: 75 PASS, 7 skipped, 2 FAIL (nový katalogový test desktop + iPhone).
+- **Kořenová příčina potvrzena staženým Playwright trace artefaktem** `12675241068`: požadavky na `hradnik_places` mají `?offset=0&limit=1000`, pak `?offset=1000&limit=1000`; hlavička `Range` v požadavcích chybí. Mock z předchozí opravy proto stále vracel prvních 1 000 položek. UI zůstalo v bootovací obrazovce („Načítání trvá déle“) a nový test čekal marně na 5 tlačítek navigace. Předchozí označení regexu za úplnou příčinu bylo neúplné.
+- **Nová přesná oprava:** mock nyní prioritně čte PostgREST `offset` / `limit` z URL, pro jiné klienty dovolí správně parsovanou hlavičku `Range`, odmítne neplatné hodnoty a zaznamená faktický interval. Test 1 205 památek ověřuje intervaly 0–999 a 1000–1999, následné dávky po 120, poslední položku i fulltext.
+- **Rozsah:** pouze `tests/visual/hhradnik.spec.js` a handoff, beze změny runtime, SQL, Supabase či uživatelských dat. **Závěr nové CI nezapisovat jako PASS před kontrolou**. Po novém commitu ověřit Build, Visual regression a Vercel. Stav P3 katalog **VERIFY 95 %** do úspěšného CI a fyzické přejímky, HRA-P0-03 VERIFY 98 %, HRA-P2-10 BLOCKED 10 %.
+- **Rollback:** `a5f95ee44707781df2340965972f94ba9786f4cf`.
+
+---
+
 ## 26. 10. 2026 – P3: oprava regrese 1 205-kusového katalogového testu
 
 - **Výchozí main `1f1a403fa0b9b1cc85f67545b5255884bc189cdd`:** Build `40264226051` **PASS**, Vercel success, ale visual regression `40264226034` **FAIL** – 75 testů PASS, 7 skipped, 2 FAIL (desktop+iPhone stejného nového testu).

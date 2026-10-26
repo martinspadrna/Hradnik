@@ -40,12 +40,31 @@ async function mockBackend(page, loggedIn = true, options = {}) {
       })
     }
     const places = options.catalogPlaces || samplePlaces
-    const requestedRange = route.request().headers()['range'] || '0-999'
-    const match = /^(\d+)-(\d+)$/.exec(requestedRange)
-    if (!match) throw new Error('Unexpected mock catalog range: '+requestedRange)
-    options.catalogRangeRequests?.push(requestedRange)
-    const from = Number(match[1])
-    const to = Number(match[2])
+    const url = new URL(route.request().url())
+    // supabase-js .range() currently sends ?offset=N&limit=N to PostgREST,
+    // not an HTTP Range header. Support either form but fail on malformed
+    // pagination so a mocked first page cannot repeat indefinitely.
+    const offset = url.searchParams.get('offset')
+    const limit = url.searchParams.get('limit')
+    const rangeHeader = route.request().headers()['range']
+    let from = 0
+    let to = 999
+    if (offset !== null || limit !== null) {
+      if (!/^\d+$/.test(offset || '') || !/^[1-9]\d*$/.test(limit || '')) {
+        throw new Error('Invalid PostgREST pagination URL: ' + url.search)
+      }
+      from = Number(offset)
+      to = from + Number(limit) - 1
+    } else if (rangeHeader) {
+      const match = /^(\d+)-(\d+)$/.exec(rangeHeader)
+      if (!match) throw new Error('Invalid mock catalog Range header: ' + rangeHeader)
+      from = Number(match[1])
+      to = Number(match[2])
+    }
+    if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || to < from) {
+      throw new Error('Out of bounds catalog pagination')
+    }
+    options.catalogRangeRequests?.push(from + '-' + to)
     const page = places.slice(from, to + 1)
     return route.fulfill({
       status: 200,
